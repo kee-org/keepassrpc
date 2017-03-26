@@ -1,0 +1,397 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{4C1BB6F8-D2CD-49C2-9053-21705681356C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>KeePassRPC</RootNamespace>
+    <AssemblyName>KeePassRPC</AssemblyName>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleasePLGX|AnyCPU' ">
+    <OutputPath>bin\ReleasePLGX\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'teast|AnyCPU'">
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Analyse|AnyCPU'">
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DomainPublicSuffix">
+      <HintPath>.\DomainPublicSuffix.dll</HintPath>
+    </Reference>
+    <Reference Include="Fleck2">
+      <HintPath>.\Fleck2.dll</HintPath>
+    </Reference>
+    <Reference Include="Jayrock, Version=0.9.12915.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Jayrock.dll</HintPath>
+    </Reference>
+    <Reference Include="Jayrock.Json, Version=0.9.12915.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Jayrock.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="KeePass, Version=2.1.8.29009, Culture=neutral, PublicKeyToken=7952fc8ece49a093, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <ExecutableExtension>.exe</ExecutableExtension>
+      <HintPath>..\..\..\Program Files (x86)\KeePass Password Safe 2 DEV\KeePass.exe</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BigInteger.cs" />
+    <Compile Include="DataExchangeModel.cs" />
+    <Compile Include="DpiFix.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="Forms\AuthForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\AuthForm.Designer.cs">
+      <DependentUpon>AuthForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\KeeFoxEntryUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\KeeFoxEntryUserControl.Designer.cs">
+      <DependentUpon>KeeFoxEntryUserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\KeeFoxFieldForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\KeeFoxFieldForm.Designer.cs">
+      <DependentUpon>KeeFoxFieldForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\KeeFoxGroupUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\KeeFoxGroupUserControl.Designer.cs">
+      <DependentUpon>KeeFoxGroupUserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\KeeFoxURLForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\KeeFoxURLForm.Designer.cs">
+      <DependentUpon>KeeFoxURLForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\KeyCreationSimpleForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\KeyCreationSimpleForm.designer.cs">
+      <DependentUpon>KeyCreationSimpleForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\LocationManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\LocationManager.Designer.cs">
+      <DependentUpon>LocationManager.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\WelcomeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\WelcomeForm.Designer.cs">
+      <DependentUpon>WelcomeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="KeePassRPCClient.cs" />
+    <Compile Include="KeePassRPCExt.cs">
+    </Compile>
+    <Compile Include="KeePassRPCServer.cs" />
+    <Compile Include="KeePassRPCService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Forms\OptionsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\OptionsForm.Designer.cs">
+      <DependentUpon>OptionsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="KeyChallengeResponse.cs" />
+    <Compile Include="KeyContainerClass.cs" />
+    <Compile Include="Native.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="RPCClientManagers.cs" />
+    <Compile Include="SRP.cs" />
+    <Compile Include="URLSummary.cs" />
+    <Compile Include="Utils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Forms\AuthForm.resx">
+      <DependentUpon>AuthForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\KeeFoxEntryUserControl.resx">
+      <DependentUpon>KeeFoxEntryUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\KeeFoxFieldForm.resx">
+      <DependentUpon>KeeFoxFieldForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\KeeFoxGroupUserControl.resx">
+      <DependentUpon>KeeFoxGroupUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\KeeFoxURLForm.resx">
+      <DependentUpon>KeeFoxURLForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\KeyCreationSimpleForm.resx">
+      <DependentUpon>KeyCreationSimpleForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\LocationManager.resx">
+      <DependentUpon>LocationManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\OptionsForm.resx">
+      <DependentUpon>OptionsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\WelcomeForm.resx">
+      <DependentUpon>WelcomeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\KeeFox64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\buttonGradient.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="KeePassRPCDiagram.cd" />
+    <None Include="Resources\buttonGradientHover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\KeeFox16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\keefox.ico" />
+    <None Include="Resources\KeeFoxIcon.bmp" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <PostBuildEvent>
+      echo POSTBUILDSTEP for $(ProjectName)
+
+      set KPDir=c:\Program Files (x86)\KeePass Password Safe 2 DEV\
+      set KPPDir=%25KPDir%25plugins\
+      set KPPTempDir=%25KPPDir%25$(ProjectName)
+
+      IF NOT "$(ConfigurationName)"=="Debug" Goto :NotDebug
+      REM In debug mode we want to move the generated DLLs and PDBs to the plugins
+      REM directory so we can easily set breakpoints, etc.
+      REM In this case, we don't care if the Firefox add-on has missing or outdated
+      REM files (they are only used at install time so it won't affect debugging)
+
+      REM delete the PLGX from any previous ReleasePLGX build
+      del /Q "%25KPPDir%25$(ProjectName).plgx"
+      REM if errorlevel 1 goto BuildEventFailed
+      echo Release plgx deleted
+
+      REM copy output DLLs to KeePass plugins directory
+      copy "$(ProjectName).dll" "%25KPPDir%25\$(ProjectName).dll"
+      if errorlevel 1 goto BuildEventFailed
+      copy "KeePassRPC.Mono.Security.dll" "%25KPPDir%25\KeePassRPC.Mono.Security.dll"
+      copy "Jayrock.dll" "%25KPPDir%25\Jayrock.dll"
+      copy "Jayrock.Json.dll" "%25KPPDir%25\Jayrock.Json.dll"
+      copy "Fleck2.dll" "%25KPPDir%25\Fleck2.dll"
+      copy "DomainPublicSuffix.dll" "%25KPPDir%25\DomainPublicSuffix.dll"
+      if errorlevel 1 goto BuildEventFailed
+      echo Debug DLLs copied to plugins directory
+
+      goto BuildEventOK
+
+      :NotDebug
+      IF NOT "$(ConfigurationName)"=="ReleasePLGX" Goto :NotReleasePlgx
+      REM In release mode we want to make sure that we are working with the PLGX version.
+      REM This prevents debugging so should only be used when packaging a plgx file for
+      REM distribution as part of the KeeFox XPI.
+
+      REM delete the DLLs from any previous Debug build
+      del /Q "%25KPPDir%25$(ProjectName).dll"
+      if errorlevel 1 goto BuildEventFailed
+      del /Q "%25KPPDir%25\KeePassRPC.Mono.Security.dll"
+      del /Q "%25KPPDir%25\Jayrock.dll"
+      del /Q "%25KPPDir%25\Jayrock.Json.dll"
+      del /Q "%25KPPDir%25\Fleck2.dll"
+      del /Q "%25KPPDir%25\DomainPublicSuffix.dll"
+      if errorlevel 1 goto BuildEventFailed
+      echo Debug DLLs deleted
+
+      REM create temporary directory
+      rmdir /S /Q "%25KPPTempDir%25"
+      mkdir "%25KPPTempDir%25"
+      if errorlevel 1 goto BuildEventFailed
+      echo Temporary directory created
+
+      REM copy relevant project files to temporary directory
+      REM (for simple KeePass plugins you may need to
+      REM copy only *.cs files and .csproj file)
+      copy "KeePassRPC.Mono.Security.dll" "%25KPPTempDir%25\KeePassRPC.Mono.Security.dll"
+      copy "Jayrock.dll" "%25KPPTempDir%25\Jayrock.dll"
+      copy "Jayrock.Json.dll" "%25KPPTempDir%25\Jayrock.Json.dll"
+      copy "Fleck2.dll" "%25KPPTempDir%25\Fleck2.dll"
+      copy "DomainPublicSuffix.dll" "%25KPPTempDir%25\DomainPublicSuffix.dll"
+      if errorlevel 1 goto BuildEventFailed
+      copy "$(ProjectDir)*.cs" "%25KPPTempDir%25"
+      if errorlevel 1 goto BuildEventFailed
+      copy "$(ProjectDir)$(ProjectName).csproj" "%25KPPTempDir%25\$(ProjectName).csproj"
+      if errorlevel 1 goto BuildEventFailed
+      mkdir "%25KPPTempDir%25\Forms"
+      copy "$(ProjectDir)Forms\*.cs" "%25KPPTempDir%25\Forms"
+      copy "$(ProjectDir)Forms\*.resx" "%25KPPTempDir%25\Forms"
+      if errorlevel 1 goto BuildEventFailed
+      mkdir "%25KPPTempDir%25\Properties"
+      copy "$(ProjectDir)Properties\AssemblyInfo.cs" "%25KPPTempDir%25\Properties\AssemblyInfo.cs"
+      copy "$(ProjectDir)Properties\Resources.resx" "%25KPPTempDir%25\Properties\Resources.resx"
+      copy "$(ProjectDir)Properties\Resources.Designer.cs" "%25KPPTempDir%25\Properties\Resources.Designer.cs"
+      mkdir "%25KPPTempDir%25\Resources"
+      copy "$(ProjectDir)Resources\*.png" "%25KPPTempDir%25\Resources"
+      copy "$(ProjectDir)Resources\*.ico" "%25KPPTempDir%25\Resources"
+      if errorlevel 1 goto BuildEventFailed
+      echo Files copied to temporary directory
+
+      REM create the PLGX
+      "%25KPDir%25KeePass.exe" --plgx-create "%25KPPTempDir%25" --plgx-prereq-kp:2.19 --plgx-prereq-net:4.0
+      if errorlevel 1 goto BuildEventFailed
+      echo PLGX created
+
+      REM copy PLGX to Firefox addon folder (for packaging in a .xpi later)
+      REM The deps folder may not exist on a clean build but we don't create it here because any
+      REM useful XPI packaging operation will require the other dependencies to be put in place
+      REM manually anyway. If the build fails at this point, please create the deps directory from
+      REM the contents of an existing complete KeeFox XPI package (or you could build the
+      REM projects in the KeeFox Extras solution but since the executables need some tricky
+      REM juggling to build without introducing dependencies on large libraries and also would
+      REM need signing with a valid private key before being distributable, I doubt this would
+      REM be worthwhile)
+      copy "%25KPPDir%25KeePassRPC.plgx" "$(SolutionDir)Firefox addon\KeeFox\deps\KeePassRPC.plgx"
+      if errorlevel 1 goto BuildEventFailed
+      echo PLGX copied to Firefox add-on
+
+      REM delete the temporary directory and its contents
+      rem rmdir /S /Q "%25KPPTempDir%25"
+      if errorlevel 1 goto BuildEventFailed
+      echo Temporary directory deleted
+
+      goto BuildEventOK
+
+
+      :NotReleasePlgx
+      echo Invalid configuration selected. Please choose a different build configuration
+      echo or modify the post-build script to add support for this configuration.
+
+      :BuildEventFailed
+      echo POSTBUILDSTEP for $(ProjectName) FAILED
+      exit 1
+
+      :BuildEventOK
+      echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK</PostBuildEvent>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="TidyJson.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="WhitePalette" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">{nil=DarkGray,str=Blue,num=DarkGreen,bit=DarkMagenta,obj=Red,arr=Red,mem=DarkCyan}</Value>
+    </Setting>
+    <Setting Name="BlackPalette" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">{nil=Gray,str=Yellow,num=Green,bit=Magenta,obj=Red,arr=Red,mem=Cyan}</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

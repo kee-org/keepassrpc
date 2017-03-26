@@ -1,0 +1,457 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{F10A6A7D-B8E4-4F8B-8BD9-5B42ACE5520E}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>Jayrock.Json</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Jayrock</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkSubset>
+    </TargetFrameworkSubset>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>..\..\bin\net-4.0\debug\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE;DEBUG;NET_2_0</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>618</NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>..\..\bin\net-4.0\release\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE;NET_4_0</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>618</NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Common\Mask.cs">
+      <Link>Mask.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\Common\SolutionInfo.cs">
+      <Link>SolutionInfo.cs</Link>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="BooleanObject.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Collections\KeyedCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Configuration\DictionarySectionHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Configuration\ListSectionHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Configuration\TypeListSectionHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Diagnostics\DebugString.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DictionaryHelper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Dynamic\DynamicMetaObject.cs" />
+    <Compile Include="IAttributeAttachment.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IndentedTextWriter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="InternetDate.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="JsonML\JsonMLCodec.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="JsonML\JsonMLException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="JsonML\JsonMLForm.cs" />
+    <Compile Include="Json\BufferedCharReader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\AnyType.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Comparers.cs" />
+    <Compile Include="Json\Conversion\Converters\AnyImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\ArrayImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\BooleanExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\BooleanImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\ByteArrayExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\ByteArrayImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\ComponentExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\ComponentImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\DataRowExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\DataRowViewExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\DataSetExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\DataTableExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\DataViewExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\DateTimeExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\DateTimeImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\DbDataRecordExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\DictionaryExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\DictionaryImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\EnumerableExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\EnumImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\ExpandoObjectExporter.cs" />
+    <Compile Include="Json\Conversion\Converters\ExpandoObjectImporter.cs" />
+    <Compile Include="Json\Conversion\Converters\ExportAwareExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\ExporterBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\GuidImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\ImportAwareImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\ImporterBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\JsonBufferExporter.cs" />
+    <Compile Include="Json\Conversion\Converters\JsonBufferImporter.cs" />
+    <Compile Include="Json\Conversion\Converters\JsonNumberExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\ListImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\NameValueCollectionExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\NameValueCollectionImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\NullableExporter.cs" />
+    <Compile Include="Json\Conversion\Converters\NullableImporter.cs" />
+    <Compile Include="Json\Conversion\Converters\NumberExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\NumberImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\StringExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\StringImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TupleExporter.cs" />
+    <Compile Include="Json\Conversion\Converters\TupleImporter.cs" />
+    <Compile Include="Json\Conversion\Converters\UriImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\CustomTypeDescriptor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\ExportContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\ExporterCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\ExporterListSectionHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\IExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\IImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\IJsonExportable.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\IJsonImportable.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\ImportContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\ImporterCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\ImporterListSectionHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\IObjectConstructor.cs" />
+    <Compile Include="Json\Conversion\IObjectMemberExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\IObjectMemberImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\INonObjectMemberImporter.cs" />
+    <Compile Include="Json\Conversion\IObjectSurrogateConstructor.cs" />
+    <Compile Include="Json\Conversion\JsonConvert.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\JsonDefaultValueAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\JsonExportAttribue.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\JsonIgnoreAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\JsonMemberNameAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\JsonMemberNamingConventionAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\ObjectSurrogateConstructor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\ObjectConstructionResult.cs" />
+    <Compile Include="Json\Conversion\ObjectConstructor.cs" />
+    <Compile Include="Json\Conversion\ObjectSurrogateConstructorBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\PropertyCustomization.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\EmptyJsonWriter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\FreeJsonMemberReadingHelper.cs" />
+    <Compile Include="Json\InvalidMemberException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\JsonArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\JsonBoolean.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\JsonBuffer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\JsonBufferReader.cs" />
+    <Compile Include="Json\JsonBufferStorage.cs" />
+    <Compile Include="Json\JsonBufferWriter.cs" />
+    <Compile Include="Json\JsonException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\JsonImportingWriter.cs" />
+    <Compile Include="Json\JsonMember.cs" />
+    <Compile Include="Json\JsonNull.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\JsonNumber.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\JsonObject.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\JsonReader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\JsonReaderBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\JsonRecorder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\JsonString.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\JsonText.cs" />
+    <Compile Include="Json\JsonTextReader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\JsonTextWriter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\JsonToken.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\JsonTokenClass.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\JsonTokenWriterBase.cs" />
+    <Compile Include="Json\JsonWriter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\JsonWriterBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\JsonWriterBracket.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\NamedJsonBuffer.cs" />
+    <Compile Include="Json\StockJsonBuffers.cs" />
+    <Compile Include="Reflection\Reflector.cs" />
+    <Compile Include="TypeResolution.cs" />
+    <Compile Include="UnixTime.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

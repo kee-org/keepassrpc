@@ -1,0 +1,258 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A178A4BB-CE12-4BF3-8B17-6DF0D82120C8}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>Jayrock</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Jayrock</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkSubset>
+    </TargetFrameworkSubset>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>..\..\bin\net-4.0\debug\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE;DEBUG;NET_2_0</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>618</NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <LangVersion>default</LangVersion>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>..\..\bin\net-4.0\release\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE;NET_4_0</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>618</NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+    <ProjectReference Include="..\Jayrock.Json\Jayrock.Json.csproj">
+      <Name>Jayrock.Json</Name>
+      <Project>{F10A6A7D-B8E4-4F8B-8BD9-5B42ACE5520E}</Project>
+      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Common\Mask.cs">
+      <Link>Mask.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\Common\SolutionInfo.cs">
+      <Link>SolutionInfo.cs</Link>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="CaselessString.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CollectionHelper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="InvariantStringArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="JsonRpc\BadRequestException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="JsonRpc\JsonRpcDispatcher.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="JsonRpc\JsonRpcDispatcherFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="JsonRpc\JsonRpcError.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="JsonRpc\JsonRpcException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="JsonRpc\JsonRpcHelpAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="JsonRpc\JsonRpcMethodAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="JsonRpc\JsonRpcService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="JsonRpc\JsonRpcServiceAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="JsonRpc\JsonRpcServiceReflector.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="JsonRpc\JsonRpcServices.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="JsonRpc\JsonRpcTrace.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\DuplicateMethodException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\IMethodImpl.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\InvocationException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\IService.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\Method.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\MethodBuilder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\MethodNotFoundException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\Modifiers.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\Parameter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\ParameterBuilder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\Reflectors.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\ServiceClass.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\ServiceClassBuilder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\SynchronousAsyncResult.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\TargetMethodException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\TypeMethodImpl.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\WarpedMethodImpl.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <EmbeddedResource Include="json.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

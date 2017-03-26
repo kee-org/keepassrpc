@@ -1,0 +1,177 @@
+﻿body
+{
+    background-color: white;
+}
+
+#Content
+{
+    font-family: "Segoe UI", Arial, Sans-Serif;
+    font-size: small;
+    margin: 1em;
+    padding: 1em;
+}
+
+pre, code, samp
+{
+    font-family: Consolas, "Courier New", Monospace;
+    font-size: 100%;
+}
+
+#Content p, li, dt, dd, h1, h2
+{
+    line-height: 1.25;
+}
+
+li
+{
+    margin-bottom: 0.5em;
+}
+
+a
+{
+    color: darkred;
+}
+
+a:hover
+{
+    color: red;
+}
+
+#Toc
+{
+    font-size: small;
+    float: right;
+    border: solid 2px silver;
+    padding: 1em;
+    margin-left: 1em;
+    margin-bottom: 1em;
+    background-color: cornsilk;
+}
+
+#Toc li
+{
+    margin-left: -1.25em;
+}
+
+#TocTitle
+{
+    text-transform: uppercase;
+}
+
+h1, h2
+{
+    margin-top: 1.5em;
+}
+
+h1
+{
+    color: darkgreen;
+    font-size: x-large;
+}
+
+h1 a
+{
+    color: darkgreen;
+}
+
+h1 a:hover
+{
+    color: darkgreen;
+}
+
+h1.h1-first
+{
+    margin-top: 0;
+}
+
+h2
+{
+    font-size: large;
+}
+
+h2 a
+{
+    color: black;
+}
+
+h3
+{
+    font-size: medium;
+}
+
+pre.code
+{
+    font-family: Consolas, "Courier New", Monospace;
+    font-size: 100%;
+    padding: 1em;
+    border-bottom: solid 5px silver;
+    border-top: solid 2px silver;
+    background: #EEEEEE;
+}
+
+pre.samp
+{
+    margin-left: 2em;
+}
+
+.fake-a
+{
+    text-decoration: underline;
+}
+
+.em
+{
+    font-style: italic;
+}
+
+.figure
+{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+img
+{
+    border: none;
+}
+
+dt
+{
+    font-weight: bold;
+    margin-bottom: 0.25em;
+}
+
+dd
+{
+    margin-bottom: 0.5em;
+}
+
+#osi-logo
+{
+    float: left;
+    margin: 0 0.75em 0.75em 0;
+}
+
+#compat-logos
+{
+    padding-left: 1em;
+}
+
+#compat-logos img
+{
+    margin-left: 1em;
+}
+
+.note
+{
+    border: dotted 1px darkorange;
+    background-color: cornsilk;
+    padding: 1em;
+    margin: 0 5em;
+}
+
+.hi, .hiy { background-color: #FFFF00; }
+.hig { background-color: #00FF00; }
+.hit { background-color: #00FFFF; }
+.hip { background-color: #FF00FF; }

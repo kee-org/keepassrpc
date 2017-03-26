@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+//
+// Jayrock - JSON and JSON-RPC for Microsoft .NET Framework and Mono
+// Written by Atif Aziz (www.raboof.com)
+// Copyright (c) 2005 Atif Aziz. All rights reserved.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License as published by the Free
+// Software Foundation; either version 3 of the License, or (at your option)
+// any later version.
+//
+// This library is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this library; if not, write to the Free Software Foundation, Inc.,
+// 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
+//
+-->
+<project name="Jayrock" default="all" xmlns="http://nant.sf.net/schemas/nant.xsd">
+
+    <echo message="NOTE: Code coverage has been disabled in the &apos;all&apos; and" />
+    <echo message="&apos;build&apos; targets since NCover appears to fail on some machines." />
+    <echo message="To get code coverage, build the &apos;cover&apos; target. Also coverage" />
+    <echo message="via NCover is only available on Win32 platforms." />
+
+    <!--======================== PROPERTY SECTION ========================-->
+
+    <!-- General -->
+
+    <property name="project.name" value="${project::get-name()}" />
+    <property name="project.basedir" value="${project::get-base-directory()}" />
+    <property name="src.dir.path" value="${path::combine(project.basedir, 'src')}" />
+    <property name="tests.dir.path" value="${path::combine(project.basedir, 'tests')}" />
+    <property name="tools" value="${path::combine(project.basedir, 'tools')}" />
+    <property name="tests.skip" value="false" readonly="false" overwrite="false" />
+
+    <!-- NCover (code coverage) -->
+
+    <property name="ncover.dir.path" value="${path::combine(tools, 'NCover')}" />
+    <property name="ncover.console.exe.path" value="${path::combine(ncover.dir.path, 'NCover.Console.exe')}" />
+
+    <!-- NCoverExplorer (code coverage) -->
+
+    <property name="ncoverexplorer.dir.path" value="${path::combine(tools, 'NCoverExplorer')}" />
+    <property name="ncoverexplorer.console.exe.path" value="${path::combine(ncoverexplorer.dir.path, 'NCoverExplorer.Console.exe')}" />
+
+    <!-- NUnit (unit-testing) -->
+
+    <property name="tests" value="${path::combine(project.basedir, 'tests')}" />
+    <property name="nunit.dir.path" value="${path::combine(tools, 'NUnit')}" />
+    <property name="nunit.console.exe.path" value="${path::combine(nunit.dir.path, 'nunit-console.exe')}" />
+
+    <!-- Output and Binaries -->
+
+    <property name="bin.dir.name" value="bin" />
+    <property name="bin.dir.path" value="${path::combine(project.basedir, bin.dir.name)}" />
+    <property name="bin.tests.dir.path" value="${path::combine(bin.dir.path, 'tests')}" />
+
+    <property name="output.assembly.name" value="${project.name}" />
+    <property name="output.assembly.filename" value="${output.assembly.name + '.dll'}" />
+
+    <property name="output.jsonassembly.name" value="${project.name + '.Json'}" />
+    <property name="output.jsonassembly.filename" value="${output.jsonassembly.name + '.dll'}" />
+
+    <property name="output.testassembly.name" value="${project.name + '.Tests'}" />
+    <property name="output.testassembly.filename" value="${output.testassembly.name + '.dll'}" />
+
+    <!-- Web -->
+
+    <property name="www.dir.path" value="${path::combine(project.basedir, 'www')}" />
+    <property name="www.bin.dir.path" value="${path::combine(www.dir.path, 'bin')}" />
+
+    <!-- Build -->
+
+    <property name="build.dir.path" value="${path::combine(project.basedir, 'build')}" />
+
+    <!--======================== PROPERTY SECTION ========================-->
+
+    <target name="rebuild" depends="clean all" />
+
+    <target name="platforms" depends="config">
+        <call target="platform-net-4.0" />
+        <call target="platform-net-2.0" />
+        <call target="platform-net-1.1" />
+        <call target="platform-net-1.0" />
+        <call target="platform-mono" />
+    </target>
+    
+    <target name="debug">
+        <property name="build.config" value="debug" />
+        <call target="platforms" />
+    </target>
+
+    <target name="release">
+        <property name="build.config" value="release" />
+        <property name="tests.skip" value="true" />
+        <call target="platforms" />
+    </target>
+
+    <target name="all" depends="debug release" />
+    
+    <target name="clean">
+        <delete dir="${bin.dir.path}" if="${directory::exists(bin.dir.path)}" />
+        <delete dir="${path::combine(src.dir.path, 'Jayrock/obj')}" if="${directory::exists(path::combine(src.dir.path, 'Jayrock/obj'))}" />
+        <delete dir="${path::combine(src.dir.path, 'Jayrock.Json/obj')}" if="${directory::exists(path::combine(src.dir.path, 'Jayrock.Json/obj'))}" />
+        <delete dir="${path::combine(src.dir.path, 'Jayrock.Sandbox/obj')}" if="${directory::exists(path::combine(src.dir.path, 'Jayrock.Sandbox/obj'))}" />
+        <delete dir="${path::combine(tests.dir.path, 'Jayrock/obj')}" if="${directory::exists(path::combine(tests.dir.path, 'Jayrock/obj'))}" />
+        <delete if="${directory::exists(www.bin.dir.path)}">
+            <fileset basedir="${www.bin.dir.path}">
+                <include name="Jayrock.dll" />
+                <include name="Jayrock.pdb" />
+                <include name="Jayrock.Json.dll" />
+                <include name="Jayrock.Json.pdb" />
+            </fileset>
+        </delete>
+    </target>
+
+    <target name="create-assembly-info" />
+    
+    <target name="init" depends="create-assembly-info">
+        <mkdir dir="${bin.dir.path}" if="${not(directory::exists(bin.dir.path))}" />
+    </target>
+
+    <target name="config" depends="init">
+        <property name="build.config" value="debug" overwrite="false" />
+        <call target="config-build-${build.config}" />
+    </target>
+
+    <target name="config-build-debug">
+        <property name="debuginfo" value="Full" />
+        <property name="optimize" value="false" />
+        <property name="global.build.defines" value="DEBUG,TRACE" />
+    </target>
+
+    <target name="config-build-release">
+        <property name="debuginfo" value="PdbOnly" />
+        <property name="optimize" value="true" />
+        <property name="global.build.defines" value="TRACE" />
+    </target>
+
+    <target name="config-platform-net-4.0">
+        <property name="nant.settings.currentframework" value="net-4.0" />
+        <property name="build.platform" value="net-4.0" />
+        <property name="build.defines" value="${global.build.defines},NET_4_0" />
+        <property name="output.dir.path" value="${bin.dir.path}/net-4.0/${build.config}" />
+        <property name="output.tests.dir.path" value="${bin.tests.dir.path}/net-4.0" />
+    </target>
+
+    <target name="config-platform-net-2.0">
+        <property name="nant.settings.currentframework" value="net-2.0" />
+        <property name="build.platform" value="net-2.0" />
+        <property name="build.defines" value="${global.build.defines},NET_2_0" />
+        <property name="output.dir.path" value="${bin.dir.path}/net-2.0/${build.config}" />
+        <property name="output.tests.dir.path" value="${bin.tests.dir.path}/net-2.0" />
+    </target>
+
+    <target name="config-platform-net-1.1">
+        <property name="nant.settings.currentframework" value="net-1.1" />
+        <property name="build.platform" value="net-1.1" />
+        <property name="build.defines" value="${global.build.defines},NET_1_1" />
+        <property name="output.dir.path" value="${bin.dir.path}/net-1.1/${build.config}" />
+        <property name="output.tests.dir.path" value="${bin.tests.dir.path}/net-1.1" />
+    </target>
+
+    <target name="config-platform-net-1.0">
+        <property name="nant.settings.currentframework" value="net-1.0" />
+        <property name="build.platform" value="net-1.0" />
+        <property name="build.defines" value="${global.build.defines},NET_1_0" />
+        <property name="output.dir.path" value="${bin.dir.path}/net-1.0/${build.config}" />
+        <property name="output.tests.dir.path" value="${bin.tests.dir.path}/net-1.0" />
+    </target>
+
+    <target name="config-platform-mono">
+        <property name="nant.settings.currentframework" value="mono-2.0" />
+        <property name="build.platform" value="mono" />
+        <property name="build.defines" value="${global.build.defines},NET_2_0,MONO" />
+        <property name="output.dir.path" value="${bin.dir.path}/mono/${build.config}" />
+        <property name="output.tests.dir.path" value="${bin.tests.dir.path}/mono" />
+    </target>
+    
+    <target name="default-platform">
+        <if test="${not(property::exists('build.platform'))}">
+            <call target="config-platform-net-2.0" />
+        </if>
+    </target>
+
+    <target name="platform-net-4.0" depends="config">
+        <if test="${framework::exists('net-4.0')}">
+            <echo message="Building ${project.name} for .NET Framework 4.0." />
+            <call target="config-platform-net-4.0" />
+            <call target="test" />
+            <call target="jayrock.sandbox" />
+        </if>
+        <if test="${not(framework::exists('net-4.0'))}">
+            <echo message=".NET Framework 4.0 is not available. Skipping platform." />
+        </if>
+    </target>
+
+    <target name="platform-net-2.0" depends="config">
+        <if test="${framework::exists('net-2.0')}">
+            <echo message="Building ${project.name} for .NET Framework 2.0." />
+            <call target="config-platform-net-2.0" />
+            <call target="test" />
+            <call target="jayrock.sandbox" />
+        </if>
+        <if test="${not(framework::exists('net-2.0'))}">
+            <echo message=".NET Framework 2.0 is not available. Skipping platform." />
+        </if>
+    </target>
+
+    <target name="platform-net-1.1" depends="config">
+        <if test="${framework::exists('net-1.1')}">
+            <echo message="Building ${project.name} for .NET Framework 1.1." />
+            <call target="config-platform-net-1.1" />
+            <call target="test" />
+            <call target="jayrock.sandbox" />
+        </if>
+        <if test="${not(framework::exists('net-1.1'))}">
+            <echo message=".NET Framework 1.1 is not available. Skipping platform." />
+        </if>
+    </target>
+
+    <target name="platform-net-1.0" depends="config">
+        <if test="${framework::exists('net-1.0')}">
+            <echo message="Building ${project.name} for .NET Framework 1.0." />
+            <call target="config-platform-net-1.0" />
+            <call target="test" />
+            <call target="jayrock.sandbox" />
+        </if>
+        <if test="${not(framework::exists('net-1.0'))}">
+            <echo message=".NET Framework 1.0 is not available. Skipping platform." />
+        </if>
+    </target>
+
+    <target name="platform-mono" depends="config">
+        <if test="${framework::exists('mono-2.0')}">
+            <echo message="Building ${project.name} for Mono 2.0" />
+            <call target="config-platform-mono" />
+            <call target="test" />
+            <call target="jayrock.sandbox" />
+        </if>
+        <if test="${not(framework::exists('mono-2.0'))}">
+            <echo message="Mono 2.0 is not available. Skipping platform." />
+        </if>
+    </target>
+
+    <target name="jayrock.json" depends="config default-platform">
+        <property name="jayrock.json.dll.path" value="${path::combine(output.dir.path, 'Jayrock.Json.dll')}" />
+        <mkdir dir="${output.dir.path}" />
+        <csc target="library" debug="${debuginfo}" define="${build.defines}" optimize="${optimize}" output="${jayrock.json.dll.path}">
+            <sources basedir="${src.dir.path}">
+                <include name="Common/**/*.cs" />
+                <include name="Jayrock.Json/**/*.cs" />
+            </sources>
+            <references>
+                <include name="System.dll" />
+                <include name="System.Data.dll" />
+                <include name="System.Numerics.dll" />
+                <include name="System.Xml.dll" />
+            </references>
+            <nowarn>
+                <warning number="618" />
+            </nowarn>
+        </csc>
+    </target>
+    
+    <target name="jayrock" depends="jayrock.json">
+        
+        <property name="jayrock.dll.path" value="${path::combine(output.dir.path, 'Jayrock.dll')}" />
+        
+        <mkdir dir="${output.dir.path}" />
+        
+        <csc target="library" debug="${debuginfo}" define="${build.defines}" optimize="${optimize}" output="${jayrock.dll.path}">
+            <sources basedir="${src.dir.path}">
+                <include name="Common/**/*.cs" />
+                <include name="Jayrock/**/*.cs" />
+            </sources>
+            <resources prefix="Jayrock" basedir="${src.dir.path}">
+                <include name="Jayrock/json.js" asis="true" />
+            </resources>
+            <references>
+                <include name="System.dll" />
+                <include name="System.Xml.dll" />
+                <include name="System.Web.dll" />
+                <include name="${jayrock.json.dll.path}" />
+            </references>
+            <nowarn>
+                <warning number="618" />
+            </nowarn>
+        </csc>
+
+    </target>
+
+    <target name="jayrock.sandbox" depends="jayrock.json">
+
+        <mkdir dir="${output.dir.path}" />
+
+        <csc target="library" debug="${debuginfo}" define="${build.defines}" optimize="${optimize}" output="${path::combine(output.dir.path, 'Jayrock.Sandbox.dll')}">
+            <sources basedir="${src.dir.path}">
+                <include name="Common/**/*.cs" />
+                <include name="Jayrock.Sandbox/**/*.cs" />
+            </sources>
+            <references>
+                <include name="System.dll" />
+                <include name="System.Web.Services.dll" />
+                <include name="System.Xml.dll" />
+                <include name="${jayrock.json.dll.path}" />
+            </references>
+            <nowarn>
+                <warning number="618" />
+            </nowarn>
+        </csc>
+
+    </target>
+
+    <target name="compile-tests" depends="jayrock">
+
+        <call target="config-build-debug" />
+
+        <property name="output.testassembly.path" value="${path::combine(output.tests.dir.path, output.testassembly.filename)}" />
+
+        <mkdir dir="${output.tests.dir.path}" />
+        
+        <copy todir="${output.tests.dir.path}" overwrite="true">
+            <fileset basedir="${output.dir.path}">
+                <include name="*.dll" />
+                <include name="*.pdb" />
+            </fileset>
+        </copy>
+
+        <csc target="library" debug="Full" define="${build.defines}" optimize="false" output="${output.testassembly.path}">
+            <sources basedir="${tests.dir.path}">
+                <include name="Jayrock/**/*.cs" />
+            </sources>
+            <references>
+                <include name="System.dll" />
+                <include name="System.Data.dll" />
+                <include name="System.Numerics.dll" />
+                <include name="System.Xml.dll" />
+                <include name="System.Web.dll" />
+                <include name="${jayrock.json.dll.path}" />
+                <include name="${jayrock.dll.path}" />
+                <include name="${path::combine(nunit.dir.path, 'nunit.framework.dll')}" />
+            </references>
+            <nowarn>
+                <warning number="618" />
+            </nowarn>
+        </csc>
+
+        <copy file="${path::combine(nunit.dir.path, 'nunit.framework.dll')}" todir="${output.tests.dir.path}" />
+
+    </target>
+
+    <target name="test" depends="compile-tests">
+        <nunit2 unless="${tests.skip}" if="${framework::get-target-framework() == 'mono-2.0'}">
+            <formatter type="Plain" />
+            <test assemblyname="${output.testassembly.path}" />
+        </nunit2>
+        <exec 
+            unless="${tests.skip}" if="${framework::get-target-framework() != 'mono-2.0'}"
+            program="${nunit.console.exe.path}" 
+            commandline='"${output.testassembly.path}" /noshadow'
+            managed="strict">
+        </exec>
+    </target>
+
+    <target name="cover" depends="config" if="${platform::is-win32()}">
+        <if test="${framework::exists('net-1.1')}">
+            <call target="config-platform-net-1.1" />
+            <call target="test" />
+            <exec program="${ncover.console.exe.path}" commandline='/q /w "${output.tests.dir.path}" /o "${src.dir.path}/coverage.xml" /a ${output.assembly.name};${output.jsonassembly.name} /c "${nunit.console.exe.path}" "\"${output.testassembly.path}\""' />
+            <exec program="${ncoverexplorer.console.exe.path}" commandline='"${src.dir.path}/coverage.xml" /html:coverage-report.html /report:2 /excluded /p:${project.name} /minCoverage:85 "/c:${src.dir.path}/NCoverExplorer.config"' />
+        </if>
+        <if test="${not(framework::exists('net-1.1'))}">
+            <echo message=".NET Framework 1.1 is not available. Skipping code coverage." />
+        </if>
+    </target>
+
+    <target name="build" depends="rebuild">
+
+        <tstamp property="build.date" pattern="yyyy-MM-dd" />
+        <tstamp property="build.datetime" pattern="yyyy-MM-dd-HHmm" />
+
+        <!-- Delete files resulting from coverage and testing -->
+
+        <delete failonerror="false">
+            <fileset basedir="${bin.tests.dir.path}">
+                <include name="**/TestResult.xml" />
+            </fileset>
+        </delete>
+        <delete file="coverage.xml" failonerror="false" />
+        <delete file="Coverage.xsl" failonerror="false" />
+
+        <!-- 
+            Create the build directory and then create zips and compressed
+            tars of the two versions of the project, one with sources and 
+            one without (called the binary version). The source version 
+            includes everything in the project except previous builds. 
+            The binary version includes only the project binaries 
+            (excluding those from unit tests), samples and the web.
+        -->
+
+        <mkdir dir="${build.dir.path}" />
+
+        <zip zipfile="${path::combine(build.dir.path, 'jayrock.zip')}" ziplevel="9">
+            <fileset>
+                <include name="**/*" />
+                <exclude name="build/**/*" />
+            </fileset>
+        </zip>
+        <zip zipfile="${path::combine(build.dir.path, 'jayrock-bin.zip')}" ziplevel="9">
+            <fileset>
+                <include name="*" />
+                <exclude name="build*.cmd" />
+                <exclude name="*.build" />
+                <include name="bin/**/*" />
+                <exclude name="bin/tests/**/*" />
+                <include name="samples/**/*" />
+                <include name="www/**/*" />
+            </fileset>
+        </zip>
+
+        <tar destfile="${path::combine(build.dir.path, 'jayrock.tar.gz')}" compression="GZip">
+            <fileset>
+                <include name="**/*" />
+                <exclude name="build/**/*" />
+            </fileset>
+        </tar>
+        <tar destfile="${path::combine(build.dir.path, 'jayrock-bin.tar.gz')}" compression="GZip">
+            <fileset>
+                <include name="*" />
+                <exclude name="build*.cmd" />
+                <exclude name="*.build" />
+                <include name="bin/**/*" />
+                <exclude name="bin/tests/**/*" />
+                <include name="samples/**/*" />
+                <include name="www/**/*" />
+            </fileset>
+        </tar>
+
+    </target>
+
+    <target name="daily-build" depends="build">
+
+        <property name="dailybuild.dir.path" value="${path::combine(build.dir.path, build.date)}" />
+        <mkdir dir="${dailybuild.dir.path}" />
+        <copy todir="${dailybuild.dir.path}">
+            <fileset basedir="${build.dir.path}">
+                <include name="*.zip" />
+                <include name="*.gz" />
+            </fileset>
+        </copy>
+
+    </target>
+
+    <target name="update-web" depends="jayrock">
+
+        <mkdir dir="${path::combine(www.dir.path, 'bin')}" />
+        <copy todir="${path::combine(www.dir.path, 'bin')}" overwrite="true">
+            <fileset basedir="${output.dir.path}">
+                <include name="*.dll" />
+                <include name="*.pdb" />
+            </fileset>
+        </copy>
+
+    </target>
+
+</project>

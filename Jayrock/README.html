@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <title>Jayrock README</title>
+    <link rel="stylesheet" type="text/css" href="www/Default.css" />
+</head>
+<body>
+    <div id="Content">
+        <h1 class="h1-first">Jayrock README</h1>
+        <h2>
+            Breaking Changes in v0.9.8316</h2>
+        <p>
+            These notes are designed for users of previously 
+            <a href="http://developer.berlios.de/project/showfiles.php?group_id=4638">released versions of Jayrock</a> up to,
+            but not including, v0.9.8316. It is not a comprehensive list of breaking changes.
+            For additional help with breaking compilations, post your issue to the 
+            <a href="http://groups.google.com/group/jayrock">Jayrock discussion group</a>.
+        </p>
+        <ul>
+            <li>The <code>Jayrock</code> assembly has been permanently split into two assemblies.
+                The <code>Jayrock</code> assembly now mainly contains all types related to services
+                and JSON-RPC. The other assembly, called <code>Jayrock.Json</code>, is used by <code>
+                    Jayrock</code> and contains types and functionality related to the JSON data
+                format. The <code>Jayrock</code> assembly therefore depends on <code>Jayrock.Json</code> and both
+                must be deployed together for the JSON-RPC functionality. To work with the JSON data
+                format without any relation to JSON-RPC, only <code>Jayrock.Json</code> is needed.</li>
+            <li>The <code>Jayrock.Json.Rpc</code> namespace has been renamed to <code>Jayrock.JsonRpc</code>.
+                You must update all references in source and configuration files from the previous
+                namespace to the new one.</li>
+            <li>The types <code>JArray</code>, <code>JObject </code>and <code>JNull</code> from
+                the <code>Jayrock.Json</code> namespace have been renamed to <code>JsonArray</code>,
+                <code>JsonObject</code> and <code>JsonNull</code>, respectively.</li>
+            <li><code>Jayrock.Json.Rpc.JsonRpcParamsAttribute</code> has been removed. Instead,
+                just use the regular <code><a href="http://msdn2.microsoft.com/en-gb/library/w5zay9db(VS.80).aspx">params</a></code> 
+                keyword from C# (<code><a href="http://msdn2.microsoft.com/en-gb/library/ct363x9h(VS.80).aspx">ParamArray</a></code>
+                in Visual Basic).</li>
+            <li><code>IJsonFormatter</code> has been replaced by <code>Jayrock.Json.Conversion.IExporter</code>, which continues to serve a similar purpose.</li>
+            <li><code>IJsonFormattable</code> has been replaced by <code>Jayrock.Json.Conversion.IJsonExportable</code>, which continues to serve a similar purpose.</li>
+            <li><code>JsonParser</code>, <code>JsonReader.DeserializeNext</code> and <code>IParseOutput</code> have been
+                removed. Use <code>JsonConvert.Import</code> from the <code>Jayrock.Json.Conversion</code>
+                namespace instead for similar functionality.</li>
+            <li><code>JsonWriter.WriteValue</code> has been
+                removed. Use <code>JsonConvert.Export</code> from the <code>Jayrock.Json.Conversion</code>
+                namespace instead for similar functionality.</li>
+            <li>The configuration section <code>jayrock/json.rpc</code> has been renamed to 
+                <code>jayrock.jsonrpc</code>. Jayrock will still pick up the section under
+                the old name, but you are advised to move to the new name as soon as
+                possible.</li>
+        </ul>
+    </div>
+</body>
+</html>

@@ -1,0 +1,358 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{DA5DD836-2530-4E76-9B76-1AAB3BE6A946}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>Jayrock.Tests</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Jayrock.Tests</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>..\..\bin\tests\net-4.0\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE;DEBUG;TEST;NET_4_0</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <LangVersion>default</LangVersion>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="nunit.framework">
+      <Name>nunit.framework</Name>
+      <HintPath>..\..\tools\NUnit\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Web">
+      <Name>System.Web</Name>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+    <ProjectReference Include="..\..\src\Jayrock.Json\Jayrock.Json.csproj">
+      <Name>Jayrock.Json</Name>
+      <Project>{F10A6A7D-B8E4-4F8B-8BD9-5B42ACE5520E}</Project>
+      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Jayrock\Jayrock.csproj">
+      <Name>Jayrock</Name>
+      <Project>{A178A4BB-CE12-4BF3-8B17-6DF0D82120C8}</Project>
+      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Collections\TestKeyedCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestExpandoObjectExporter.cs" />
+    <Compile Include="Json\Conversion\Converters\TestExpandoObjectImporter.cs" />
+    <Compile Include="Json\Conversion\Converters\TestNullableExporter.cs" />
+    <Compile Include="Json\Conversion\Converters\TestNullableImporter.cs" />
+    <Compile Include="Json\Conversion\Converters\TestTupleExporter.cs" />
+    <Compile Include="Json\Conversion\Converters\TestTupleImporter.cs" />
+    <Compile Include="Json\Conversion\TestJsonConvert.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\TestObjectConstructor.cs" />
+    <Compile Include="Json\TestFreeJsonMemberReadingHelper.cs" />
+    <Compile Include="Json\TestJsonText.cs" />
+    <Compile Include="Json\TestObjectSurrogateConstructor.cs" />
+    <Compile Include="Json\TestObjectSurrogateConstructorBase.cs" />
+    <Compile Include="Reflection\TestReflector.cs" />
+    <Compile Include="TestTypeResolution.cs" />
+    <Compile Include="JsonML\TestJsonMLCodec.cs" />
+    <Compile Include="JsonRpc\TestJsonRpcDispatcher.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="JsonRpc\TestJsonRpcDispatcherFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="JsonRpc\TestJsonRpcError.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="JsonRpc\TestJsonRpcMethodAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="JsonRpc\TestJsonRpcServiceReflector.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestAnyImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestArrayImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestBooleanExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestBooleanImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestComponentExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestComponentImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestDataSetExporter.cs" />
+    <Compile Include="Json\Conversion\Converters\TestDataTableExporter.cs" />
+    <Compile Include="Json\Conversion\Converters\TestDateTimeExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestDateTimeImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestDbDataRecordExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestDictionaryExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestDictionaryImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestEnumerableExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestEnumImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestGuidImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestImportAwareImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestJsonBufferExporter.cs" />
+    <Compile Include="Json\Conversion\Converters\TestJsonBufferImporter.cs" />
+    <Compile Include="Json\Conversion\Converters\TestJsonNumberExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestListImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestNameValueCollectionExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestNameValueCollectionImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestNumberExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestNumberImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestStringExporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestStringImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestTypeExporterBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestTypeImporterBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\Converters\TestUriImporter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\TestCustomTypeDescriptor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\TestExportContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\TestImportContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\TestJsonDefaultValueAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\TestJsonMemberNameAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\TestJsonMemberNamingConventionAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Diagnostics\TestDebugString.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\TestBufferedCharReader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\TestJsonArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\TestJsonBuffer.cs" />
+    <Compile Include="Json\TestJsonImportingWriter.cs" />
+    <Compile Include="Json\TestJsonMember.cs" />
+    <Compile Include="Json\TestJsonNull.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\TestJsonNumber.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\TestJsonObject.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\TestJsonReader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\TestJsonReaderBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\TestJsonRecorder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\TestJsonString.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\TestJsonTextReader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\TestJsonTextWriter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\TestJsonToken.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\TestJsonTokenClass.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\TestJsonWriter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\TestJsonWriterBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\TestNamedJsonBuffer.cs" />
+    <Compile Include="Services\TestMethod.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\TestMethodBuilder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\TestParameterBuilder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\TestServiceClass.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\TestServiceClassBuilder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\TestTypeMethodImpl.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Services\TestWarpedMethodImpl.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TestDictionaryHelper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TestInternetDate.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TestUnixTime.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TestUtilityBase.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

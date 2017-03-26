@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{31369F69-D034-446C-B0E1-A01E6FD0CE97}"
+	ProjectSection(SolutionItems) = preProject
+		..\nant.build = ..\nant.build
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jayrock.Json", "Jayrock.Json\Jayrock.Json.csproj", "{F10A6A7D-B8E4-4F8B-8BD9-5B42ACE5520E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jayrock", "Jayrock\Jayrock.csproj", "{A178A4BB-CE12-4BF3-8B17-6DF0D82120C8}"
+EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "www", "..\www\", "{0416EE40-4E90-4235-8584-A3CD10CA3354}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		ProjectReferences = ""
+		Debug.AspNetCompiler.VirtualPath = "/www"
+		Debug.AspNetCompiler.PhysicalPath = "..\www\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\www\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/www"
+		Release.AspNetCompiler.PhysicalPath = "..\www\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\www\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "33013"
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F10A6A7D-B8E4-4F8B-8BD9-5B42ACE5520E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F10A6A7D-B8E4-4F8B-8BD9-5B42ACE5520E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F10A6A7D-B8E4-4F8B-8BD9-5B42ACE5520E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F10A6A7D-B8E4-4F8B-8BD9-5B42ACE5520E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A178A4BB-CE12-4BF3-8B17-6DF0D82120C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A178A4BB-CE12-4BF3-8B17-6DF0D82120C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A178A4BB-CE12-4BF3-8B17-6DF0D82120C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A178A4BB-CE12-4BF3-8B17-6DF0D82120C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0416EE40-4E90-4235-8584-A3CD10CA3354}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0416EE40-4E90-4235-8584-A3CD10CA3354}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0416EE40-4E90-4235-8584-A3CD10CA3354}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{0416EE40-4E90-4235-8584-A3CD10CA3354}.Release|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
