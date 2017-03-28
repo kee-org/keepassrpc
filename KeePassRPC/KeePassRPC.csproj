@@ -369,19 +369,6 @@
       if errorlevel 1 goto BuildEventFailed
       echo PLGX created
 
-      REM copy PLGX to Firefox addon folder (for packaging in a .xpi later)
-      REM The deps folder may not exist on a clean build but we don't create it here because any
-      REM useful XPI packaging operation will require the other dependencies to be put in place
-      REM manually anyway. If the build fails at this point, please create the deps directory from
-      REM the contents of an existing complete KeeFox XPI package (or you could build the
-      REM projects in the KeeFox Extras solution but since the executables need some tricky
-      REM juggling to build without introducing dependencies on large libraries and also would
-      REM need signing with a valid private key before being distributable, I doubt this would
-      REM be worthwhile)
-      copy "%25KPPDir%25KeePassRPC.plgx" "$(SolutionDir)Firefox addon\KeeFox\deps\KeePassRPC.plgx"
-      if errorlevel 1 goto BuildEventFailed
-      echo PLGX copied to Firefox add-on
-
       REM delete the temporary directory and its contents
       rem rmdir /S /Q "%25KPPTempDir%25"
       if errorlevel 1 goto BuildEventFailed
