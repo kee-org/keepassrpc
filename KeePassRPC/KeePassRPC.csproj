@@ -105,7 +105,7 @@
     <Reference Include="KeePass, Version=2.1.8.29009, Culture=neutral, PublicKeyToken=7952fc8ece49a093, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <ExecutableExtension>.exe</ExecutableExtension>
-      <HintPath>..\..\..\Program Files (x86)\KeePass Password Safe 2 DEV\KeePass.exe</HintPath>
+      <HintPath>..\..\..\..\Program Files (x86)\KeePass Password Safe 2 DEV\KeePass.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -365,7 +365,7 @@
       echo Files copied to temporary directory
 
       REM create the PLGX
-      "%25KPDir%25KeePass.exe" --plgx-create "%25KPPTempDir%25" --plgx-prereq-kp:2.19 --plgx-prereq-net:4.5
+      "%25KPDir%25KeePass.exe" --plgx-create "%25KPPTempDir%25" --plgx-prereq-kp:2.34 --plgx-prereq-net:4.5
       if errorlevel 1 goto BuildEventFailed
       echo PLGX created
 
