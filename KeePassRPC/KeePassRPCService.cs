@@ -240,8 +240,7 @@ namespace KeePassRPC
 
         }
 
-        // A similar function is defined in KeePass MainForm_functions.cs but only from 2.18 so to retain compatibility with 2.15 we can't use it
-        //TODO:1.6: Don't support < 2.15 anymore
+        // A similar function is defined in KeePass MainForm_functions.cs but it's internal
         IOConnectionInfo CompleteConnectionInfoUsingMru(IOConnectionInfo ioc)
         {
             if (string.IsNullOrEmpty(ioc.UserName) && string.IsNullOrEmpty(ioc.Password))
@@ -900,56 +899,13 @@ namespace KeePassRPC
                 return "";
 
             ProtectedString newPassword = new ProtectedString();
-            PwgError result = PwgError.Unknown; // PwGenerator.Generate(out newPassword, profile, null, null);
-
-            MethodInfo mi;
-
-            // Generate method signature changed in KP 2.18 so we use
-            // reflection to enable support for both 2.18 and earlier versions
-            //TODO:1.6: drop support for 2.18
-            Type[] mitypes218 = new Type[] { typeof(ProtectedString).MakeByRefType(), typeof(PwProfile), typeof(byte[]), typeof(CustomPwGeneratorPool) };
-
-            try
-            {
-                mi = typeof(PwGenerator).GetMethod(
-                    "Generate",
-                    BindingFlags.Public | BindingFlags.Static,
-                    Type.DefaultBinder,
-                    mitypes218,
-                    null
-                );
-
-                object[] inputParameters = new object[] { null, profile, null, this.host.PwGeneratorPool };
-                result = (PwgError)mi.Invoke(null, inputParameters);
-                newPassword = (ProtectedString)inputParameters[0];
-            }
-            catch (Exception)
-            {
-                Type[] mitypes217 = new Type[] { typeof(ProtectedString), typeof(PwProfile), typeof(byte[]), typeof(CustomPwGeneratorPool) };
-                // can't find the 2.18 method definition so try for an earlier version
-                mi = typeof(PwGenerator).GetMethod(
-                    "Generate",
-                    BindingFlags.Public | BindingFlags.Static,
-                    Type.DefaultBinder,
-                    mitypes217,
-                    null
-                );
-
-                object[] inputParameters = new object[] { newPassword, profile, null, this.host.PwGeneratorPool };
-                result = (PwgError)mi.Invoke(null, inputParameters);
-
-                // If an exception is thrown here it would be unexpected and
-                // require a new version of the application to be released
-            }
-
+            PwGenerator.Generate(out newPassword, profile, null, host.PwGeneratorPool);
             var password = newPassword.ReadString();
+
             if (host.CustomConfig.GetBool("KeePassRPC.KeeFox.backupNewPasswords", true))
                 AddPasswordBackupLogin(password, url);
-
-            if (result == PwgError.Success)
-                return password;
-            else
-                return "";
+            
+            return password;
         }
 
         private void AddPasswordBackupLogin(string password, string url)
@@ -1889,26 +1845,9 @@ namespace KeePassRPC
                     sp.SearchInUserNames = true;
                     sp.SearchInTitles = true;
                     sp.SearchInTags = true;
-                    MethodInfo mi;
 
-                    // SearchEntries method signature changed in KP 2.17 so we use
-                    // reflection to enable support for both 2.17 and earlier versions
-                    //TODO:1.6: drop support for 2.17
-                    try
-                    {
-                        mi = typeof(PwGroup).GetMethod("SearchEntries", new Type[] { typeof(SearchParameters), typeof(KeePassLib.Collections.PwObjectList<PwEntry>) });
-                        mi.Invoke(searchGroup, new object[] { sp, output });
-                    }
-                    catch (AmbiguousMatchException)
-                    {
-                        // can't find the 2.17 method definition so try for an earlier version
-                        mi = typeof(PwGroup).GetMethod("SearchEntries", new Type[] { typeof(SearchParameters), typeof(KeePassLib.Collections.PwObjectList<PwEntry>), typeof(bool) });
-                        mi.Invoke(searchGroup, new object[] { sp, output, false });
-
-                        // If an exception is thrown here it would be unexpected and
-                        // require a new version of the application to be released
-                    }
-
+                    searchGroup.SearchEntries(sp, output);
+                    
                     foreach (PwEntry pwe in output)
                     {
                         Entry kpe = (Entry)GetEntryFromPwEntry(pwe, MatchAccuracy.None, true, db);
