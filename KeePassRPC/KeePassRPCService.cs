@@ -41,67 +41,7 @@ namespace KeePassRPC
             _standardIconsBase64 = standardIconsBase64;
         }
         #endregion
-
-        #region PLGX install detection 
-        //TODO:1.6: (this stopped working in KeeFox 1.3 - maybe we can re-enable it now?)
-
-        public void ListenForPLGXChanges()
-        {
-            Type mwType = host.MainWindow.GetType();
-            FieldInfo fiPM = mwType.GetField("m_pluginManager", BindingFlags.Instance | BindingFlags.NonPublic);
-            object pm = fiPM.GetValue(host.MainWindow);
-
-
-            Type pmType = pm.GetType();
-            FieldInfo fiPI = pmType.GetField("m_vPlugins", BindingFlags.Instance | BindingFlags.NonPublic);
-            IList ilist = (IList)fiPI.GetValue(pm);
-
-
-            foreach (object pl in ilist)
-            {
-                Type pluginInfoType = pl.GetType();
-                PropertyInfo piName = pluginInfoType.GetProperty("Name", BindingFlags.Instance | BindingFlags.Public);
-                string name = (string)piName.GetValue(pl, null);
-
-                if (name == "KeePassRPC")
-                {
-                    PropertyInfo piDisplayFilePath = pluginInfoType.GetProperty("DisplayFilePath", BindingFlags.Instance | BindingFlags.Public);
-                    string displayFilePath = (string)piDisplayFilePath.GetValue(pl, null);
-                    PropertyInfo piFileVersion = pluginInfoType.GetProperty("FileVersion", BindingFlags.Instance | BindingFlags.Public);
-                    string fileVersion = (string)piFileVersion.GetValue(pl, null);
-                    ListenForPLGXChanges(displayFilePath, fileVersion);
-                    break;
-                }
-            }
-        }
-
-        private void ListenForPLGXChanges(string displayFilePath, string fileVersion)
-        {
-            if (!displayFilePath.EndsWith(".plgx"))
-                return;
-
-            FileInfo fi = new FileInfo(displayFilePath);
-            FileSystemWatcher watcher = new FileSystemWatcher();
-            watcher.Path = fi.DirectoryName;
-            watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
-            watcher.Filter = fi.Name;
-
-            watcher.Changed += new FileSystemEventHandler(OnPLGXFileChanged);
-            watcher.Created += new FileSystemEventHandler(OnPLGXFileChanged);
-
-            watcher.EnableRaisingEvents = true;
-        }
-
-        private void OnPLGXFileChanged(object source, FileSystemEventArgs e)
-        {
-            if (!_restartWarningShown)
-                KeePassLib.Utility.MessageService.ShowInfo("Please restart KeePass for the upgrade to take effect. If KeeFox does not detect KeePass within 10 seconds of KeePass restarting, please also restart Firefox.");
-            _restartWarningShown = true;
-            ((FileSystemWatcher)source).EnableRaisingEvents = false;
-        }
-
-        #endregion
-
+        
         #region KeePass GUI routines
 
         /// <summary>
