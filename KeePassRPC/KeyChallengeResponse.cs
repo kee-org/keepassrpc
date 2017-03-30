@@ -3,19 +3,19 @@ using KeePassRPC.DataExchangeModel;
 
 namespace KeePassRPC
 {
-
     class KeyChallengeResponse
     {
-
         public string cc;
         public string cr;
         public string sc;
         public string sr;
         static int ProtocolVersion;
+        private string[] features;
 
-        public KeyChallengeResponse (int protocolVersion)
+        public KeyChallengeResponse (int protocolVersion, string[] features)
         {
             ProtocolVersion = protocolVersion;
+            this.features = features;
         }
 
         public string KeyChallengeResponse1(string userName, int securityLevel)
@@ -24,14 +24,13 @@ namespace KeePassRPC
             scTemp.genRandomBits(256, new Random((int)DateTime.Now.Ticks));
             sc = scTemp.ToString().ToLower();
 
-
             KPRPCMessage data2client = new KPRPCMessage();
             data2client.protocol = "setup";
             data2client.key = new KeyParams();
             data2client.key.sc = sc;
             data2client.key.securityLevel = securityLevel;
             data2client.version = ProtocolVersion;
-
+            data2client.features = features;
 
             string response = Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client);
             return response;

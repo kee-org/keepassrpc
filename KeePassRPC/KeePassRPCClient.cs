@@ -8,6 +8,7 @@ using Jayrock.JsonRpc;
 using System.Security.Cryptography;
 using System.Xml.Serialization;
 using System.Threading;
+using System.Linq;
 
 namespace KeePassRPC
 {
@@ -28,6 +29,26 @@ namespace KeePassRPC
             }
             return _protocolVersion;
         } }
+        
+        private static string[] featuresOffered = new string[] {
+
+            // Full feature set as of KeeFox 1.6
+            "KPRPC_FEATURE_VERSION_1_6"
+
+            // in the rare event that we want to check for the absense of a feature
+            // we would add a feature flag along the lines of "KPRPC_FEATURE_REMOVED_INCOMPATIBLE_THING_X"
+
+        };
+
+        private static string[] featuresRequired = new string[] {
+
+            // Full feature set as of KeeFox 1.6
+            "KPRPC_FEATURE_VERSION_1_6",
+
+            // Trivial example showing how we've required a new client feature
+            "KPRPC_FEATURE_WARN_USER_WHEN_FEATURE_MISSING"
+
+        };
 
         /// <summary>
         /// The ID of the next signal we'll send to the client
@@ -40,6 +61,7 @@ namespace KeePassRPC
         private int securityLevel;
         private int securityLevelClientMinimum;
         private string userName;
+        private string[] clientFeatures;
 
         // Read-only username is accessible to anyone but only once the connection has been confirmed
         public string UserName { get { if (Authorised) return userName; else return ""; } }
@@ -66,7 +88,6 @@ namespace KeePassRPC
         /// Whether this client has successfully authenticated to the
         /// server and been authorised to communicate with KeePass
         /// </summary>
-        /// //TODO1.6: verify this is always set and unset at correct times (non-trivial due to required compatibility with old and new KPRPC protocols)
         public bool Authorised
         {
             get { return _authorised; }
@@ -205,7 +226,7 @@ namespace KeePassRPC
 
             //TODO2: Can we lazy load these since some sessions will require only one of these authentication mechanisms?
             _srp = new SRP();
-            Kcp = new KeyChallengeResponse(ProtocolVersion);
+            Kcp = new KeyChallengeResponse(ProtocolVersion, featuresOffered);
 
             // Load from config, default to medium security if user has not yet requested anything different
             securityLevel = (int)kprpc._host.CustomConfig.GetLong("KeePassRPC.SecurityLevel", 2);
@@ -299,29 +320,20 @@ namespace KeePassRPC
                 data2client.version = ProtocolVersion;
 
                 data2client.error = new Error(ErrorCode.INVALID_MESSAGE, new string[] { "Contents can't be interpreted as an SRPEncapsulatedMessage" });
-                this.Authorised = false;
 
-                string response = Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client);
-                this.WebSocketConnection.Send(response);
+                AbortWithMessageToClient(data2client);
                 return;
             }
 
             if (kprpcm.version != ProtocolVersion)
             {
-                KPRPCMessage data2client = new KPRPCMessage();
-                data2client.protocol = "error";
-                data2client.srp = new SRPParams();
-                data2client.version = ProtocolVersion;
-
-                data2client.error = new Error(kprpcm.version > ProtocolVersion ? ErrorCode.VERSION_CLIENT_TOO_HIGH : ErrorCode.VERSION_CLIENT_TOO_LOW, new string[] { ProtocolVersion.ToString() });
-                this.Authorised = false;
-
-                string response = Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client);
-                this.WebSocketConnection.Send(response);
-                return;
+                if (!ClientSupportsRequiredFeatures(kprpcm.features))
+                {
+                    RejectClientVersion(kprpcm);
+                    return;
+                }
             }
-
-            //1: Is it an SRP message?
+            
             switch (kprpcm.protocol)
             {
                 case "setup": KPRPCReceiveSetup(kprpcm); break;
@@ -332,18 +344,48 @@ namespace KeePassRPC
                     data2client.version = ProtocolVersion;
 
                     data2client.error = new Error(ErrorCode.UNRECOGNISED_PROTOCOL, new string[] { "Use setup or jsonrpc" });
-                    this.Authorised = false;
 
-                    string response = Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client);
-                    this.WebSocketConnection.Send(response); 
+                    AbortWithMessageToClient(data2client);
                     return;
             }
 
         }
 
-  	    void KPRPCReceiveSetup (KPRPCMessage kprpcm) {
+        private bool ClientSupportsRequiredFeatures(string[] features)
+        {
+            // store supplied features until connection reset so we don't have to inject
+            // them into every stage of the handshake but can still cleanly handle old 
+            // versions of clients that don't send a list of features at any time.
+            if (features != null)
+                clientFeatures = features;
 
-            if (this.Authorised)
+            return clientFeatures != null && featuresRequired.Except(clientFeatures).Count() == 0;
+        }
+
+        private void RejectClientVersion(KPRPCMessage kprpcm)
+        {
+            KPRPCMessage data2client = new KPRPCMessage();
+            data2client.protocol = "error";
+            data2client.srp = new SRPParams();
+            data2client.version = ProtocolVersion;
+
+            // From 1.7 onwards, the client can never be too new but can be too low if we find that it is missing essential features
+            data2client.error = new Error(ErrorCode.VERSION_CLIENT_TOO_LOW, new string[] { ProtocolVersion.ToString() });
+            AbortWithMessageToClient(data2client);
+            return;
+        }
+
+        private void AbortWithMessageToClient(KPRPCMessage data2client)
+        {
+            Authorised = false;
+            clientFeatures = null;
+            string response = Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client);
+            WebSocketConnection.Send(response);
+        }
+
+        void KPRPCReceiveSetup (KPRPCMessage kprpcm) {
+
+            if (Authorised)
             {
                 KPRPCMessage data2client = new KPRPCMessage();
                 data2client.protocol = "setup";
@@ -351,15 +393,10 @@ namespace KeePassRPC
                 data2client.version = ProtocolVersion;
 
                 data2client.error = new Error(ErrorCode.AUTH_RESTART, new string[] { "Already authorised" });
-                this.Authorised = false;
 
-                string response = Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client);
-                this.WebSocketConnection.Send(response);
-
+                AbortWithMessageToClient(data2client);
                 return;
             }
-
-
 
             if (kprpcm.srp != null)
             {
@@ -469,6 +506,7 @@ namespace KeePassRPC
             data2client.srp = new SRPParams();
             data2client.srp.stage = "identifyToClient";
             data2client.version = ProtocolVersion;
+            data2client.features = featuresOffered;
 
             // Generate a new random password
             // SRP isn't very susceptible to brute force attacks but we get 32 bits worth of randomness just in case

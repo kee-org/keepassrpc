@@ -441,6 +441,7 @@ namespace KeePassRPC.DataExchangeModel
         public string clientDisplayDescription;
         public string clientTypeId;
         public Error error;
+        public string[] features;
     }
 
     public class JSONRPCContainer
