@@ -138,7 +138,7 @@ namespace KeePassRPC
         public override void AttachToEntryDialog(KeePassRPCExt plugin, PwEntry entry, TabControl mainTabControl, PwEntryForm form, CustomListViewEx advancedListView, ProtectedStringDictionary strings)
         {
             KeeFoxEntryUserControl entryControl = new KeeFoxEntryUserControl(plugin, entry, advancedListView, form, strings);
-            TabPage keefoxTabPage = new TabPage("KeeFox");
+            TabPage keefoxTabPage = new TabPage("Kee");
             entryControl.Dock = DockStyle.Fill;
             keefoxTabPage.Controls.Add(entryControl);
             if (mainTabControl.ImageList == null)
@@ -151,7 +151,7 @@ namespace KeePassRPC
         public override void AttachToGroupDialog(KeePassRPCExt plugin, PwGroup group, TabControl mainTabControl)
         {
             KeeFoxGroupUserControl groupControl = new KeeFoxGroupUserControl(plugin, group);
-            TabPage keefoxTabPage = new TabPage("KeeFox");
+            TabPage keefoxTabPage = new TabPage("Kee");
             groupControl.Dock = DockStyle.Fill;
             keefoxTabPage.Controls.Add(groupControl);
             if (mainTabControl.ImageList == null)

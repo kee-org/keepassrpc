@@ -918,7 +918,7 @@ namespace KeePassRPC
 
             PwEntry newLogin = new PwEntry(true, true);
             newLogin.Strings.Set(PwDefs.TitleField, new ProtectedString(
-                chosenDB.MemoryProtection.ProtectTitle, "KeeFox generated password at: " + DateTime.Now));
+                chosenDB.MemoryProtection.ProtectTitle, "Kee generated password at: " + DateTime.Now));
             newLogin.Strings.Set(PwDefs.UrlField, new ProtectedString(
                 chosenDB.MemoryProtection.ProtectUrl, url));
             newLogin.Strings.Set(PwDefs.PasswordField, new ProtectedString(
@@ -1396,7 +1396,7 @@ namespace KeePassRPC
                 PwGroup matchedGroup = pwd.RootGroup.Uuid == pwuuid ? pwd.RootGroup : pwd.RootGroup.FindGroup(pwuuid, true);
 
                 if (matchedGroup == null)
-                    throw new Exception("Could not find requested group. Have you deleted your KeeFox start/home group? Set a new one and try again.");
+                    throw new Exception("Could not find requested group. Have you deleted your Kee start/home group? Set a new one and try again.");
 
                 return matchedGroup;
             }
@@ -1529,7 +1529,7 @@ namespace KeePassRPC
             }
 
             if (matchedGroup == null)
-                throw new Exception("Could not find requested group. Have you deleted your KeeFox start/home group? Set a new one and try again.");
+                throw new Exception("Could not find requested group. Have you deleted your Kee start/home group? Set a new one and try again.");
 
             return (Entry[])GetChildEntries(host.Database, matchedGroup, true);
         }
@@ -1617,7 +1617,7 @@ namespace KeePassRPC
             }
 
             if (matchedGroup == null)
-                throw new Exception("Could not find requested group. Have you deleted your KeeFox start/home group? Set a new one and try again.");
+                throw new Exception("Could not find requested group. Have you deleted your Kee start/home group? Set a new one and try again.");
 
             return GetChildGroups(host.Database, matchedGroup, false, true);
         }
@@ -1686,7 +1686,7 @@ namespace KeePassRPC
                 PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
 
                 if (matchedGroup == null)
-                    throw new Exception("Could not find requested group. Have you deleted your KeeFox start/home group? Set a new one and try again.");
+                    throw new Exception("Could not find requested group. Have you deleted your Kee start/home group? Set a new one and try again.");
 
                 groups = new Group[1];
                 groups[0] = GetGroupFromPwGroup(matchedGroup);

@@ -39,7 +39,7 @@ namespace KeePassRPC.Forms
              * 
 "{\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Microsoft Sans Serif;}}\r\n\\viewkind4\\uc1\\pard\\f0\\fs18 This is a test\\par\r\n}\r\n"
              * */
-            string secLevel = @"{\rtf1\ansi{\fonttbl\f0\fArial;}\f0\fs20KeeFox will connect using {\b " + SecurityLevel + @"} security. Please go to this web page to learn about the different levels of security and how to configure your personal security preferences:\par
+            string secLevel = @"{\rtf1\ansi{\fonttbl\f0\fArial;}\f0\fs20" + ClientName + " will connect using {\b " + SecurityLevel + @"} security. Please go to this web page to learn about the different levels of security and how to configure your personal security preferences:\par
 ";
 
             if (Type.GetType ("Mono.Runtime") != null)

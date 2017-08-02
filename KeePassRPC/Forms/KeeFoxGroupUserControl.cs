@@ -49,7 +49,7 @@ namespace KeePassRPC.Forms
         {
             UpdateStatus();
             
-            l_homeExplanation.Text = @"KeeFox will only know about the groups
+            l_homeExplanation.Text = @"Kee will only know about the groups
 and entries that are inside your Home group";
 
             UpdateLocations();
@@ -77,22 +77,22 @@ and entries that are inside your Home group";
             switch (Status)
             {
                 case KeeFoxHomeStatus.Home:
-                    l_status.Text = @"This is the KeeFox Home group. KeeFox can see and work with
+                    l_status.Text = @"This is the Kee Home group. Kee can see and work with
 this group and all groups and entries that are contained within.";
                     buttonMakeHome.Enabled = false;
                     break;
                 case KeeFoxHomeStatus.Inside:
-                    l_status.Text = @"KeeFox can see and work with this group.";
+                    l_status.Text = @"Kee can see and work with this group.";
                     buttonMakeHome.Enabled = true;
                     break;
                 case KeeFoxHomeStatus.Outside:
-                    l_status.Text = @"This group is hidden from KeeFox. You must change your Home
-group if you want KeeFox to work with this group.";
+                    l_status.Text = @"This group is hidden from Kee. You must change your Home
+group if you want Kee to work with this group.";
                     buttonMakeHome.Enabled = true;
                     break;
                 case KeeFoxHomeStatus.Rubbish:
-                    l_status.Text = @"This group is hidden from KeeFox. You must remove it from
-the recycle bin if you want KeeFox to work with this group.";
+                    l_status.Text = @"This group is hidden from Kee. You must remove it from
+the recycle bin if you want Kee to work with this group.";
                     buttonMakeHome.Enabled = false;
                     break;
             }

@@ -169,7 +169,7 @@ namespace KeePassRPC
                 {
                     if (ex.SocketErrorCode == System.Net.Sockets.SocketError.AddressAlreadyInUse)
                     {
-                        MessageBox.Show(@"KeePassRPC is already listening for connections. To allow KeePassRPC clients (e.g. KeeFox) to connect to this instance of KeePass, please close all other running instances of KeePass and restart this KeePass. If you want multiple instances of KeePass to be running at the same time, you'll need to configure some of them to connect using a different communication port.
+                        MessageBox.Show(@"KeePassRPC is already listening for connections. To allow KeePassRPC clients (e.g. Kee in your web browser) to connect to this instance of KeePass, please close all other running instances of KeePass and restart this KeePass. If you want multiple instances of KeePass to be running at the same time, you'll need to configure some of them to connect using a different communication port.
 
 See https://github.com/luckyrat/KeeFox/wiki/en-|-Options-|-KPRPC-Port
 
@@ -178,7 +178,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                     }
                     else
                     {
-                        MessageBox.Show(@"KeePassRPC could not start listening for connections. To allow KeePassRPC clients (e.g. KeeFox) to connect to this instance of KeePass, please fix the problem indicated in the technical detail below and restart KeePass.
+                        MessageBox.Show(@"KeePassRPC could not start listening for connections. To allow KeePassRPC clients (e.g. Kee in your web browser) to connect to this instance of KeePass, please fix the problem indicated in the technical detail below and restart KeePass.
 
 KeePassRPC requires this port to be available: " + portNew + ". Technical detail: " + ex.ToString());
                         if (logger != null) logger.WriteLine("Socket error. KeePassRPC requires this port to be available: " + portNew + ". Maybe check that you have no firewall or other third party security software interfering with your system. Technical detail: " + ex.ToString());
@@ -204,14 +204,14 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
 
                 // Add menu item for options
                 _keePassRPCOptions = new ToolStripMenuItem();
-                _keePassRPCOptions.Text = "KeePassRPC (KeeFox) Options...";
+                _keePassRPCOptions.Text = "KeePassRPC (Kee) Options...";
                 _keePassRPCOptions.Click += OnToolsOptions;
                 _keePassRPCOptions.Enabled = true;
                 tsMenu.Add(_keePassRPCOptions);
 
                 // Add menu item for KeeFox samples
                 _keeFoxSampleEntries = new ToolStripMenuItem();
-                _keeFoxSampleEntries.Text = "Insert KeeFox tutorial samples";
+                _keeFoxSampleEntries.Text = "Insert Kee tutorial samples";
                 _keeFoxSampleEntries.Click += OnToolsInstallKeeFoxSampleEntries;
                 _keeFoxSampleEntries.Enabled = true;
                 tsMenu.Add(_keeFoxSampleEntries);
@@ -221,7 +221,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 _tsSeparator1 = new ToolStripSeparator();
                 gcm.Items.Add(_tsSeparator1);
                 _keeFoxRootMenu = new ToolStripMenuItem();
-                _keeFoxRootMenu.Text = "Set as KeeFox start group";
+                _keeFoxRootMenu.Text = "Set as Kee start group";
                 _keeFoxRootMenu.Click += OnMenuSetRootGroup;
                 gcm.Items.Add(_keeFoxRootMenu);
 
@@ -590,10 +590,14 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             if (kfpbg == null)
             {
                 var kfGroup = GetAndInstallKeeFoxGroup(pd, true);
-                kfpbg = new PwGroup(false, true, "KeeFox Generated Password Backups", PwIcon.Folder);
+                kfpbg = new PwGroup(false, true, "Kee Generated Password Backups", PwIcon.Folder);
                 kfpbg.Uuid = groupUuid;
                 kfpbg.CustomIconUuid = GetKeeFoxIcon();
                 kfGroup.AddGroup(kfpbg, true);
+            }
+            else if (kfpbg.Name == "KeeFox Generated Password Backups")
+            {
+                kfpbg.Name = "Kee Generated Password Backups";
             }
             return kfpbg;
         }
@@ -616,17 +620,21 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                         return kfpgTestRoot;
                     } else
                     {
-                        MessageBox.Show("The KeeFox group already exists but your current home group setting is preventing KeeFox from seeing it. Please change your home group or move the 'KeeFox' group to a location inside your current home group.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("The Kee group already exists but your current home group setting is preventing Kee in your web browser from seeing it. Please change your home group or move the 'Kee' group to a location inside your current home group.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return null;
                     }
                 }
                 else
                 {
-                    kfpg = new PwGroup(false, true, "KeeFox", PwIcon.Folder);
+                    kfpg = new PwGroup(false, true, "Kee", PwIcon.Folder);
                     kfpg.Uuid = groupUuid;
                     kfpg.CustomIconUuid = GetKeeFoxIcon();
                     pd.RootGroup.AddGroup(kfpg, true);
                 }
+            }
+            else if (kfpg.Name == "KeeFox")
+            {
+                kfpg.Name = "Kee";
             }
             return kfpg;
         }
@@ -917,7 +925,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                 e.Database.RootGroup.TraverseTree(TraversalMethod.PreOrder, null, eh);
                 if (foundStringsToUpgrade)
                 {
-                    DialogResult dr = MessageBox.Show("KeePassRPC (KeeFox) needs to update your database. This process is safe but irreversible so it is strongly recommended that you ensure you have a recent backup of your password database before you continue." + Environment.NewLine + Environment.NewLine + "You can take a backup right now if you want: just find the database file on your system and copy (not move) it to a safe place. The database you are trying to open is located at " + e.Database.IOConnectionInfo.Path + "." + Environment.NewLine + Environment.NewLine + "You will not be able to use this database with older versions of KeeFox once you click OK. Make sure you hold onto your backup copy until you're happy that the upgrade process was successful." + Environment.NewLine + Environment.NewLine + "Press OK to perform the upgrade.", "KeeFox upgrade", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+                    DialogResult dr = MessageBox.Show("KeePassRPC (Kee) needs to update your database. This process is safe but irreversible so it is strongly recommended that you ensure you have a recent backup of your password database before you continue." + Environment.NewLine + Environment.NewLine + "You can take a backup right now if you want: just find the database file on your system and copy (not move) it to a safe place. The database you are trying to open is located at " + e.Database.IOConnectionInfo.Path + "." + Environment.NewLine + Environment.NewLine + "You will not be able to use this database with older versions of Kee (or its predecessor KeeFox) once you click OK. Make sure you hold onto your backup copy until you're happy that the upgrade process was successful." + Environment.NewLine + Environment.NewLine + "Press OK to perform the upgrade.", "Kee upgrade", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
                     if (dr != DialogResult.OK)
                     {
                         // User aborted so we must shut down this database to prevent KeeFox from attempting communication with it
@@ -926,7 +934,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                         _host.MainWindow.DocumentManager.ActiveDatabase.UINeedsIconUpdate = true;
                         _host.MainWindow.UpdateUI(true, null, true, null, true, null, false);
                         _host.MainWindow.ResetDefaultFocus(null);
-                        DialogResult dr2 = MessageBox.Show("KeePassRPC has NOT upgraded your database. The database has been closed to protect it from damage." + Environment.NewLine + Environment.NewLine + "It is safe to use this database with older versions of KeeFox but you can not use it with this version until you re-open it and perform the upgrade.", "KeeFox upgrade cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        DialogResult dr2 = MessageBox.Show("KeePassRPC has NOT upgraded your database. The database has been closed to protect it from damage." + Environment.NewLine + Environment.NewLine + "It is safe to use this database with older versions of Kee but you can not use it with this version until you re-open it and perform the upgrade.", "Kee upgrade cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
                     }
                     else
@@ -957,7 +965,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
 
                             _host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), e.Database);
 
-                            DialogResult drfinished = MessageBox.Show("KeePassRPC (KeeFox) information upgraded. Press OK to use your updated database.", "KeeFox upgrade", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            DialogResult drfinished = MessageBox.Show("KeePassRPC (Kee) information upgraded. Press OK to use your updated database.", "Kee upgrade", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                     }
                 }

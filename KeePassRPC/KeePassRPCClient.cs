@@ -33,7 +33,8 @@ namespace KeePassRPC
         private static string[] featuresOffered = new string[] {
 
             // Full feature set as of KeeFox 1.6
-            "KPRPC_FEATURE_VERSION_1_6"
+            "KPRPC_FEATURE_VERSION_1_6",
+            "KPRPC_FEATURE_KEE_BRAND"
 
             // in the rare event that we want to check for the absense of a feature
             // we would add a feature flag along the lines of "KPRPC_FEATURE_REMOVED_INCOMPATIBLE_THING_X"
@@ -208,7 +209,7 @@ namespace KeePassRPC
                     }
                     catch (CryptographicException e)
                     {
-                        if (KPRPC.logger != null) KPRPC.logger.WriteLine("Could not store KeePassRPC's secret key so you will have to re-authenticate clients such as KeeFox. The following exception caused this problem: " + e);
+                        if (KPRPC.logger != null) KPRPC.logger.WriteLine("Could not store KeePassRPC's secret key so you will have to re-authenticate clients such as Kee in your web browser. The following exception caused this problem: " + e);
                     }
                 }
                 // else we don't persist the key anywhere - no security implications
@@ -294,7 +295,7 @@ namespace KeePassRPC
             }
             catch (Exception ex)
             {
-                System.Windows.Forms.MessageBox.Show("ERROR! Please click on this box, press CTRL-C on your keyboard and paste into a new post on the KeeFox forum (http://keefox.org/help/forum). Doing this will help other people to use KeeFox without any unexpected error messages like this. Please briefly describe what you were doing when the problem occurred, which version of KeeFox, KeePass and Firefox you use and what other security software you run on your machine. Thanks! Technical detail follows: " + ex.ToString());
+                System.Windows.Forms.MessageBox.Show("ERROR! Please click on this box, press CTRL-C on your keyboard and paste into a new post on the Kee forum (http://keefox.org/help/forum). Doing this will help other people to use Kee without any unexpected error messages like this. Please briefly describe what you were doing when the problem occurred, which version of Kee, KeePass and web browser you use and what other security software you run on your machine. Thanks! Technical detail follows: " + ex.ToString());
             }
         }
 

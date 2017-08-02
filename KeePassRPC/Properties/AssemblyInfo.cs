@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 // General assembly properties
 [assembly: AssemblyTitle("KeePassRPC")]
-[assembly: AssemblyDescription("A Remote Procedure Call (RPC) server for KeePass. Used by the KeeFox Firefox add-on.")]
+[assembly: AssemblyDescription("A Remote Procedure Call (RPC) server for KeePass. Used by the Kee browser add-on.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Chris Tomlinson")]
 [assembly: AssemblyProduct("KeePass Plugin")]

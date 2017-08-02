@@ -95,7 +95,7 @@
             // 
             this.comboBoxAutoFill.FormattingEnabled = true;
             this.comboBoxAutoFill.Items.AddRange(new object[] {
-            "Use KeeFox setting",
+            "Use Kee setting",
             "Never",
             "Always"});
             this.comboBoxAutoFill.Location = new System.Drawing.Point(75, 20);
@@ -107,7 +107,7 @@
             // 
             this.comboBoxAutoSubmit.FormattingEnabled = true;
             this.comboBoxAutoSubmit.Items.AddRange(new object[] {
-            "Use KeeFox setting",
+            "Use Kee setting",
             "Never",
             "Always"});
             this.comboBoxAutoSubmit.Location = new System.Drawing.Point(75, 55);
@@ -156,7 +156,7 @@
             this.checkBoxHideFromKeeFox.Name = "checkBoxHideFromKeeFox";
             this.checkBoxHideFromKeeFox.Size = new System.Drawing.Size(155, 17);
             this.checkBoxHideFromKeeFox.TabIndex = 1;
-            this.checkBoxHideFromKeeFox.Text = "Hide this entry from KeeFox";
+            this.checkBoxHideFromKeeFox.Text = "Hide this entry from Kee";
             this.checkBoxHideFromKeeFox.UseVisualStyleBackColor = true;
             // 
             // groupBox2
@@ -414,7 +414,7 @@
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(433, 31);
             this.label5.TabIndex = 3;
-            this.label5.Text = "When more than one entry matches, KeeFox prioritises more accurately matching ent" +
+            this.label5.Text = "When more than one entry matches, Kee prioritises more accurately matching ent" +
     "ries. You can exclude this entry from matching at all in some cases.";
             // 
             // groupBox4

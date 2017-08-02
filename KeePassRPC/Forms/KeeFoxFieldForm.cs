@@ -77,7 +77,7 @@ namespace KeePassRPC.Forms
 
             if (textBox2.Enabled && (textBox2.Text == "{USERNAME}" || textBox2.Text == "{PASSWORD}"))
             {
-                MessageBox.Show(this, "Please change the value of this form field - it is currently set to a value that KeeFox needs to reserve for internal use. Sorry, please report this on the support forums if you are inconvienced by this choice of reserved phrase.");
+                MessageBox.Show(this, "Please change the value of this form field - it is currently set to a value that Kee needs to reserve for internal use. Sorry, please report this on the support forums if you are inconvenienced by this choice of reserved phrase.");
                 this.DialogResult = DialogResult.None;
                 return;
             }

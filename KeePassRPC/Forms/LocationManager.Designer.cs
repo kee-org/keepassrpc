@@ -78,7 +78,7 @@
             this.richTextBox1.Size = new System.Drawing.Size(259, 60);
             this.richTextBox1.TabIndex = 4;
             this.richTextBox1.Text = "KeePassRPC can behave differently when in different locations. Add or remove loca" +
-    "tions here. Change the current location from KeeFox.";
+    "tions here. Change the current location from Kee.";
             // 
             // button3
             // 

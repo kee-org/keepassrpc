@@ -51,7 +51,7 @@
             this.buttonMakeHome.Name = "buttonMakeHome";
             this.buttonMakeHome.Size = new System.Drawing.Size(151, 23);
             this.buttonMakeHome.TabIndex = 1;
-            this.buttonMakeHome.Text = "Set as KeeFox Home group";
+            this.buttonMakeHome.Text = "Set as Kee Home group";
             this.buttonMakeHome.UseVisualStyleBackColor = true;
             this.buttonMakeHome.Click += new System.EventHandler(this.buttonMakeHome_Click);
             // 

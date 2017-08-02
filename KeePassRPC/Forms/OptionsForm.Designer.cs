@@ -129,7 +129,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(288, 25);
             this.label1.TabIndex = 5;
-            this.label1.Text = "KeePassRPC (KeeFox) options";
+            this.label1.Text = "KeePassRPC (Kee) options";
             // 
             // label2
             // 
@@ -138,7 +138,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(238, 13);
             this.label2.TabIndex = 6;
-            this.label2.Text = "Tip: Most KeeFox options can be found in Firefox";
+            this.label2.Text = "Tip: Most Kee options can be found in the client (browser)";
             // 
             // checkBox2
             // 
@@ -486,7 +486,7 @@
             this.MinimizeBox = false;
             this.Name = "OptionsForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "KeePassRPC (KeeFox) Options";
+            this.Text = "KeePassRPC (Kee) Options";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.OnFormClosed);
             this.Load += new System.EventHandler(this.OnFormLoad);
             ((System.ComponentModel.ISupportInitialize)(this.m_bannerImage)).EndInit();

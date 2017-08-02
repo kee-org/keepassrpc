@@ -167,8 +167,8 @@ namespace KeePassRPC.Forms
 
             ReadURLStrings();
 
-            comboBoxAutoSubmit.Text = "Use KeeFox setting";
-            comboBoxAutoFill.Text = "Use KeeFox setting";
+            comboBoxAutoSubmit.Text = "Use Kee setting";
+            comboBoxAutoFill.Text = "Use Kee setting";
 
             // There are implicit behaviours based on single option choices so we'll make them explicit now so that the GUI accurately reflects the 
             // strings stored in the advanced tab
@@ -232,7 +232,7 @@ namespace KeePassRPC.Forms
         {
             switch (comboBoxAutoFill.Text)
             {
-                case "Use KeeFox setting":
+                case "Use Kee setting":
                     if (comboBoxAutoSubmit.Text == "Never")
                         changeBehaviourState(EntryBehaviour.NeverAutoSubmit);
                     else
@@ -256,7 +256,7 @@ namespace KeePassRPC.Forms
         {
             switch (comboBoxAutoSubmit.Text)
             {
-                case "Use KeeFox setting": 
+                case "Use Kee setting": 
                     if (comboBoxAutoFill.Text == "Always") 
                         changeBehaviourState(EntryBehaviour.AlwaysAutoFill); 
                     else
@@ -298,7 +298,7 @@ namespace KeePassRPC.Forms
                     _conf.NeverAutoFill = false;
                     _conf.NeverAutoSubmit = false;
                     comboBoxAutoFill.Text = "Always";
-                    comboBoxAutoSubmit.Text = "Use KeeFox setting";
+                    comboBoxAutoSubmit.Text = "Use Kee setting";
                     comboBoxAutoFill.Enabled = true;
                     comboBoxAutoSubmit.Enabled = true;
                     break;
@@ -307,7 +307,7 @@ namespace KeePassRPC.Forms
                     _conf.AlwaysAutoSubmit = false;
                     _conf.NeverAutoFill = false;
                     _conf.NeverAutoSubmit = true;
-                    comboBoxAutoFill.Text = "Use KeeFox setting";
+                    comboBoxAutoFill.Text = "Use Kee setting";
                     comboBoxAutoSubmit.Text = "Never";
                     comboBoxAutoFill.Enabled = true;
                     comboBoxAutoSubmit.Enabled = true;
@@ -347,8 +347,8 @@ namespace KeePassRPC.Forms
                     _conf.AlwaysAutoSubmit = false;
                     _conf.NeverAutoFill = false;
                     _conf.NeverAutoSubmit = false;
-                    comboBoxAutoFill.Text = "Use KeeFox setting";
-                    comboBoxAutoSubmit.Text = "Use KeeFox setting";
+                    comboBoxAutoFill.Text = "Use Kee setting";
+                    comboBoxAutoSubmit.Text = "Use Kee setting";
                     comboBoxAutoSubmit.Enabled = true;
                     comboBoxAutoFill.Enabled = true;
                     break;

@@ -49,7 +49,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(412, 16);
             this.label2.TabIndex = 5;
-            this.label2.Text = "KeeFox links Firefox to KeePass, which stores your passwords securely";
+            this.label2.Text = "Kee links your web browser to KeePass, which stores your passwords securely";
             // 
             // label3
             // 
@@ -59,7 +59,7 @@
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(267, 16);
             this.label3.TabIndex = 6;
-            this.label3.Text = "KeeFox requires a working KeePass database";
+            this.label3.Text = "Kee requires a working KeePass database";
             // 
             // button2
             // 
@@ -175,7 +175,7 @@
             this.MinimizeBox = false;
             this.Name = "WelcomeForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Welcome To KeeFox and KeePass";
+            this.Text = "Welcome to Kee and KeePass";
             ((System.ComponentModel.ISupportInitialize)(this.m_bannerImage)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
