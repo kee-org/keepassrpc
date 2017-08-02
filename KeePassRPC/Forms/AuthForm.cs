@@ -35,7 +35,7 @@ namespace KeePassRPC.Forms
 
         private void AuthForm_Load(object sender, EventArgs e)
         {
-            /*http://git.io/GaKFCA
+            /*https://git.io/GaKFCA
              * 
 "{\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Microsoft Sans Serif;}}\r\n\\viewkind4\\uc1\\pard\\f0\\fs18 This is a test\\par\r\n}\r\n"
              * */
@@ -43,7 +43,7 @@ namespace KeePassRPC.Forms
 ";
 
             if (Type.GetType ("Mono.Runtime") != null)
-                secLevel += @"{\fs18http://git.io/GaKFCA}\par\par
+                secLevel += @"{\fs18https://git.io/GaKFCA}\par\par
 
 ";
             else

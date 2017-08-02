@@ -18,7 +18,7 @@ namespace KeePassRPC.Forms
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            MessageBox.Show("Please visit the Kee website to find out where to get help. http://keefox.org");
+            MessageBox.Show("Please visit the Kee website to find out where to get help. https://www.kee.pm");
         }
 
     }
