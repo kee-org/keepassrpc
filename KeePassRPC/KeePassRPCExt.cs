@@ -209,13 +209,6 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 _keePassRPCOptions.Enabled = true;
                 tsMenu.Add(_keePassRPCOptions);
 
-                // Add menu item for KeeFox samples
-                _keeFoxSampleEntries = new ToolStripMenuItem();
-                _keeFoxSampleEntries.Text = "Insert Kee tutorial samples";
-                _keeFoxSampleEntries.Click += OnToolsInstallKeeFoxSampleEntries;
-                _keeFoxSampleEntries.Enabled = true;
-                tsMenu.Add(_keeFoxSampleEntries);
-
                 // Add a seperator and menu item to the group context menu
                 ContextMenuStrip gcm = host.MainWindow.GroupContextMenu;
                 _tsSeparator1 = new ToolStripSeparator();
@@ -395,15 +388,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             KeePassRPC.Forms.OptionsForm ofDlg = new KeePassRPC.Forms.OptionsForm(_host, this);
             ofDlg.ShowDialog();
         }
-
-        void OnToolsInstallKeeFoxSampleEntries(object sender, EventArgs e)
-        {
-            if (_host.Database != null && _host.Database.IsOpen)
-            {
-                InstallKeeFoxSampleEntries(_host.Database, false);
-            }
-        }
-
+        
         void OnMenuSetRootGroup(object sender, EventArgs e)
         {
             PwGroup pg = _host.MainWindow.GetSelectedGroup();
@@ -550,8 +535,6 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
 
             InsertStandardKeePassData(pd);
 
-            InstallKeeFoxSampleEntries(pd, false);
-
             pd.CustomData.Set("KeePassRPC.KeeFox.configVersion", CurrentConfigVersion);
 
             // save the new database & update UI appearance
@@ -638,109 +621,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             }
             return kfpg;
         }
-
-        private void InstallKeeFoxSampleEntries(PwDatabase pd, bool skipGroupWarning)
-        {
-            PwGroup kfpg = GetAndInstallKeeFoxGroup(pd, skipGroupWarning);
-            if (kfpg == null)
-                return;
-
-            List<PwUuid> pwuuids = GetKeeFoxTutorialUUIDs();
-            bool entryAdded = false;
-
-            // We search for the KeeFox entries in the entire database 
-            // in case the user has moved them out of the KeeFox group
-
-            if (pd.RootGroup.FindEntry(pwuuids[0], true) == null)
-            {
-                PwEntry pe = createKeeFoxSample(pd, pwuuids[0],
-                    "Quick Start (double click on the URL to learn how to use KeeFox)",
-                    "testU1", "testP1", @"http://tutorial.keefox.org/", null);
-                EntryConfig conf = new EntryConfig();
-                conf.BlockDomainOnlyMatch = true;
-                pe.SetKPRPCConfig(conf);
-                kfpg.AddEntry(pe, true);
-                entryAdded = true;
-            }
-
-            if (pd.RootGroup.FindEntry(pwuuids[1], true) == null)
-            {
-                PwEntry pe = createKeeFoxSample(pd, pwuuids[1],
-                    "KeeFox sample entry with alternative URL",
-                    "testU2", "testP2", @"http://does.not.exist/", @"This sample helps demonstrate the use of alternative URLs to control which websites each password entry should apply to.");
-                EntryConfig conf = new EntryConfig();
-                conf.Version = 1;
-                conf.AltURLs = new string[] { @"http://tutorial-section-c.keefox.org/part3" };
-                conf.BlockDomainOnlyMatch = true;
-                pe.SetKPRPCConfig(conf);
-                kfpg.AddEntry(pe, true);
-                entryAdded = true;
-            }
-
-            if (pd.RootGroup.FindEntry(pwuuids[2], true) == null)
-            {
-                PwEntry pe = createKeeFoxSample(pd, pwuuids[2],
-                    "KeeFox sample entry with no auto-fill and no auto-submit",
-                    "testU3", "testP3", @"http://tutorial-section-d.keefox.org/part4", @"This sample helps demonstrate the use of advanced settings that give you fine control over the behaviour of a password entry. In this specific example, the entry has been set to never automatically fill matching login forms when the web page loads and to never automatically submit, even when you have explicity told KeeFox to log in to this web page.");
-                EntryConfig conf = new EntryConfig();
-                conf.Version = 1;
-                conf.NeverAutoFill = true;
-                conf.NeverAutoSubmit = true;
-                conf.BlockDomainOnlyMatch = true;
-                pe.SetKPRPCConfig(conf);
-                kfpg.AddEntry(pe, true);
-                entryAdded = true;
-            }
-
-            if (pd.RootGroup.FindEntry(pwuuids[4], true) == null)
-            {
-                PwEntry pe = createKeeFoxSample(pd, pwuuids[4],
-                    "KeeFox sample entry for HTTP authentication",
-                    "testU4", "testP4", @"http://tutorial-section-d.keefox.org/part6", @"This sample helps demonstrate logging in to HTTP authenticated websites.");
-                EntryConfig conf = new EntryConfig();
-                conf.Version = 1;
-                conf.HTTPRealm = "KeeFox tutorial sample";
-                conf.BlockDomainOnlyMatch = true;
-                pe.SetKPRPCConfig(conf);
-                kfpg.AddEntry(pe, true);
-                entryAdded = true;
-            }
-
-            if (entryAdded)
-                _host.MainWindow.UpdateUI(true, null, true, null, true, null, true);
-        }
-
-        private PwEntry createKeeFoxSample(PwDatabase pd, PwUuid uuid, string title, string username, string password, string url, string notes)
-        {
-            if (string.IsNullOrEmpty(title)) title = "KeeFox sample entry";
-            if (string.IsNullOrEmpty(url)) url = @"http://tutorial.keefox.org/";
-            notes = @"This password entry is part of the KeeFox tutorial. To start the tutorial, launch Firefox and load http://tutorial.keefox.org/.
-
-Deleting it will not prevent KeeFox or KeePass from working correctly but you will not be able to use the tutorial at http://tutorial.keefox.org/.
-
-You can recreate these entries by selecting Tools / Insert KeeFox tutorial samples." + (string.IsNullOrEmpty(notes) ? "" : (@"
-
-" + notes));
-
-            PwEntry pe = new PwEntry(false, true);
-            pe.Uuid = uuid;
-            pe.Strings.Set(PwDefs.TitleField, new ProtectedString(
-                pd.MemoryProtection.ProtectTitle, title));
-            pe.Strings.Set(PwDefs.UserNameField, new ProtectedString(
-                pd.MemoryProtection.ProtectUserName, username));
-            pe.Strings.Set(PwDefs.UrlField, new ProtectedString(
-                pd.MemoryProtection.ProtectUrl, url));
-            pe.Strings.Set(PwDefs.PasswordField, new ProtectedString(
-                pd.MemoryProtection.ProtectPassword, password));
-            pe.Strings.Set(PwDefs.NotesField, new ProtectedString(
-                pd.MemoryProtection.ProtectNotes, notes));
-
-            //TODO2: get autotype example working again following 2.17 API change?
-            //pe.AutoType.Set(KPRes.TargetWindow, 
-            //    @"{USERNAME}{TAB}{PASSWORD}{TAB}{ENTER}");
-            return pe;
-        }
-
+        
         private PwUuid GetKeeFoxIcon()
         {
             //return null;
@@ -903,7 +784,8 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             // If we've not already upgraded the KPRPC data for this database...
             if (GetConfigVersion(e.Database) < 1)
             {
-                RemoveKeeFoxTutorialDuplicateEntries(e.Database);
+                // We used to just remove duplicates but may as well tidy up all while we're here.
+                RemoveKeeFoxTutorialEntries(e.Database);
 
                 bool foundStringsToUpgrade = false;
                 // Scan every string of every entry to find out whether we need to disturb the user
@@ -1008,17 +890,11 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             return 0;
         }
 
-        private void RemoveKeeFoxTutorialDuplicateEntries(PwDatabase db)
+        private void RemoveKeeFoxTutorialEntries(PwDatabase db)
         {
-            // We know that this upgrade path may contain duplicate KeeFox
-            // sample entries due to an earlier bug so lets get rid of them
-            // for good and replace them with a single instance of each. Not
-            // a perfect solution but should only cause problems for KeeFox
-            // developers and those with OCD and a short fuse.
-
             List<string> uuids = GetKeeFoxTutorialUUIDsAsStrings();
 
-            KeePassLib.Collections.PwObjectList<PwEntry> output = new KeePassLib.Collections.PwObjectList<PwEntry>();
+            PwObjectList<PwEntry> output = new PwObjectList<PwEntry>();
 
             // Scan every entry for matching UUIDs and add them to the list for deletion
             KeePassLib.Delegates.EntryHandler eh = delegate(PwEntry pe)
@@ -1038,7 +914,6 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                 {
                     pwe.ParentGroup.Entries.Remove(pwe);
                 }
-                InstallKeeFoxSampleEntries(db, true);
             }
         }
 
