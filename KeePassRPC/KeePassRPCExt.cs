@@ -316,10 +316,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             lock (_lockRPCClientManagers)
             {
                 _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
-                //TODO2: Only consider managers of client types that have at least one valid client already authorised
-                foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
-                    if (manager.Name != "Null")
-                        manager.AttachToGroupDialog(this, group, mainTabControl);
+                _RPCClientManagers["general"].AttachToGroupDialog(this, group, mainTabControl);
             }
         }
 
@@ -360,10 +357,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             lock (_lockRPCClientManagers)
             {
                 _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
-                //TODO2: Only consider managers of client types that have at least one valid client already authorised
-                foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
-                    if (manager.Name != "Null")
-                        manager.AttachToEntryDialog(this, entry, mainTabControl, form, advancedListView, strings);
+                _RPCClientManagers["general"].AttachToEntryDialog(this, entry, mainTabControl, form, advancedListView, strings);
             }
         }
 
@@ -797,32 +791,32 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             lock (_lockRPCClientManagers)
             {
                 _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
-                _RPCClientManagers.Add("null", new NullRPCClientManager());
+                _RPCClientManagers.Add("general", new GeneralRPCClientManager());
 
                 //TODO2: load managers from plugins, etc.
                 _RPCClientManagers.Add("KeeFox", new KeeFoxRPCClientManager());
             }
         }
 
-        private void PromoteNullRPCClient(KeePassRPCClientConnection connection, KeePassRPCClientManager destination)
+        private void PromoteGeneralRPCClient(KeePassRPCClientConnection connection, KeePassRPCClientManager destination)
         {
             lock (_lockRPCClientManagers)
             {
                 _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
-                ((NullRPCClientManager)_RPCClientManagers["null"]).RemoveRPCClientConnection(connection);
+                ((GeneralRPCClientManager)_RPCClientManagers["general"]).RemoveRPCClientConnection(connection);
                 destination.AddRPCClientConnection(connection);
             }
         }
 
-        internal void PromoteNullRPCClient(KeePassRPCClientConnection connection, string clientName)
+        internal void PromoteGeneralRPCClient(KeePassRPCClientConnection connection, string clientName)
         {
-            string managerName = "null";
+            string managerName = "general";
             switch (clientName)
             {
                 case "KeeFox": managerName = "KeeFox"; break;
             }
 
-            PromoteNullRPCClient(connection, _RPCClientManagers[managerName]);
+            PromoteGeneralRPCClient(connection, _RPCClientManagers[managerName]);
         }
 
         /// <summary>
@@ -1189,7 +1183,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             lock (_lockRPCClientManagers)
             {
                 _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
-                _RPCClientManagers["null"].AddRPCClientConnection(keePassRPCClient);
+                _RPCClientManagers["general"].AddRPCClientConnection(keePassRPCClient);
             }
         }
 
@@ -1211,7 +1205,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             lock (_lockRPCClientManagers)
             {
                 _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
-                _RPCClientManagers["null"].AddRPCClientConnection(new KeePassRPCClientConnection(webSocket, false, this));
+                _RPCClientManagers["general"].AddRPCClientConnection(new KeePassRPCClientConnection(webSocket, false, this));
             }
         }
 
