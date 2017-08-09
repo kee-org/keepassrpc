@@ -34,6 +34,11 @@ namespace KeePassRPC
 
             // Full feature set as of KeeFox 1.6
             "KPRPC_FEATURE_VERSION_1_6",
+
+            // Allow clients without the name KeeFox to connect
+            "KPRPC_GENERAL_CLIENTS",
+
+            // Renamed KeeFox to Kee
             "KPRPC_FEATURE_KEE_BRAND"
 
             // in the rare event that we want to check for the absense of a feature
@@ -490,7 +495,7 @@ namespace KeePassRPC
                         if (authorised)
                         {
                             // We assume the user has manually verified the client name as part of the initial SRP setup so it's fairly safe to use it to determine the type of client connection to which we want to promote our null connection
-                            KPRPC.PromoteNullRPCClient(this, KeyContainer.ClientName);
+                            KPRPC.PromoteGeneralRPCClient(this, KeyContainer.ClientName);
                         }
                     }
                 }
@@ -615,7 +620,7 @@ namespace KeePassRPC
                     KeyContainer = new KeyContainerClass(_srp.Key,DateTime.UtcNow.AddSeconds(KeyExpirySeconds),userName,clientName);
                     Authorised = true;
                     // We assume the user has checked the client name as part of the initial SRP setup so it's fairly safe to use it to determine the type of client connection to which we want to promote our null connection
-                    KPRPC.PromoteNullRPCClient(this, clientName);
+                    KPRPC.PromoteGeneralRPCClient(this, clientName);
                     KPRPC.InvokeMainThread(new HideAuthDialogDelegate(HideAuthDialog));
 
                     // If we've never shown the user the welcome screen and have never

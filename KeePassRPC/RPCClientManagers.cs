@@ -108,21 +108,38 @@ namespace KeePassRPC
 
     }
 
-    public class NullRPCClientManager : KeePassRPCClientManager
+    public class GeneralRPCClientManager : KeePassRPCClientManager
     {
-        public NullRPCClientManager()
-            : base("Null", "NULL")
+        public GeneralRPCClientManager()
+            : base("General", "KPRPCListener")
         {
 
         }
 
-        /// <summary>
-        /// We don't know how to signal null clients so we skip it
-        /// </summary>
-        /// <param name="signal">The signal.</param>
-        public override void SignalAll(KeePassRPC.DataExchangeModel.Signal signal)
+        public override void AttachToEntryDialog(KeePassRPCExt plugin, PwEntry entry, TabControl mainTabControl, PwEntryForm form, CustomListViewEx advancedListView, ProtectedStringDictionary strings)
         {
-            return;
+            KeeFoxEntryUserControl entryControl = new KeeFoxEntryUserControl(plugin, entry, advancedListView, form, strings);
+            TabPage keeTabPage = new TabPage("Kee");
+            entryControl.Dock = DockStyle.Fill;
+            keeTabPage.Controls.Add(entryControl);
+            if (mainTabControl.ImageList == null)
+                mainTabControl.ImageList = new ImageList();
+            int imageIndex = mainTabControl.ImageList.Images.Add(global::KeePassRPC.Properties.Resources.KeeFox16, Color.Transparent);
+            keeTabPage.ImageIndex = imageIndex;
+            mainTabControl.TabPages.Add(keeTabPage);
+        }
+
+        public override void AttachToGroupDialog(KeePassRPCExt plugin, PwGroup group, TabControl mainTabControl)
+        {
+            KeeFoxGroupUserControl groupControl = new KeeFoxGroupUserControl(plugin, group);
+            TabPage keeTabPage = new TabPage("Kee");
+            groupControl.Dock = DockStyle.Fill;
+            keeTabPage.Controls.Add(groupControl);
+            if (mainTabControl.ImageList == null)
+                mainTabControl.ImageList = new ImageList();
+            int imageIndex = mainTabControl.ImageList.Images.Add(global::KeePassRPC.Properties.Resources.KeeFox16, Color.Transparent);
+            keeTabPage.ImageIndex = imageIndex;
+            mainTabControl.TabPages.Add(keeTabPage);
         }
 
     }
@@ -138,7 +155,7 @@ namespace KeePassRPC
         public override void AttachToEntryDialog(KeePassRPCExt plugin, PwEntry entry, TabControl mainTabControl, PwEntryForm form, CustomListViewEx advancedListView, ProtectedStringDictionary strings)
         {
             KeeFoxEntryUserControl entryControl = new KeeFoxEntryUserControl(plugin, entry, advancedListView, form, strings);
-            TabPage keefoxTabPage = new TabPage("Kee");
+            TabPage keefoxTabPage = new TabPage("KeeFox");
             entryControl.Dock = DockStyle.Fill;
             keefoxTabPage.Controls.Add(entryControl);
             if (mainTabControl.ImageList == null)
@@ -151,7 +168,7 @@ namespace KeePassRPC
         public override void AttachToGroupDialog(KeePassRPCExt plugin, PwGroup group, TabControl mainTabControl)
         {
             KeeFoxGroupUserControl groupControl = new KeeFoxGroupUserControl(plugin, group);
-            TabPage keefoxTabPage = new TabPage("Kee");
+            TabPage keefoxTabPage = new TabPage("KeeFox");
             groupControl.Dock = DockStyle.Fill;
             keefoxTabPage.Controls.Add(groupControl);
             if (mainTabControl.ImageList == null)
