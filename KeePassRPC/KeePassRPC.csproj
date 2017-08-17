@@ -293,8 +293,6 @@
       IF NOT "$(ConfigurationName)"=="Debug" Goto :NotDebug
       REM In debug mode we want to move the generated DLLs and PDBs to the plugins
       REM directory so we can easily set breakpoints, etc.
-      REM In this case, we don't care if the Firefox add-on has missing or outdated
-      REM files (they are only used at install time so it won't affect debugging)
 
       REM delete the PLGX from any previous ReleasePLGX build
       del /Q "%25KPPDir%25$(ProjectName).plgx"
@@ -318,7 +316,7 @@
       IF NOT "$(ConfigurationName)"=="ReleasePLGX" Goto :NotReleasePlgx
       REM In release mode we want to make sure that we are working with the PLGX version.
       REM This prevents debugging so should only be used when packaging a plgx file for
-      REM distribution as part of the KeeFox XPI.
+      REM distribution.
 
       REM delete the DLLs from any previous Debug build
       del /Q "%25KPPDir%25$(ProjectName).dll"
@@ -365,7 +363,7 @@
       echo Files copied to temporary directory
 
       REM create the PLGX
-      "%25KPDir%25KeePass.exe" --plgx-create "%25KPPTempDir%25" --plgx-prereq-kp:2.34 --plgx-prereq-net:4.5
+      "%25KPDir%25KeePass.exe" --plgx-create "%25KPPTempDir%25" --plgx-prereq-kp:2.34
       if errorlevel 1 goto BuildEventFailed
       echo PLGX created
 
@@ -375,7 +373,6 @@
       echo Temporary directory deleted
 
       goto BuildEventOK
-
 
       :NotReleasePlgx
       echo Invalid configuration selected. Please choose a different build configuration
