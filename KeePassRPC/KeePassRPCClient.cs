@@ -246,6 +246,9 @@ namespace KeePassRPC
         /// <param name="signal">The signal.</param>
         public void Signal(KeePassRPC.DataExchangeModel.Signal signal, string methodName)
         {
+            // User may not have authorised the connection we are trying to signal
+            if (KeyContainer == null) return;
+
             try
             {
                 Jayrock.Json.JsonObject call = new Jayrock.Json.JsonObject();
@@ -673,7 +676,7 @@ namespace KeePassRPC
             if (string.IsNullOrEmpty(plaintext))
                 return null;
 
-            KeyContainerClass kc = this.KeyContainer;
+            KeyContainerClass kc = KeyContainer;
             SHA1 sha = new SHA1CryptoServiceProvider();
 
             byte[] plaintextBytes = Encoding.UTF8.GetBytes(plaintext);
