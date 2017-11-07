@@ -282,7 +282,7 @@ namespace KeePassRPC
         {
             ArrayList formFieldList = new ArrayList();
             ArrayList URLs = new ArrayList();
-            URLs.Add(pwe.Strings.ReadSafe("URL"));
+            
             bool usernameFound = false;
             bool passwordFound = false;
             bool alwaysAutoFill = false;
@@ -292,6 +292,10 @@ namespace KeePassRPC
             int priority = 0;
             string usernameName = "";
             string usernameValue = "";
+            
+            if (!string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL"))) {
+            	URLs.Add(pwe.Strings.ReadSafe("URL"));
+            }
 
             if (abortIfHidden && conf.Hide)
                 return null;
@@ -427,9 +431,9 @@ namespace KeePassRPC
             PwGroup pwg = GetRootPwGroup(pwd);
             Group rt = GetGroupFromPwGroup(pwg);
             if (fullDetail)
-                rt.ChildEntries = (Entry[])GetChildEntries(pwd, pwg, fullDetail);
+                rt.ChildEntries = (Entry[])GetChildEntries(pwd, pwg, fullDetail, false);
             else if (!noDetail)
-                rt.ChildLightEntries = GetChildEntries(pwd, pwg, fullDetail);
+                rt.ChildLightEntries = GetChildEntries(pwd, pwg, fullDetail, false);
 
             if (!noDetail)
                 rt.ChildGroups = GetChildGroups(pwd, pwg, true, fullDetail);
@@ -1512,12 +1516,40 @@ namespace KeePassRPC
         /// </summary>
         /// <param name="uuid">the unique ID of the group we're interested in.</param>
         /// <param name="current__"></param>
-        /// <returns>the list of every entry directly inside the group.</returns>
+        /// <returns>the list of every entry with a URL directly inside the group.</returns>
         [JsonRpcMethod]
         public Entry[] GetChildEntries(string uuid)
         {
-            PwGroup matchedGroup;
-            if (uuid != null && uuid.Length > 0)
+        	PwGroup matchedGroup;
+        	matchedGroup = findMatchingGroup(uuid);
+        	
+            return (Entry[])GetChildEntries(host.Database, matchedGroup, true, false);
+        }
+
+        /// <summary>
+        /// Returns a list of all the entry contained within a group - including ones missing a URL (not recursive)
+        /// </summary>
+        /// <param name="uuid">the unique ID of the group we're interested in.</param>
+        /// <param name="current__"></param>
+        /// <returns>the list of every entry directly inside the group.</returns>
+        [JsonRpcMethod]
+        public Entry[] GetAllChildEntries(string uuid)
+        {
+        	PwGroup matchedGroup;
+        	matchedGroup = findMatchingGroup(uuid);
+        	
+            return (Entry[])GetChildEntries(host.Database, matchedGroup, true, true);
+        }
+        
+        /// <summary>
+        /// Finds the group that matches a UUID, else return the root group
+        /// </summary>
+        /// <param name="uuid">the unique ID of the group we're interested in.</param>
+        /// <returns>Group that matches the UUID, else the root group.</returns>
+        private PwGroup findMatchingGroup(string uuid)
+        {
+        	PwGroup matchedGroup;
+        	if (!string.IsNullOrEmpty(uuid))
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
@@ -1530,17 +1562,17 @@ namespace KeePassRPC
 
             if (matchedGroup == null)
                 throw new Exception("Could not find requested group. Have you deleted your Kee start/home group? Set a new one and try again.");
-
-            return (Entry[])GetChildEntries(host.Database, matchedGroup, true);
+            
+            return matchedGroup;
         }
-
+        
         /// <summary>
         /// Returns a list of every entry contained within a group (not recursive)
         /// </summary>
         /// <param name="uuid">the unique ID of the group we're interested in.</param>
         /// <param name="current__"></param>
         /// <returns>the list of every entry directly inside the group.</returns>
-        private LightEntry[] GetChildEntries(PwDatabase pwd, PwGroup group, bool fullDetails)
+        private LightEntry[] GetChildEntries(PwDatabase pwd, PwGroup group, bool fullDetails, bool everyEntry)
         {
             List<Entry> allEntries = new List<Entry>();
             List<LightEntry> allLightEntries = new List<LightEntry>();
@@ -1556,7 +1588,7 @@ namespace KeePassRPC
                     if (EntryIsInRecycleBin(pwe, pwd))
                         continue; // ignore if it's in the recycle bin
 
-                    if (string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
+                    if (string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")) && !everyEntry)
                         continue;
                     if (fullDetails)
                     {
@@ -1605,19 +1637,7 @@ namespace KeePassRPC
         public Group[] GetChildGroups(string uuid)
         {
             PwGroup matchedGroup;
-            if (uuid != null && uuid.Length > 0)
-            {
-                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
-
-                matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
-            }
-            else
-            {
-                matchedGroup = GetRootPwGroup(host.Database);
-            }
-
-            if (matchedGroup == null)
-                throw new Exception("Could not find requested group. Have you deleted your Kee start/home group? Set a new one and try again.");
+            matchedGroup = findMatchingGroup(uuid);
 
             return GetChildGroups(host.Database, matchedGroup, false, true);
         }
@@ -1649,9 +1669,9 @@ namespace KeePassRPC
                 {
                     kpg.ChildGroups = GetChildGroups(pwd, pwg, true, fullDetails);
                     if (fullDetails)
-                        kpg.ChildEntries = (Entry[])GetChildEntries(pwd, pwg, fullDetails);
+                        kpg.ChildEntries = (Entry[])GetChildEntries(pwd, pwg, fullDetails, false);
                     else
-                        kpg.ChildLightEntries = GetChildEntries(pwd, pwg, fullDetails);
+                    	kpg.ChildLightEntries = GetChildEntries(pwd, pwg, fullDetails, false);
                 }
                 allGroups.Add(kpg);
             }
