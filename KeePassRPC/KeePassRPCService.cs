@@ -41,7 +41,7 @@ namespace KeePassRPC
             _standardIconsBase64 = standardIconsBase64;
         }
         #endregion
-        
+
         #region KeePass GUI routines
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace KeePassRPC
             }
             else
             {
-                // update ui with "changed" flag                
+                // update ui with "changed" flag
                 host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
             }
             // change tab back
@@ -282,7 +282,7 @@ namespace KeePassRPC
         {
             ArrayList formFieldList = new ArrayList();
             ArrayList URLs = new ArrayList();
-            URLs.Add(pwe.Strings.ReadSafe("URL"));
+
             bool usernameFound = false;
             bool passwordFound = false;
             bool alwaysAutoFill = false;
@@ -292,6 +292,10 @@ namespace KeePassRPC
             int priority = 0;
             string usernameName = "";
             string usernameValue = "";
+
+            if (!string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL"))) {
+                URLs.Add(pwe.Strings.ReadSafe("URL"));
+            }
 
             if (abortIfHidden && conf.Hide)
                 return null;
@@ -329,6 +333,7 @@ namespace KeePassRPC
                     }
                 }
             }
+
             if (conf.AltURLs != null)
                 URLs.AddRange(conf.AltURLs);
 
@@ -427,9 +432,9 @@ namespace KeePassRPC
             PwGroup pwg = GetRootPwGroup(pwd);
             Group rt = GetGroupFromPwGroup(pwg);
             if (fullDetail)
-                rt.ChildEntries = (Entry[])GetChildEntries(pwd, pwg, fullDetail);
+                rt.ChildEntries = (Entry[])GetChildEntries(pwd, pwg, fullDetail, true);
             else if (!noDetail)
-                rt.ChildLightEntries = GetChildEntries(pwd, pwg, fullDetail);
+                rt.ChildLightEntries = GetChildEntries(pwd, pwg, fullDetail, true);
 
             if (!noDetail)
                 rt.ChildGroups = GetChildGroups(pwd, pwg, true, fullDetail);
@@ -497,7 +502,7 @@ namespace KeePassRPC
             // Set some of the string fields
             pwe.Strings.Set(PwDefs.TitleField, new ProtectedString(host.Database.MemoryProtection.ProtectTitle, login.Title ?? ""));
 
-            // update the icon for this entry (in most cases we'll 
+            // update the icon for this entry (in most cases we'll
             // just detect that it is the same standard icon as before)
             PwUuid customIconUUID = PwUuid.Zero;
             PwIcon iconId = PwIcon.Key;
@@ -617,7 +622,7 @@ namespace KeePassRPC
         /// <param name="imageData">base64 representation of the image</param>
         /// <param name="customIconUUID">UUID of the generated custom icon; may be Zero</param>
         /// <param name="iconId">PwIcon of the matched standard icon; ignore if customIconUUID != Zero</param>
-        /// <returns>true if the supplied imageData was converted into a customIcon 
+        /// <returns>true if the supplied imageData was converted into a customIcon
         /// or matched with a standard icon.</returns>
         private bool base64ToIcon(string imageData, ref PwUuid customIconUUID, ref PwIcon iconId)
         {
@@ -651,7 +656,7 @@ namespace KeePassRPC
                 foreach (PwCustomIcon item in host.Database.CustomIcons)
                 {
                     // re-use existing custom icon if it's already in the database
-                    // (This will probably fail if database is used on 
+                    // (This will probably fail if database is used on
                     // both 32 bit and 64 bit machines - not sure why...)
                     if (KeePassLib.Utility.MemUtil.ArraysEqual(msByteArray, item.ImageDataPng))
                     {
@@ -702,7 +707,7 @@ namespace KeePassRPC
             string MonoVersion = "unknown";
             // No point in outputting KeePassRPC version here since we know it has
             // to match in order to be able to call this function
-            
+
             NETCLR = Environment.Version.Major.ToString();
             KeePassVersion = PwDefs.VersionString;
 
@@ -732,12 +737,12 @@ namespace KeePassRPC
 
                 // v3.0 is of no interest to us and difficult to detect so we ignore
                 // it and bundle those users in the v2 group
-                NETversion = 
-                    IsNet451OrNewer() ? "4.5.1" : 
-                    IsNet45OrNewer() ? "4.5" : 
-                    NETCLR == "4" ? "4.0" : 
+                NETversion =
+                    IsNet451OrNewer() ? "4.5.1" :
+                    IsNet45OrNewer() ? "4.5" :
+                    NETCLR == "4" ? "4.0" :
                     IsNet35OrNewer() ? "3.5" :
-                    NETCLR == "2" ? "2.0" : 
+                    NETCLR == "2" ? "2.0" :
                     "unknown";
             }
 
@@ -749,7 +754,7 @@ namespace KeePassRPC
         {
             return Type.GetType("System.GCCollectionMode", false) != null;
         }
-        
+
         public static bool IsNet45OrNewer()
         {
             return Type.GetType("System.Reflection.ReflectionContext", false) != null;
@@ -879,7 +884,7 @@ namespace KeePassRPC
         public string GeneratePassword(string profileName, string url)
         {
             PwProfile profile = null;
-            
+
             if (string.IsNullOrEmpty(profileName))
                 profile = KeePass.Program.Config.PasswordGenerator.LastUsedProfile;
             else
@@ -904,7 +909,7 @@ namespace KeePassRPC
 
             if (host.CustomConfig.GetBool("KeePassRPC.KeeFox.backupNewPasswords", true))
                 AddPasswordBackupLogin(password, url);
-            
+
             return password;
         }
 
@@ -1183,7 +1188,7 @@ namespace KeePassRPC
                 throw new ArgumentException("oldLoginUUID was not passed to the updateLogin function");
             if (string.IsNullOrEmpty(dbFileName))
                 throw new ArgumentException("dbFileName was not passed to the updateLogin function");
-            
+
             // Make sure there is an active database
             if (!ensureDBisOpen()) return null;
 
@@ -1442,7 +1447,7 @@ namespace KeePassRPC
 
         private bool ConfigIsCorrectVersion(PwDatabase t)
         {
-            if (t.CustomData.Exists("KeePassRPC.KeeFox.configVersion") 
+            if (t.CustomData.Exists("KeePassRPC.KeeFox.configVersion")
                 && t.CustomData.Get("KeePassRPC.KeeFox.configVersion") == KeePassRPCPlugin.CurrentConfigVersion)
             {
                 return true;
@@ -1458,9 +1463,30 @@ namespace KeePassRPC
         /// </summary>
         /// <param name="logins">the list of all logins</param>
         /// <param name="current__"></param>
-        /// <returns>the number of logins in the list</returns>
+        /// <returns>all logins in the database</returns>
         [JsonRpcMethod]
-        public Entry[] GetAllLogins()
+        public Entry[] GetAllLogins() {
+            return getAllLogins(true);
+        }
+
+        /// <summary>
+        /// Return a list of every entry in the database - this includes entries without an URL
+        /// </summary>
+        /// <param name="logins">the list of all logins</param>
+        /// <param name="current__"></param>
+        /// <returns>all logins in the database</returns>
+        [JsonRpcMethod]
+        public Entry[] GetAllEntries() {
+            return getAllLogins(false);
+        }
+
+        /// <summary>
+        /// Returns a list of every entry in the database
+        /// </summary>
+        /// <param name="urlRequired">true = URL field must exist for a child entry to be returned, false = all entries are returned</param>
+        /// <param name="current__"></param>
+        /// <returns>all logins in the database subject to the urlRequired setting</returns>
+        public Entry[] getAllLogins(bool urlRequired)
         {
             int count = 0;
             List<Entry> allEntries = new List<Entry>();
@@ -1476,7 +1502,7 @@ namespace KeePassRPC
                 if (EntryIsInRecycleBin(pwe, host.Database))
                     continue; // ignore if it's in the recycle bin
 
-                if (string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
+                if (urlRequired && string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
                     continue; // ignore if it has no URL
 
                 Entry kpe = (Entry)GetEntryFromPwEntry(pwe, MatchAccuracy.None, true, host.Database, true);
@@ -1512,12 +1538,40 @@ namespace KeePassRPC
         /// </summary>
         /// <param name="uuid">the unique ID of the group we're interested in.</param>
         /// <param name="current__"></param>
-        /// <returns>the list of every entry directly inside the group.</returns>
+        /// <returns>the list of every entry with a URL directly inside the group.</returns>
         [JsonRpcMethod]
         public Entry[] GetChildEntries(string uuid)
         {
             PwGroup matchedGroup;
-            if (uuid != null && uuid.Length > 0)
+            matchedGroup = findMatchingGroup(uuid);
+
+            return (Entry[])GetChildEntries(host.Database, matchedGroup, true, true);
+        }
+
+        /// <summary>
+        /// Returns a list of all the entry contained within a group - including ones missing a URL (not recursive)
+        /// </summary>
+        /// <param name="uuid">the unique ID of the group we're interested in.</param>
+        /// <param name="current__"></param>
+        /// <returns>the list of every entry directly inside the group.</returns>
+        [JsonRpcMethod]
+        public Entry[] GetAllChildEntries(string uuid)
+        {
+            PwGroup matchedGroup;
+            matchedGroup = findMatchingGroup(uuid);
+
+            return (Entry[])GetChildEntries(host.Database, matchedGroup, true, false);
+        }
+
+        /// <summary>
+        /// Finds the group that matches a UUID, else return the root group
+        /// </summary>
+        /// <param name="uuid">the unique ID of the group we're interested in.</param>
+        /// <returns>Group that matches the UUID, else the root group.</returns>
+        private PwGroup findMatchingGroup(string uuid)
+        {
+            PwGroup matchedGroup;
+            if (!string.IsNullOrEmpty(uuid))
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
@@ -1531,16 +1585,19 @@ namespace KeePassRPC
             if (matchedGroup == null)
                 throw new Exception("Could not find requested group. Have you deleted your Kee start/home group? Set a new one and try again.");
 
-            return (Entry[])GetChildEntries(host.Database, matchedGroup, true);
+            return matchedGroup;
         }
 
         /// <summary>
         /// Returns a list of every entry contained within a group (not recursive)
         /// </summary>
-        /// <param name="uuid">the unique ID of the group we're interested in.</param>
+        /// <param name="pwd">the database to search in</param>
+        /// <param name="group">the group to search in</param>
+        /// <param name="fullDetails">true = all details; false = some details ommitted (e.g. password)</param>
+        /// <param name="urlRequired">true = URL field must exist for a child entry to be returned, false = all entries are returned</param>
         /// <param name="current__"></param>
         /// <returns>the list of every entry directly inside the group.</returns>
-        private LightEntry[] GetChildEntries(PwDatabase pwd, PwGroup group, bool fullDetails)
+        private LightEntry[] GetChildEntries(PwDatabase pwd, PwGroup group, bool fullDetails, bool urlRequired)
         {
             List<Entry> allEntries = new List<Entry>();
             List<LightEntry> allLightEntries = new List<LightEntry>();
@@ -1556,7 +1613,7 @@ namespace KeePassRPC
                     if (EntryIsInRecycleBin(pwe, pwd))
                         continue; // ignore if it's in the recycle bin
 
-                    if (string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
+                    if (urlRequired && string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
                         continue;
                     if (fullDetails)
                     {
@@ -1605,19 +1662,7 @@ namespace KeePassRPC
         public Group[] GetChildGroups(string uuid)
         {
             PwGroup matchedGroup;
-            if (uuid != null && uuid.Length > 0)
-            {
-                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
-
-                matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
-            }
-            else
-            {
-                matchedGroup = GetRootPwGroup(host.Database);
-            }
-
-            if (matchedGroup == null)
-                throw new Exception("Could not find requested group. Have you deleted your Kee start/home group? Set a new one and try again.");
+            matchedGroup = findMatchingGroup(uuid);
 
             return GetChildGroups(host.Database, matchedGroup, false, true);
         }
@@ -1649,9 +1694,9 @@ namespace KeePassRPC
                 {
                     kpg.ChildGroups = GetChildGroups(pwd, pwg, true, fullDetails);
                     if (fullDetails)
-                        kpg.ChildEntries = (Entry[])GetChildEntries(pwd, pwg, fullDetails);
+                        kpg.ChildEntries = (Entry[])GetChildEntries(pwd, pwg, fullDetails, true);
                     else
-                        kpg.ChildLightEntries = GetChildEntries(pwd, pwg, fullDetails);
+                        kpg.ChildLightEntries = GetChildEntries(pwd, pwg, fullDetails, true);
                 }
                 allGroups.Add(kpg);
             }
@@ -1782,7 +1827,7 @@ namespace KeePassRPC
         /// <returns>An entry suitable for use by a JSON-RPC client.</returns>
         [JsonRpcMethod]
         public Entry[] FindLogins(string[] unsanitisedURLs, string actionURL,
-            string httpRealm, LoginSearchType lst, bool requireFullURLMatches, 
+            string httpRealm, LoginSearchType lst, bool requireFullURLMatches,
             string uniqueID, string dbFileName, string freeTextSearch, string username)
         {
             List<PwDatabase> dbs = null;
@@ -1847,7 +1892,7 @@ namespace KeePassRPC
                     sp.SearchInTags = true;
 
                     searchGroup.SearchEntries(sp, output);
-                    
+
                     foreach (PwEntry pwe in output)
                     {
                         Entry kpe = (Entry)GetEntryFromPwEntry(pwe, MatchAccuracy.None, true, db);
@@ -1864,7 +1909,7 @@ namespace KeePassRPC
             }
             // else we search for the URLs
 
-            // First, we remove any data URIs from the list - there aren't any practical use cases 
+            // First, we remove any data URIs from the list - there aren't any practical use cases
             // for this which can trump the security risks introduced by attempting to support their use.
             var santisedURLs = new List<string>(unsanitisedURLs);
             santisedURLs.RemoveAll(u => u.StartsWith("data:"));
@@ -1878,7 +1923,7 @@ namespace KeePassRPC
                 // of the URL
                 // It's tempting to demand that the protocol must match too (e.g. http forms won't
                 // match a stored https login) but best not to define such a restriction in KeePassRPC
-                // - the RPC client (e.g. KeeFox) can decide to penalise protocol mismatches, 
+                // - the RPC client (e.g. KeeFox) can decide to penalise protocol mismatches,
                 // potentially dependant on user configuration options in the client.
                 for (int i = 0; i < URLs.Length; i++)
                 {
@@ -1904,7 +1949,7 @@ namespace KeePassRPC
 
                         //if (string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
                         //    continue; // entries must have a standard URL entry
-                        
+
                         EntryConfig conf = pwe.GetKPRPCConfig(null, ref configErrors);
 
                         if (conf == null || conf.Hide)
@@ -1940,7 +1985,7 @@ namespace KeePassRPC
                         {
                             foreach (string URL in URLs)
                         {
-                            
+
                                 int accuracy = bestMatchAccuracyForAnyURL(pwe, conf, URL, URLHostnameAndPorts[URL]);
                                 if (accuracy > bestMatchAccuracy)
                                     bestMatchAccuracy = accuracy;
@@ -1950,8 +1995,8 @@ namespace KeePassRPC
 
                         // Check for matching URLs for the HTTP Auth containing the form
                         if (!entryIsAMatch && lst != LoginSearchType.LSTnoRealms
-                                && (string.IsNullOrEmpty(username) || username == entryUserName)) 
-                            
+                                && (string.IsNullOrEmpty(username) || username == entryUserName))
+
                         {
                             foreach (string URL in URLs)
                             {
