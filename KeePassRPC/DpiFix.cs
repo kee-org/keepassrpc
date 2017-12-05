@@ -19,7 +19,7 @@ namespace KeePassRPC
             if ((w == sw) && (h == sh) && !bForceNewObject)
                 return img;
 
-            Bitmap bmp = new Bitmap(sw, sh, img.PixelFormat);
+            using (Bitmap bmp = new Bitmap(sw, sh, img.PixelFormat))
             using (Graphics g = Graphics.FromImage(bmp))
             {
                 g.SmoothingMode = SmoothingMode.HighQuality;
@@ -32,9 +32,9 @@ namespace KeePassRPC
                 rSource.Offset(-0.5f, -0.5f);
 
                 g.DrawImage(img, rDest, rSource, GraphicsUnit.Pixel);
-            }
 
-            return bmp;
+                return bmp;
+            }
         }
     }
 

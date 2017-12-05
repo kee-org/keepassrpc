@@ -390,8 +390,8 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
 
         void OnToolsOptions(object sender, EventArgs e)
         {
-            KeePassRPC.Forms.OptionsForm ofDlg = new KeePassRPC.Forms.OptionsForm(_host, this);
-            ofDlg.ShowDialog();
+            using (KeePassRPC.Forms.OptionsForm ofDlg = new KeePassRPC.Forms.OptionsForm(_host, this))
+                ofDlg.ShowDialog();
         }
         
         void OnMenuSetRootGroup(object sender, EventArgs e)
@@ -414,9 +414,11 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             for (int i = 0; i < il.Images.Count; i++)
             {
                 Image image = il.Images[i];
-                MemoryStream ms = new MemoryStream();
-                image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                icons[i] = Convert.ToBase64String(ms.ToArray());
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    icons[i] = Convert.ToBase64String(ms.ToArray());
+                }
             }
             return icons;
         }
@@ -426,13 +428,15 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
 
         public object WelcomeKeeFoxUser()
         {
-            WelcomeForm wf = new WelcomeForm();
-            DialogResult dr = wf.ShowDialog(_host.MainWindow);
-            if (dr == DialogResult.Yes)
-                CreateNewDatabase();
-            if (dr == DialogResult.Yes || dr == DialogResult.No)
-                return 0;
-            return 1;
+            using (WelcomeForm wf = new WelcomeForm())
+            {
+                DialogResult dr = wf.ShowDialog(_host.MainWindow);
+                if (dr == DialogResult.Yes)
+                    CreateNewDatabase();
+                if (dr == DialogResult.Yes || dr == DialogResult.No)
+                    return 0;
+                return 1;
+            }
         }
 
         public delegate object GetIconDelegate(int iconIndex);
@@ -462,12 +466,14 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             if (string.IsNullOrEmpty(cachedBase64))
             {
                 // the icon wasn't in the cache so lets calculate its base64 encoding and then add it to the cache
-                MemoryStream ms = new MemoryStream();
-                Image imgNew = new Bitmap(_host.MainWindow.Icon.ToBitmap(), new Size(16, 16));
-                imgNew.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                string imageData = Convert.ToBase64String(ms.ToArray());
-                DataExchangeModel.IconCache<string>
-                    .AddIcon(_host.Database.IOConnectionInfo.Path, imageData);
+                using (MemoryStream ms = new MemoryStream())
+                using (Image imgNew = new Bitmap(_host.MainWindow.Icon.ToBitmap(), new Size(16, 16)))
+                {
+                    imgNew.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    string imageData = Convert.ToBase64String(ms.ToArray());
+                    DataExchangeModel.IconCache<string>
+                        .AddIcon(_host.Database.IOConnectionInfo.Path, imageData);
+                }
             }
         }
 
@@ -481,69 +487,74 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
         {
             if (!AppPolicy.Try(AppPolicyId.SaveFile)) return;
 
-            SaveFileDialog sfd = UIUtil.CreateSaveFileDialog(KPRes.CreateNewDatabase,
+            DialogResult dr;
+            string strPath;
+            using (SaveFileDialog sfd = UIUtil.CreateSaveFileDialog(KPRes.CreateNewDatabase,
                 KPRes.NewDatabaseFileName, UIUtil.CreateFileTypeFilter(
-                AppDefs.FileExtension.FileExt, KPRes.KdbxFiles, true), 1,
-                AppDefs.FileExtension.FileExt, false);
-
-            GlobalWindowManager.AddDialog(sfd);
-            DialogResult dr = sfd.ShowDialog(_host.MainWindow);
-            GlobalWindowManager.RemoveDialog(sfd);
-
-            string strPath = sfd.FileName;
+                    AppDefs.FileExtension.FileExt, KPRes.KdbxFiles, true), 1,
+                AppDefs.FileExtension.FileExt, false))
+            {
+                GlobalWindowManager.AddDialog(sfd);
+                dr = sfd.ShowDialog(_host.MainWindow);
+                GlobalWindowManager.RemoveDialog(sfd);
+                strPath = sfd.FileName;
+            }
 
             if (dr != DialogResult.OK) return;
 
             KeePassLib.Keys.CompositeKey key = null;
-            KeyCreationSimpleForm kcsf = new KeyCreationSimpleForm();
             bool showUsualKeePassKeyCreationDialog = false;
-
-            // Don't show the simple key creation form if the user has set
-            // security policies that restrict the allowable composite key sources
-            if (KeePass.Program.Config.UI.KeyCreationFlags == 0)
+            using (KeyCreationSimpleForm kcsf = new KeyCreationSimpleForm())
             {
-                kcsf.InitEx(KeePassLib.Serialization.IOConnectionInfo.FromPath(strPath), true);
-                dr = kcsf.ShowDialog(_host.MainWindow);
-                if ((dr == DialogResult.Cancel) || (dr == DialogResult.Abort)) return;
-                if (dr == DialogResult.No)
+                // Don't show the simple key creation form if the user has set
+                // security policies that restrict the allowable composite key sources
+                if (KeePass.Program.Config.UI.KeyCreationFlags == 0)
                 {
-                    showUsualKeePassKeyCreationDialog = true;
+                    kcsf.InitEx(KeePassLib.Serialization.IOConnectionInfo.FromPath(strPath), true);
+                    dr = kcsf.ShowDialog(_host.MainWindow);
+                    if ((dr == DialogResult.Cancel) || (dr == DialogResult.Abort)) return;
+                    if (dr == DialogResult.No)
+                    {
+                        showUsualKeePassKeyCreationDialog = true;
+                    }
+                    else
+                    {
+                        key = kcsf.CompositeKey;
+                    }
                 }
                 else
                 {
-                    key = kcsf.CompositeKey;
+                    showUsualKeePassKeyCreationDialog = true;
                 }
+
+                if (showUsualKeePassKeyCreationDialog)
+                {
+                    using (KeyCreationForm kcf = new KeyCreationForm())
+                    {
+                        kcf.InitEx(KeePassLib.Serialization.IOConnectionInfo.FromPath(strPath), true);
+                        dr = kcf.ShowDialog(_host.MainWindow);
+                        if ((dr == DialogResult.Cancel) || (dr == DialogResult.Abort)) return;
+                        key = kcf.CompositeKey;
+                    }
+                }
+
+                PwDocument dsPrevActive = _host.MainWindow.DocumentManager.ActiveDocument;
+                PwDatabase pd = _host.MainWindow.DocumentManager.CreateNewDocument(true).Database;
+                pd.New(KeePassLib.Serialization.IOConnectionInfo.FromPath(strPath), key);
+
+                if (!string.IsNullOrEmpty(kcsf.DatabaseName))
+                {
+                    pd.Name = kcsf.DatabaseName;
+                    pd.NameChanged = DateTime.Now;
+                }
+
+                InsertStandardKeePassData(pd);
+
+                pd.CustomData.Set("KeePassRPC.KeeFox.configVersion", CurrentConfigVersion);
+
+                // save the new database & update UI appearance
+                pd.Save(_host.MainWindow.CreateStatusBarLogger());
             }
-            else
-            {
-                showUsualKeePassKeyCreationDialog = true;
-            }
-
-            if (showUsualKeePassKeyCreationDialog)
-            {
-                KeyCreationForm kcf = new KeyCreationForm();
-                kcf.InitEx(KeePassLib.Serialization.IOConnectionInfo.FromPath(strPath), true);
-                dr = kcf.ShowDialog(_host.MainWindow);
-                if ((dr == DialogResult.Cancel) || (dr == DialogResult.Abort)) return;
-                key = kcf.CompositeKey;
-            }
-
-            PwDocument dsPrevActive = _host.MainWindow.DocumentManager.ActiveDocument;
-            PwDatabase pd = _host.MainWindow.DocumentManager.CreateNewDocument(true).Database;
-            pd.New(KeePassLib.Serialization.IOConnectionInfo.FromPath(strPath), key);
-
-            if (!string.IsNullOrEmpty(kcsf.DatabaseName))
-            {
-                pd.Name = kcsf.DatabaseName;
-                pd.NameChanged = DateTime.Now;
-            }
-
-            InsertStandardKeePassData(pd);
-
-            pd.CustomData.Set("KeePassRPC.KeeFox.configVersion", CurrentConfigVersion);
-
-            // save the new database & update UI appearance
-            pd.Save(_host.MainWindow.CreateStatusBarLogger());
             _host.MainWindow.UpdateUI(true, null, true, null, true, null, false);
         }
 
@@ -649,13 +660,15 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
 
             if (icon == null)
             {
-                MemoryStream ms = new MemoryStream();
-                global::KeePassRPC.Properties.Resources.KeeFox16.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    global::KeePassRPC.Properties.Resources.KeeFox16.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
 
-                // Create a new custom icon for use with this entry
-                icon = new PwCustomIcon(keeFoxIconUuid,
-                    ms.ToArray());
-                _host.Database.CustomIcons.Add(icon);
+                    // Create a new custom icon for use with this entry
+                    icon = new PwCustomIcon(keeFoxIconUuid,
+                        ms.ToArray());
+                    _host.Database.CustomIcons.Add(icon);
+                }
             }
             return keeFoxIconUuid;
 

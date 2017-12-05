@@ -167,7 +167,10 @@ namespace KeePassRPC
                             try
                             {
                                 XmlSerializer mySerializer = new XmlSerializer(typeof(KeyContainerClass));
-                                _keyContainer = (KeyContainerClass)mySerializer.Deserialize(new MemoryStream(serialisedKeyContainer));
+                                using (MemoryStream ms = new MemoryStream(serialisedKeyContainer))
+                                {
+                                    _keyContainer = (KeyContainerClass) mySerializer.Deserialize(ms);
+                                }
                             }
                             catch (Exception)
                             {
@@ -182,16 +185,20 @@ namespace KeePassRPC
             {
                 _keyContainer = value;
 
-                KeyContainerClass kc = new KeyContainerClass(_srp.Key, DateTime.UtcNow.AddSeconds(KeyExpirySeconds), userName, clientName);
+                KeyContainerClass kc = new KeyContainerClass(_srp.Key, DateTime.UtcNow.AddSeconds(KeyExpirySeconds),
+                    userName, clientName);
 
                 XmlSerializer mySerializer = new
-                XmlSerializer(typeof(KeyContainerClass));
-                MemoryStream myWriter = new MemoryStream();
-                mySerializer.Serialize(myWriter, kc);
-                byte[] serialisedKeyContainer = myWriter.ToArray();
+                    XmlSerializer(typeof(KeyContainerClass));
+                byte[] serialisedKeyContainer;
+                using (MemoryStream myWriter = new MemoryStream())
+                {
+                    mySerializer.Serialize(myWriter, kc);
+                    serialisedKeyContainer = myWriter.ToArray();
+                }
 
                 // We probably want to store the key somewhere that will persist beyond an application restart
-                if (securityLevel == 1)
+            if (securityLevel == 1)
                 {
                     // Store unencrypted in config file
                     KPRPC._host.CustomConfig.SetString("KeePassRPC.Key." + userName, Convert.ToBase64String(serialisedKeyContainer));
@@ -677,100 +684,107 @@ namespace KeePassRPC
                 return null;
 
             KeyContainerClass kc = KeyContainer;
-            SHA1 sha = new SHA1CryptoServiceProvider();
 
             byte[] plaintextBytes = Encoding.UTF8.GetBytes(plaintext);
 
             // Encrypt the client's message
-            RijndaelManaged myRijndael = new RijndaelManaged();
-            myRijndael.GenerateIV();
-            myRijndael.Key = KeePassLib.Utility.MemUtil.HexStringToByteArray(kc.Key);
-            ICryptoTransform encryptor = myRijndael.CreateEncryptor();
-            MemoryStream msEncrypt = new MemoryStream(100);
-            CryptoStream cryptoStream = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write);
+            using (SHA1 sha = new SHA1CryptoServiceProvider())
+            using (RijndaelManaged myRijndael = new RijndaelManaged())
+            {
+                myRijndael.GenerateIV();
+                myRijndael.Key = KeePassLib.Utility.MemUtil.HexStringToByteArray(kc.Key);
+                ICryptoTransform encryptor = myRijndael.CreateEncryptor();
+                byte[] encrypted;
+                using (MemoryStream msEncrypt = new MemoryStream(100))
+                {
+                    using (CryptoStream cryptoStream = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                    {
+                        try
+                        {
+                            cryptoStream.Write(plaintextBytes, 0, plaintextBytes.Length);
+                        }
+                        catch (ArgumentException)
+                        {
+                            //The sum of the count and offset parameters is longer than the length of the buffer.
+                            return null;
+                        }
+                        catch (NotSupportedException)
+                        {
+                            // Underlying stream does not support writing (not sure how this could happen)
+                            return null;
+                        }
 
-            try
-            {
-                cryptoStream.Write(plaintextBytes, 0, plaintextBytes.Length);
-            }
-            catch (ArgumentException)
-            {
-                //The sum of the count and offset parameters is longer than the length of the buffer.
-                return null;
-            }
-            catch (NotSupportedException)
-            {
-                // Underlying stream does not support writing (not sure how this could happen)
-                return null;
-            }
+                        try
+                        {
+                            cryptoStream.FlushFinalBlock();
+                        }
+                        catch (NotSupportedException)
+                        {
+                            // 	The current stream is not writable. -or- The final block has already been transformed. 
+                            return null;
+                        }
+                        catch (CryptographicException)
+                        {
+                            // The key is corrupt which can cause invalid padding to the stream. 
+                            return null;
+                        }
 
-            try
-            {
-                cryptoStream.FlushFinalBlock();
-            }
-            catch (NotSupportedException)
-            {
-                // 	The current stream is not writable. -or- The final block has already been transformed. 
-                return null;
-            }
-            catch (CryptographicException)
-            {
-                // The key is corrupt which can cause invalid padding to the stream. 
-                return null;
-            }
+                        encrypted = msEncrypt.ToArray();
+                    }
+                }
 
-            byte[] encrypted = msEncrypt.ToArray();
-            
-            // Get the raw bytes that are used to calculate the HMAC
 
-            byte[] HmacKey = sha.ComputeHash(myRijndael.Key);
-            byte[] ourHmacSourceBytes = new byte[HmacKey.Length + encrypted.Length + myRijndael.IV.Length];
+                // Get the raw bytes that are used to calculate the HMAC
 
-            // These calls can throw a variety of different exceptions but
-            // I can't see why they would so we will not try to differentiate the cause of them
-            try
-            {
-                //TODO2: HMAC calculations might be stengthened against attacks on SHA 
-                // and/or gain improved performance through use of algorithms like AES-CMAC or HKDF
+                byte[] HmacKey = sha.ComputeHash(myRijndael.Key);
+                byte[] ourHmacSourceBytes = new byte[HmacKey.Length + encrypted.Length + myRijndael.IV.Length];
 
-                Array.Copy(HmacKey, ourHmacSourceBytes, HmacKey.Length);
-                Array.Copy(encrypted, 0, ourHmacSourceBytes, HmacKey.Length, encrypted.Length);
-                Array.Copy(myRijndael.IV, 0, ourHmacSourceBytes, HmacKey.Length + encrypted.Length, myRijndael.IV.Length);
+                // These calls can throw a variety of different exceptions but
+                // I can't see why they would so we will not try to differentiate the cause of them
+                try
+                {
+                    //TODO2: HMAC calculations might be stengthened against attacks on SHA 
+                    // and/or gain improved performance through use of algorithms like AES-CMAC or HKDF
 
-                // Calculate the HMAC
-                byte[] ourHmac = sha.ComputeHash(ourHmacSourceBytes);
+                    Array.Copy(HmacKey, ourHmacSourceBytes, HmacKey.Length);
+                    Array.Copy(encrypted, 0, ourHmacSourceBytes, HmacKey.Length, encrypted.Length);
+                    Array.Copy(myRijndael.IV, 0, ourHmacSourceBytes, HmacKey.Length + encrypted.Length, myRijndael.IV.Length);
 
-                // Package the data ready for transmission
-                JSONRPCContainer cont = new JSONRPCContainer();
-                cont.iv = Convert.ToBase64String(myRijndael.IV);
-                cont.message = Convert.ToBase64String(encrypted);
-                cont.hmac = Convert.ToBase64String(ourHmac);
+                    // Calculate the HMAC
+                    byte[] ourHmac = sha.ComputeHash(ourHmacSourceBytes);
 
-                return cont;
-            }
-            catch (ArgumentNullException)
-            {
-                return null;
-            }
-            catch (RankException)
-            {
-                return null;
-            }
-            catch (ArrayTypeMismatchException)
-            {
-                return null;
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                return null;
-            }
-            catch (ArgumentException)
-            {
-                return null;
-            }
-            catch (ObjectDisposedException)
-            {
-                return null;
+                    // Package the data ready for transmission
+                    JSONRPCContainer cont = new JSONRPCContainer();
+                    cont.iv = Convert.ToBase64String(myRijndael.IV);
+                    cont.message = Convert.ToBase64String(encrypted);
+                    cont.hmac = Convert.ToBase64String(ourHmac);
+
+                    return cont;
+                }
+                catch (ArgumentNullException)
+                {
+                    return null;
+                }
+                catch (RankException)
+                {
+                    return null;
+                }
+                catch (ArrayTypeMismatchException)
+                {
+                    return null;
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    return null;
+                }
+                catch (ArgumentException)
+                {
+                    return null;
+                }
+                catch (ObjectDisposedException)
+                {
+                    return null;
+                }
             }
         }
 
@@ -782,118 +796,124 @@ namespace KeePassRPC
                 return null;
 
             KeyContainerClass kc = this.KeyContainer;
-            SHA1 sha = new SHA1CryptoServiceProvider();
 
-            byte[] rawKeyBytes;
-            byte[] keyBytes;
-            byte[] messageBytes;
-            byte[] IVBytes;
+                byte[] rawKeyBytes;
+                byte[] keyBytes;
+                byte[] messageBytes;
+                byte[] IVBytes;
 
-            // Get the raw bytes that are used to calculate the HMAC
-            try
+            using (SHA1 sha = new SHA1CryptoServiceProvider())
             {
-                rawKeyBytes = KeePassLib.Utility.MemUtil.HexStringToByteArray(kc.Key);
-                keyBytes = sha.ComputeHash(rawKeyBytes);
-                messageBytes = Convert.FromBase64String(jsonrpcEncrypted.message);
-                IVBytes = Convert.FromBase64String(jsonrpcEncrypted.iv);
-            }
-            catch (FormatException)
-            {
-                // Should only happen if there is a fault with the client end
-                // of the protocol or if an attacker tries to inject invalid data
-                return null;
-            }
-            catch (ArgumentNullException)
-            {
-                // kc.Key must = null
-                return null;
-            }
+                // Get the raw bytes that are used to calculate the HMAC
+                try
+                {
+                    rawKeyBytes = KeePassLib.Utility.MemUtil.HexStringToByteArray(kc.Key);
+                    keyBytes = sha.ComputeHash(rawKeyBytes);
+                    messageBytes = Convert.FromBase64String(jsonrpcEncrypted.message);
+                    IVBytes = Convert.FromBase64String(jsonrpcEncrypted.iv);
+                }
+                catch (FormatException)
+                {
+                    // Should only happen if there is a fault with the client end
+                    // of the protocol or if an attacker tries to inject invalid data
+                    return null;
+                }
+                catch (ArgumentNullException)
+                {
+                    // kc.Key must = null
+                    return null;
+                }
 
             // These calls can throw a variety of different exceptions but
             // I can't see why they would so we will not try to differentiate the cause of them
             try
-            {
-                byte[] ourHmacSourceBytes = new byte[keyBytes.Length + messageBytes.Length + IVBytes.Length];
-                Array.Copy(keyBytes, ourHmacSourceBytes, keyBytes.Length);
-                Array.Copy(messageBytes, 0, ourHmacSourceBytes, keyBytes.Length, messageBytes.Length);
-                Array.Copy(IVBytes, 0, ourHmacSourceBytes, keyBytes.Length + messageBytes.Length, IVBytes.Length);
-
-                // Calculate the HMAC
-                byte[] ourHmac = sha.ComputeHash(ourHmacSourceBytes);
-
-                // Check our HMAC against the one supplied by the client
-                if (Convert.ToBase64String(ourHmac) != jsonrpcEncrypted.hmac)
                 {
-                    //TODO2: If we ever want/need to include some DOS protection we
-                    // could use this error condition to throttle requests from badly behaved clients
-                    if (KPRPC.logger != null) KPRPC.logger.WriteLine("HMAC did not match");
+                    byte[] ourHmacSourceBytes = new byte[keyBytes.Length + messageBytes.Length + IVBytes.Length];
+                    Array.Copy(keyBytes, ourHmacSourceBytes, keyBytes.Length);
+                    Array.Copy(messageBytes, 0, ourHmacSourceBytes, keyBytes.Length, messageBytes.Length);
+                    Array.Copy(IVBytes, 0, ourHmacSourceBytes, keyBytes.Length + messageBytes.Length, IVBytes.Length);
+
+                    // Calculate the HMAC
+                    byte[] ourHmac = sha.ComputeHash(ourHmacSourceBytes);
+
+                    // Check our HMAC against the one supplied by the client
+                    if (Convert.ToBase64String(ourHmac) != jsonrpcEncrypted.hmac)
+                    {
+                        //TODO2: If we ever want/need to include some DOS protection we
+                        // could use this error condition to throttle requests from badly behaved clients
+                        if (KPRPC.logger != null) KPRPC.logger.WriteLine("HMAC did not match");
+                        return null;
+                    }
+                }
+                catch (ArgumentNullException)
+                {
+                    return null;
+                }
+                catch (RankException)
+                {
+                    return null;
+                }
+                catch (ArrayTypeMismatchException)
+                {
+                    return null;
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    return null;
+                }
+                catch (ArgumentException)
+                {
+                    return null;
+                }
+                catch (ObjectDisposedException)
+                {
                     return null;
                 }
             }
-            catch (ArgumentNullException)
-            {
-                return null;
-            }
-            catch (RankException)
-            {
-                return null;
-            }
-            catch (ArrayTypeMismatchException)
-            {
-                return null;
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                return null;
-            }
-            catch (ArgumentException)
-            {
-                return null;
-            }
-            catch (ObjectDisposedException)
-            {
-                return null;
-            }
 
             // Decrypt the client's message
-            RijndaelManaged myRijndael = new RijndaelManaged();
-            ICryptoTransform decryptor = myRijndael.CreateDecryptor(rawKeyBytes, IVBytes);
-            MemoryStream msDecrypt = new MemoryStream();
-            CryptoStream cryptoStream = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Write);
+            using (RijndaelManaged myRijndael = new RijndaelManaged())
+            {
+                ICryptoTransform decryptor = myRijndael.CreateDecryptor(rawKeyBytes, IVBytes);
+                using (MemoryStream msDecrypt = new MemoryStream())
+                using (CryptoStream cryptoStream = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Write))
+                {
+                    try
+                    {
+                        cryptoStream.Write(messageBytes, 0, messageBytes.Length);
+                    }
+                    catch (ArgumentException)
+                    {
+                        //The sum of the count and offset parameters is longer than the length of the buffer.
+                        return null;
+                    }
+                    catch (NotSupportedException)
+                    {
+                        // Underlying stream does not support writing (not sure how this could happen)
+                        return null;
+                    }
 
-            try
-            {
-                cryptoStream.Write(messageBytes, 0, messageBytes.Length);
-            }
-            catch (ArgumentException)
-            {
-                //The sum of the count and offset parameters is longer than the length of the buffer.
-                return null;
-            }
-            catch (NotSupportedException)
-            {
-                // Underlying stream does not support writing (not sure how this could happen)
-                return null;
-            }
+                    try
+                    {
+                        cryptoStream.FlushFinalBlock();
+                    }
+                    catch (NotSupportedException)
+                    {
+                        // 	The current stream is not writable. -or- The final block has already been transformed. 
+                        return null;
+                    }
+                    catch (CryptographicException)
+                    {
+                        // The key is corrupt which can cause invalid padding to the stream. 
+                        return null;
+                    }
 
-            try
-            {
-                cryptoStream.FlushFinalBlock();
-            }
-            catch (NotSupportedException)
-            {
-                // 	The current stream is not writable. -or- The final block has already been transformed. 
-                return null;
-            }
-            catch (CryptographicException)
-            {
-                // The key is corrupt which can cause invalid padding to the stream. 
-                return null;
-            }
 
-            byte[] decrypted = msDecrypt.ToArray();
-            string result = Encoding.UTF8.GetString(decrypted);
-            return result;
+                    byte[] decrypted = msDecrypt.ToArray();
+                    string result = Encoding.UTF8.GetString(decrypted);
+                    return result;
+                }
+            }
         }
 
     }
