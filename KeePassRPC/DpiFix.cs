@@ -19,7 +19,8 @@ namespace KeePassRPC
             if ((w == sw) && (h == sh) && !bForceNewObject)
                 return img;
 
-            using (Bitmap bmp = new Bitmap(sw, sh, img.PixelFormat))
+            Bitmap bmp = new Bitmap(sw, sh, img.PixelFormat);
+
             using (Graphics g = Graphics.FromImage(bmp))
             {
                 g.SmoothingMode = SmoothingMode.HighQuality;
