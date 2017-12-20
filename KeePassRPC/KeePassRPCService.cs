@@ -324,6 +324,14 @@ namespace KeePassRPC
                                 usernameFound = true;
                             }
                         }
+                        else if (ff.Type == FormFieldType.FFTplaceholder)
+                        {
+                            string ffValue = KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ff.Value, db);
+                            if (!string.IsNullOrEmpty(ffValue))
+                            {
+                                formFieldList.Add(new FormField(ff.Name, "Placeholder", ffValue, FormFieldType.FFTtext, ff.Id, ff.Page));
+                            }
+                        }
                         else
                             formFieldList.Add(new FormField(ff.Name, ff.Name, ff.Value, ff.Type, ff.Id, ff.Page));
                     }

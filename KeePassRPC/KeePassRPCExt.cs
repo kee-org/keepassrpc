@@ -32,7 +32,7 @@ namespace KeePassRPC
     public sealed class KeePassRPCExt : Plugin
     {
         // version information
-        public static readonly Version PluginVersion = new Version(1, 7, 3);
+        public static readonly Version PluginVersion = new Version(1, 7, 4);
 
         public override string UpdateUrl
         {
@@ -1421,6 +1421,11 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                     {
                         formFieldList.Add(new FormField(fieldName,
                 fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTcheckbox, fieldId, fieldPage));
+                    }
+                    else if (pweValue == "placeholder")
+                    {
+                        formFieldList.Add(new FormField(fieldName,
+                fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTplaceholder, fieldId, fieldPage));
                     }
                 }
                 else if (pweKey == "Alternative URLs" || pweKey == "KPRPC Alternative URLs")
