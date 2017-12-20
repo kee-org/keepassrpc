@@ -20,6 +20,8 @@ namespace KeePassRPC.DataExchangeModel
                 type = "Username";
             else if (fft == FormFieldType.FFTcheckbox)
                 type = "Checkbox";
+            else if (fft == FormFieldType.FFTplaceholder)
+                type = "Placeholder";
             if (!titleCase)
                 return type.ToLower();
             return type;
@@ -41,6 +43,8 @@ namespace KeePassRPC.DataExchangeModel
                 fft = FormFieldType.FFTusername;
             else if (type == "checkbox")
                 fft = FormFieldType.FFTcheckbox;
+            else if (type == "placeholder")
+                fft = FormFieldType.FFTplaceholder;
             return fft;
         }
     }
@@ -78,7 +82,7 @@ namespace KeePassRPC.DataExchangeModel
     }
 
     public enum LoginSearchType { LSTall, LSTnoForms, LSTnoRealms }
-    public enum FormFieldType { FFTradio, FFTusername, FFTtext, FFTpassword, FFTselect, FFTcheckbox } // ..., HTML 5, etc.
+    public enum FormFieldType { FFTradio, FFTusername, FFTtext, FFTpassword, FFTselect, FFTcheckbox, FFTplaceholder } // ..., HTML 5, etc.
     // FFTusername is special type because bultin FF supports with only username and password
 
     public struct MatchAccuracy

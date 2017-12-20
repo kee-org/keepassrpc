@@ -57,7 +57,9 @@ namespace KeePassRPC.Forms
                 else if (type == FormFieldType.FFTusername)
                     comboBox1.Text = "Username";
                 else if (type == FormFieldType.FFTcheckbox)
-                    comboBox1.Text = "Checkbox";                    
+                    comboBox1.Text = "Checkbox";
+                else if (type == FormFieldType.FFTplaceholder)
+                    comboBox1.Text = "Placeholder";
             }
             textBox1.Text = Name = name;
             textBox2.Text = Value = value;
@@ -98,6 +100,8 @@ namespace KeePassRPC.Forms
                 Type = FormFieldType.FFTusername;
             else if (comboBox1.Text == "Checkbox")
                 Type = FormFieldType.FFTcheckbox;
+            else if (comboBox1.Text == "Placeholder")
+                Type = FormFieldType.FFTplaceholder;
         }
     }
 }
