@@ -39,8 +39,8 @@ namespace KeePassRPC.Forms
 		private IOConnectionInfo m_ioInfo = new IOConnectionInfo();
         private string _databaseName = null;
 
-		private SecureEdit m_secPassword = new SecureEdit();
-		private SecureEdit m_secRepeat = new SecureEdit();
+		private KeePassRPC.SecureEdit m_secPassword = new SecureEdit();
+		private KeePassRPC.SecureEdit m_secRepeat = new SecureEdit();
 
 		public CompositeKey CompositeKey
 		{
