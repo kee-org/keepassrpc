@@ -1405,7 +1405,7 @@ namespace KeePassRPC
                 PwGroup matchedGroup = pwd.RootGroup.Uuid == pwuuid ? pwd.RootGroup : pwd.RootGroup.FindGroup(pwuuid, true);
 
                 if (matchedGroup == null)
-                    throw new Exception("Could not find requested group. Have you deleted your Kee start/home group? Set a new one and try again.");
+                    throw new Exception("Could not find requested group. Have you deleted your Kee home group? Set a new one and try again.");
 
                 return matchedGroup;
             }
@@ -1596,7 +1596,7 @@ namespace KeePassRPC
             }
 
             if (matchedGroup == null)
-                throw new Exception("Could not find requested group. Have you deleted your Kee start/home group? Set a new one and try again.");
+                throw new Exception("Could not find requested group. Have you deleted your Kee home group? Set a new one and try again.");
 
             return matchedGroup;
         }
@@ -1744,7 +1744,7 @@ namespace KeePassRPC
                 PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
 
                 if (matchedGroup == null)
-                    throw new Exception("Could not find requested group. Have you deleted your Kee start/home group? Set a new one and try again.");
+                    throw new Exception("Could not find requested group. Have you deleted your Kee home group? Set a new one and try again.");
 
                 groups = new Group[1];
                 groups[0] = GetGroupFromPwGroup(matchedGroup);

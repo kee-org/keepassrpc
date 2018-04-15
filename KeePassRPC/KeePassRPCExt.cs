@@ -224,7 +224,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 _tsSeparator1 = new ToolStripSeparator();
                 gcm.Items.Add(_tsSeparator1);
                 _keeRootMenu = new ToolStripMenuItem();
-                _keeRootMenu.Text = "Set as Kee start group";
+                _keeRootMenu.Text = "Set as Kee home group";
                 _keeRootMenu.Click += OnMenuSetRootGroup;
                 gcm.Items.Add(_keeRootMenu);
 
