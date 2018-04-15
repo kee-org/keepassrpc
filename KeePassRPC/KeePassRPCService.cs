@@ -286,7 +286,6 @@ namespace KeePassRPC
         {
             ArrayList formFieldList = new ArrayList();
             ArrayList URLs = new ArrayList();
-            URLs.Add(pwe.Strings.ReadSafe("URL"));
             bool usernameFound = false;
             bool passwordFound = false;
             bool alwaysAutoFill = false;
@@ -296,6 +295,11 @@ namespace KeePassRPC
             int priority = 0;
             string usernameName = "";
             string usernameValue = "";
+
+            if (!string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
+            {
+                URLs.Add(pwe.Strings.ReadSafe("URL"));
+            }
 
             if (abortIfHidden && conf.Hide)
                 return null;
@@ -431,9 +435,9 @@ namespace KeePassRPC
             PwGroup pwg = GetRootPwGroup(pwd);
             Group rt = GetGroupFromPwGroup(pwg);
             if (fullDetail)
-                rt.ChildEntries = (Entry[])GetChildEntries(pwd, pwg, fullDetail);
+                rt.ChildEntries = (Entry[])GetChildEntries(pwd, pwg, fullDetail, true);
             else if (!noDetail)
-                rt.ChildLightEntries = GetChildEntries(pwd, pwg, fullDetail);
+                rt.ChildLightEntries = GetChildEntries(pwd, pwg, fullDetail, true);
 
             if (!noDetail)
                 rt.ChildGroups = GetChildGroups(pwd, pwg, true, fullDetail);
@@ -1459,13 +1463,43 @@ namespace KeePassRPC
         }
 
         /// <summary>
-        /// Return a list of every login in the database
+        /// Return a list of every entry in the database that has a URL
         /// </summary>
-        /// <param name="logins">the list of all logins</param>
-        /// <param name="current__"></param>
-        /// <returns>the number of logins in the list</returns>
+        /// <returns>all logins in the database that have a URL</returns>
+        [JsonRpcMethod]
+        public Entry[] GetEntries()
+        {
+            return getAllLogins(true);
+        }
+
+        /// <summary>
+        /// Return a list of every entry in the database that has a URL
+        /// </summary>
+        /// <returns>all logins in the database that have a URL</returns>
+        /// <remarks>GetAllLogins is deprecated. Use GetEntries instead.</remarks>
         [JsonRpcMethod]
         public Entry[] GetAllLogins()
+        {
+            return getAllLogins(true);
+        }
+
+        /// <summary>
+        /// Return a list of every entry in the database - this includes entries without an URL
+        /// </summary>
+        /// <returns>all logins in the database</returns>
+        [JsonRpcMethod]
+        public Entry[] GetAllEntries()
+        {
+            return getAllLogins(false);
+        }
+
+        /// <summary>
+        /// Returns a list of every entry in the database
+        /// </summary>
+        /// <param name="urlRequired">true = URL field must exist for a child entry to be returned, false = all entries are returned</param>
+        /// <param name="current__"></param>
+        /// <returns>all logins in the database subject to the urlRequired setting</returns>
+        public Entry[] getAllLogins(bool urlRequired)
         {
             int count = 0;
             List<Entry> allEntries = new List<Entry>();
@@ -1481,7 +1515,7 @@ namespace KeePassRPC
                 if (EntryIsInRecycleBin(pwe, host.Database))
                     continue; // ignore if it's in the recycle bin
 
-                if (string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
+                if (urlRequired && string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
                     continue; // ignore if it has no URL
 
                 Entry kpe = (Entry)GetEntryFromPwEntry(pwe, MatchAccuracy.None, true, host.Database, true);
@@ -1517,12 +1551,40 @@ namespace KeePassRPC
         /// </summary>
         /// <param name="uuid">the unique ID of the group we're interested in.</param>
         /// <param name="current__"></param>
-        /// <returns>the list of every entry directly inside the group.</returns>
+        /// <returns>the list of every entry with a URL directly inside the group.</returns>
         [JsonRpcMethod]
         public Entry[] GetChildEntries(string uuid)
         {
             PwGroup matchedGroup;
-            if (uuid != null && uuid.Length > 0)
+            matchedGroup = findMatchingGroup(uuid);
+
+            return (Entry[])GetChildEntries(host.Database, matchedGroup, true, true);
+        }
+
+        /// <summary>
+        /// Returns a list of all the entry contained within a group - including ones missing a URL (not recursive)
+        /// </summary>
+        /// <param name="uuid">the unique ID of the group we're interested in.</param>
+        /// <param name="current__"></param>
+        /// <returns>the list of every entry directly inside the group.</returns>
+        [JsonRpcMethod]
+        public Entry[] GetAllChildEntries(string uuid)
+        {
+            PwGroup matchedGroup;
+            matchedGroup = findMatchingGroup(uuid);
+
+            return (Entry[])GetChildEntries(host.Database, matchedGroup, true, false);
+        }
+
+        /// <summary>
+        /// Finds the group that matches a UUID, else return the root group
+        /// </summary>
+        /// <param name="uuid">the unique ID of the group we're interested in.</param>
+        /// <returns>Group that matches the UUID, else the root group.</returns>
+        private PwGroup findMatchingGroup(string uuid)
+        {
+            PwGroup matchedGroup;
+            if (!string.IsNullOrEmpty(uuid))
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
@@ -1536,16 +1598,19 @@ namespace KeePassRPC
             if (matchedGroup == null)
                 throw new Exception("Could not find requested group. Have you deleted your Kee start/home group? Set a new one and try again.");
 
-            return (Entry[])GetChildEntries(host.Database, matchedGroup, true);
+            return matchedGroup;
         }
 
         /// <summary>
         /// Returns a list of every entry contained within a group (not recursive)
         /// </summary>
-        /// <param name="uuid">the unique ID of the group we're interested in.</param>
+        /// <param name="pwd">the database to search in</param>
+        /// <param name="group">the group to search in</param>
+        /// <param name="fullDetails">true = all details; false = some details ommitted (e.g. password)</param>
+        /// <param name="urlRequired">true = URL field must exist for a child entry to be returned, false = all entries are returned</param>
         /// <param name="current__"></param>
         /// <returns>the list of every entry directly inside the group.</returns>
-        private LightEntry[] GetChildEntries(PwDatabase pwd, PwGroup group, bool fullDetails)
+        private LightEntry[] GetChildEntries(PwDatabase pwd, PwGroup group, bool fullDetails, bool urlRequired)
         {
             List<Entry> allEntries = new List<Entry>();
             List<LightEntry> allLightEntries = new List<LightEntry>();
@@ -1561,7 +1626,7 @@ namespace KeePassRPC
                     if (EntryIsInRecycleBin(pwe, pwd))
                         continue; // ignore if it's in the recycle bin
 
-                    if (string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
+                    if (urlRequired && string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
                         continue;
                     if (fullDetails)
                     {
@@ -1610,19 +1675,7 @@ namespace KeePassRPC
         public Group[] GetChildGroups(string uuid)
         {
             PwGroup matchedGroup;
-            if (uuid != null && uuid.Length > 0)
-            {
-                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
-
-                matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
-            }
-            else
-            {
-                matchedGroup = GetRootPwGroup(host.Database);
-            }
-
-            if (matchedGroup == null)
-                throw new Exception("Could not find requested group. Have you deleted your Kee start/home group? Set a new one and try again.");
+            matchedGroup = findMatchingGroup(uuid);
 
             return GetChildGroups(host.Database, matchedGroup, false, true);
         }
@@ -1654,9 +1707,9 @@ namespace KeePassRPC
                 {
                     kpg.ChildGroups = GetChildGroups(pwd, pwg, true, fullDetails);
                     if (fullDetails)
-                        kpg.ChildEntries = (Entry[])GetChildEntries(pwd, pwg, fullDetails);
+                        kpg.ChildEntries = (Entry[])GetChildEntries(pwd, pwg, fullDetails, true);
                     else
-                        kpg.ChildLightEntries = GetChildEntries(pwd, pwg, fullDetails);
+                        kpg.ChildLightEntries = GetChildEntries(pwd, pwg, fullDetails, true);
                 }
                 allGroups.Add(kpg);
             }

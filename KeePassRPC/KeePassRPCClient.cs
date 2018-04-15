@@ -39,7 +39,11 @@ namespace KeePassRPC
             "KPRPC_GENERAL_CLIENTS",
 
             // Renamed KeeFox to Kee
-            "KPRPC_FEATURE_KEE_BRAND"
+            "KPRPC_FEATURE_KEE_BRAND",
+
+            // GetAllEntries or GetAllChildEntries can be used to 
+            // include results even if they have no URL
+            "KPRPC_ENTRIES_WITH_NO_URL"
 
             // in the rare event that we want to check for the absense of a feature
             // we would add a feature flag along the lines of "KPRPC_FEATURE_REMOVED_INCOMPATIBLE_THING_X"
