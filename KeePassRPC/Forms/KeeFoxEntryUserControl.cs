@@ -573,21 +573,27 @@ namespace KeePassRPC.Forms
 
         private void buttonFieldAdd_Click(object sender, EventArgs e)
         {
-            KeeFoxFieldForm kfff = new KeeFoxFieldForm(null, null, null, FormFieldType.FFTtext, 1);
-
-            if (kfff.ShowDialog() == DialogResult.OK)
+            using (KeeFoxFieldForm kfff = new KeeFoxFieldForm(null, null, null, FormFieldType.FFTtext, 1))
             {
-                FormField ff = new FormField(kfff.Name, kfff.Name, kfff.Value, kfff.Type, kfff.Id, kfff.Page);
 
-                string type = Utilities.FormFieldTypeToDisplay(kfff.Type,false);
-                int page = kfff.Page;
+                if (kfff.ShowDialog() == DialogResult.OK)
+                {
+                    FormField ff = new FormField(kfff.Name, kfff.Name, kfff.Value, kfff.Type, kfff.Id, kfff.Page);
 
-                // We know any new passwords are not the main Entry password
-                // Also know that the display name can be same as main name
-                ListViewItem lvi = new ListViewItem(new string[] { kfff.Name, kfff.Type == FormFieldType.FFTpassword ? "********" : kfff.Value, kfff.Id, type, page.ToString() });
-                lvi.Tag = ff;
-                AddFieldListItem(lvi);
-                UpdateFieldStrings();
+                    string type = Utilities.FormFieldTypeToDisplay(kfff.Type, false);
+                    int page = kfff.Page;
+
+                    // We know any new passwords are not the main Entry password
+                    // Also know that the display name can be same as main name
+                    ListViewItem lvi = new ListViewItem(new string[]
+                    {
+                        kfff.Name, kfff.Type == FormFieldType.FFTpassword ? "********" : kfff.Value, kfff.Id, type,
+                        page.ToString()
+                    });
+                    lvi.Tag = ff;
+                    AddFieldListItem(lvi);
+                    UpdateFieldStrings();
+                }
             }
         }
 

@@ -159,10 +159,11 @@ the recycle bin if you want Kee to work with this group.";
             if (selected == "Location manager...")
             {
                 // launch location manager
-                LocationManager lm = new LocationManager(KeePassRPCPlugin);
-
-                if (lm.ShowDialog() == DialogResult.OK)
-                    UpdateLocations();
+                using (LocationManager lm = new LocationManager(KeePassRPCPlugin))
+                {
+                    if (lm.ShowDialog() == DialogResult.OK)
+                        UpdateLocations();
+                }
             }
             else if (selected == "Anywhere")
             {

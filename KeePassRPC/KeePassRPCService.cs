@@ -151,18 +151,20 @@ namespace KeePassRPC
 
         void openGroupEditorWindow(PwGroup pg, PwDatabase db)
         {
-            GroupForm gf = new GroupForm();
-            gf.InitEx(pg, host.MainWindow.ClientIcons, host.Database);
+            using (GroupForm gf = new GroupForm())
+            {
+                gf.InitEx(pg, host.MainWindow.ClientIcons, host.Database);
 
-            gf.BringToFront();
-            gf.ShowInTaskbar = true;
+                gf.BringToFront();
+                gf.ShowInTaskbar = true;
 
-            host.MainWindow.Focus();
-            gf.TopMost = true;
-            gf.Focus();
-            gf.Activate();
-            if (gf.ShowDialog() == DialogResult.OK)
-                saveDB(db);
+                host.MainWindow.Focus();
+                gf.TopMost = true;
+                gf.Focus();
+                gf.Activate();
+                if (gf.ShowDialog() == DialogResult.OK)
+                    saveDB(db);
+            }
         }
 
         private delegate void dlgOpenGroupEditorWindow(PwGroup pg, PwDatabase db);
@@ -196,19 +198,21 @@ namespace KeePassRPC
 
         void OpenLoginEditorWindow(PwEntry pe, PwDatabase db)
         {
-            PwEntryForm ef = new PwEntryForm();
-            ef.InitEx(pe, PwEditMode.EditExistingEntry, host.Database, host.MainWindow.ClientIcons, false, false);
+            using (PwEntryForm ef = new PwEntryForm())
+            {
+                ef.InitEx(pe, PwEditMode.EditExistingEntry, host.Database, host.MainWindow.ClientIcons, false, false);
 
-            ef.BringToFront();
-            ef.ShowInTaskbar = true;
+                ef.BringToFront();
+                ef.ShowInTaskbar = true;
 
-            host.MainWindow.Focus();
-            ef.TopMost = true;
-            ef.Focus();
-            ef.Activate();
+                host.MainWindow.Focus();
+                ef.TopMost = true;
+                ef.Focus();
+                ef.Activate();
 
-            if (ef.ShowDialog() == DialogResult.OK)
-                saveDB(db);
+                if (ef.ShowDialog() == DialogResult.OK)
+                    saveDB(db);
+            }
         }
 
         private delegate void dlgOpenLoginEditorWindow(PwEntry pg, PwDatabase db);
@@ -602,9 +606,11 @@ namespace KeePassRPC
             {
                 // we found an icon but it wasn't in the cache so lets
                 // calculate its base64 encoding and then add it to the cache
-                MemoryStream ms = new MemoryStream();
-                icon.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                imageData = Convert.ToBase64String(ms.ToArray());
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    icon.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    imageData = Convert.ToBase64String(ms.ToArray());
+                }
                 DataExchangeModel.IconCache<PwUuid>.AddIcon(uuid, imageData);
             }
 
@@ -639,34 +645,33 @@ namespace KeePassRPC
                 //MemoryStream id = new MemoryStream();
                 //icon.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
 
-                Image img = KeePass.UI.UIUtil.LoadImage(Convert.FromBase64String(imageData));
-
-                Image imgNew = new Bitmap(img, new Size(16, 16));
-
-                MemoryStream ms = new MemoryStream();
-                imgNew.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-
-                byte[] msByteArray = ms.ToArray();
-
-                foreach (PwCustomIcon item in host.Database.CustomIcons)
+                using (Image img = KeePass.UI.UIUtil.LoadImage(Convert.FromBase64String(imageData)))
+                using (Image imgNew = new Bitmap(img, new Size(16, 16)))
+                using (MemoryStream ms = new MemoryStream())
                 {
-                    // re-use existing custom icon if it's already in the database
-                    // (This will probably fail if database is used on 
-                    // both 32 bit and 64 bit machines - not sure why...)
-                    if (KeePassLib.Utility.MemUtil.ArraysEqual(msByteArray, item.ImageDataPng))
+                    imgNew.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+
+                    byte[] msByteArray = ms.ToArray();
+
+                    foreach (PwCustomIcon item in host.Database.CustomIcons)
                     {
-                        customIconUUID = item.Uuid;
-                        host.Database.UINeedsIconUpdate = true;
-                        return true;
+                        // re-use existing custom icon if it's already in the database
+                        // (This will probably fail if database is used on 
+                        // both 32 bit and 64 bit machines - not sure why...)
+                        if (KeePassLib.Utility.MemUtil.ArraysEqual(msByteArray, item.ImageDataPng))
+                        {
+                            customIconUUID = item.Uuid;
+                            host.Database.UINeedsIconUpdate = true;
+                            return true;
+                        }
                     }
+                    PwCustomIcon pwci = new PwCustomIcon(new PwUuid(true), msByteArray);
+                    host.Database.CustomIcons.Add(pwci);
+
+                    customIconUUID = pwci.Uuid;
+                    host.Database.UINeedsIconUpdate = true;
+
                 }
-
-                PwCustomIcon pwci = new PwCustomIcon(new PwUuid(true),
-                    msByteArray);
-                host.Database.CustomIcons.Add(pwci);
-
-                customIconUUID = pwci.Uuid;
-                host.Database.UINeedsIconUpdate = true;
 
                 return true;
             }

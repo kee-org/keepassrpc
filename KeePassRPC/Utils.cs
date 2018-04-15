@@ -14,8 +14,10 @@ namespace KeePassRPC
 
         internal static byte[] Hash(byte[] data)
         {
-            SHA256 shaM = new SHA256Managed();
-            return shaM.ComputeHash(data);
+            using (SHA256 shaM = new SHA256Managed())
+            {
+                return shaM.ComputeHash(data);
+            }
         }
 
         internal static byte[] GetRandomBytes(int quantity)
@@ -23,9 +25,11 @@ namespace KeePassRPC
             byte[] randomNumber = new byte[quantity];
             //TODO2: We don't need many random numbers very often but maybe could improve
             // performance a tad by re-using the same generator object
-            RNGCryptoServiceProvider Gen = new RNGCryptoServiceProvider();
-            Gen.GetNonZeroBytes(randomNumber);
-            return randomNumber;
+            using (RNGCryptoServiceProvider Gen = new RNGCryptoServiceProvider())
+            {
+                Gen.GetNonZeroBytes(randomNumber);
+                return randomNumber;
+            }
         }
 
         internal const string Base32Characters = "ybndrfg8ejkmcpqxot1vwisza345h769";

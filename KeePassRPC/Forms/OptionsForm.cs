@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Text;
 using System.Windows.Forms;
 
@@ -142,7 +143,10 @@ namespace KeePassRPC.Forms
                         System.Security.Cryptography.DataProtectionScope.CurrentUser);
                         serialisedKeyContainer = keyBytes;
                         System.Xml.Serialization.XmlSerializer mySerializer = new System.Xml.Serialization.XmlSerializer(typeof(KeyContainerClass));
-                        keyContainers.Add((KeyContainerClass)mySerializer.Deserialize(new System.IO.MemoryStream(serialisedKeyContainer)));
+                        using (MemoryStream ms = new System.IO.MemoryStream(serialisedKeyContainer))
+                        {
+                            keyContainers.Add((KeyContainerClass) mySerializer.Deserialize(ms));
+                        }
                     }
                     catch (Exception)
                     {
@@ -150,7 +154,10 @@ namespace KeePassRPC.Forms
                         {
                             serialisedKeyContainer = Convert.FromBase64String(kvp.Value);
                             System.Xml.Serialization.XmlSerializer mySerializer = new System.Xml.Serialization.XmlSerializer(typeof(KeyContainerClass));
-                            keyContainers.Add((KeyContainerClass)mySerializer.Deserialize(new System.IO.MemoryStream(serialisedKeyContainer)));
+                            using (MemoryStream ms = new MemoryStream(serialisedKeyContainer))
+                            {
+                                keyContainers.Add((KeyContainerClass) mySerializer.Deserialize(ms));
+                            }
                         }
                         catch (Exception)
                         {
