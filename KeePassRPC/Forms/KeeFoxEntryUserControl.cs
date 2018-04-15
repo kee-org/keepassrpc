@@ -368,78 +368,10 @@ namespace KeePassRPC.Forms
             for (int i = 0; i < listView1.Items.Count; ++i)
                 all.Add(listView1.Items[i].Text);
 
-            KeeFoxURLForm kfurlf = new KeeFoxURLForm(false,false,null,null,all);
-
-            if (kfurlf.ShowDialog() == DialogResult.OK)
+            using (KeeFoxURLForm kfurlf = new KeeFoxURLForm(false, false, null, null, all))
             {
-                //UpdateEntryStrings(false, false);
-                //ResizeColumnHeaders();
-
-                if (kfurlf.Match && !kfurlf.RegEx)
-                {
-                    listNormalURLs.Add(kfurlf.URL);
-                    ListViewItem lvi = new ListViewItem(new string[] { kfurlf.URL, "Normal", "Match" });
-                    AddURLListItem(lvi);
-                }
-                if (kfurlf.Block && !kfurlf.RegEx)
-                {
-                    listNormalBlockedURLs.Add(kfurlf.URL);
-                    ListViewItem lvi = new ListViewItem(new string[] { kfurlf.URL, "Normal", "Block" });
-                    AddURLListItem(lvi);
-                }
-                if (kfurlf.Match && kfurlf.RegEx)
-                {
-                    listRegExURLs.Add(kfurlf.URL);
-                    ListViewItem lvi = new ListViewItem(new string[] { kfurlf.URL, "RegEx", "Match" });
-                    AddURLListItem(lvi);
-                }
-                if (kfurlf.Block && kfurlf.RegEx)
-                {
-                    listRegExBlockedURLs.Add(kfurlf.URL);
-                    ListViewItem lvi = new ListViewItem(new string[] { kfurlf.URL, "RegEx", "Block" });
-                    AddURLListItem(lvi);
-                }
-                UpdateURLStrings();
-            }
-        }
-
-        private void buttonURLEdit_Click(object sender, EventArgs e)
-        {
-            ListView.SelectedListViewItemCollection lvsicSel = listView1.SelectedItems;
-
-            List<string> all = new List<string>();
-            for (int i = 0; i < listView1.Items.Count; ++i)
-                all.Add(listView1.Items[i].Text);
-            
-            for (int i = 0; i < lvsicSel.Count; ++i)
-            {
-                List<string> others = all.GetRange(0, all.Count);
-                others.Remove(lvsicSel[i].Text);
-
-                // find the current data
-                KeeFoxURLForm kfurlf = null;
-                if (lvsicSel[i].SubItems[1].Text == "Normal" && lvsicSel[i].SubItems[2].Text == "Match")
-                    kfurlf = new KeeFoxURLForm(true, false, null, lvsicSel[i].Text, others);
-                else if (lvsicSel[i].SubItems[1].Text == "Normal" && lvsicSel[i].SubItems[2].Text == "Block")
-                    kfurlf = new KeeFoxURLForm(false, true, null, lvsicSel[i].Text, others);
-                else if (lvsicSel[i].SubItems[1].Text == "RegEx" && lvsicSel[i].SubItems[2].Text == "Match")
-                    kfurlf = new KeeFoxURLForm(true, false, lvsicSel[i].Text, null, others);
-                else if (lvsicSel[i].SubItems[1].Text == "RegEx" && lvsicSel[i].SubItems[2].Text == "Block")
-                    kfurlf = new KeeFoxURLForm(false, true, lvsicSel[i].Text, null, others);
-
                 if (kfurlf.ShowDialog() == DialogResult.OK)
                 {
-                    // remove the old URL data
-                    if (lvsicSel[i].SubItems[1].Text == "Normal" && lvsicSel[i].SubItems[2].Text == "Match")
-                        listNormalURLs.Remove(lvsicSel[i].Text);
-                    else if (lvsicSel[i].SubItems[1].Text == "Normal" && lvsicSel[i].SubItems[2].Text == "Block")
-                        listNormalBlockedURLs.Remove(lvsicSel[i].Text);
-                    else if (lvsicSel[i].SubItems[1].Text == "RegEx" && lvsicSel[i].SubItems[2].Text == "Match")
-                        listRegExURLs.Remove(lvsicSel[i].Text);
-                    else if (lvsicSel[i].SubItems[1].Text == "RegEx" && lvsicSel[i].SubItems[2].Text == "Block")
-                        listRegExBlockedURLs.Remove(lvsicSel[i].Text);
-                    RemoveURLListItem(lvsicSel[i]);
-
                     //UpdateEntryStrings(false, false);
                     //ResizeColumnHeaders();
 
@@ -468,11 +400,84 @@ namespace KeePassRPC.Forms
                         AddURLListItem(lvi);
                     }
                     UpdateURLStrings();
-
                 }
             }
+        }
 
+        private void buttonURLEdit_Click(object sender, EventArgs e)
+        {
+            ListView.SelectedListViewItemCollection lvsicSel = listView1.SelectedItems;
 
+            List<string> all = new List<string>();
+            for (int i = 0; i < listView1.Items.Count; ++i)
+                all.Add(listView1.Items[i].Text);
+            
+            for (int i = 0; i < lvsicSel.Count; ++i)
+            {
+                List<string> others = all.GetRange(0, all.Count);
+                others.Remove(lvsicSel[i].Text);
+
+                // find the current data
+                using (KeeFoxURLForm kfurlf = URLFormForEditing(lvsicSel, i, others))
+                {
+                    if (kfurlf.ShowDialog() == DialogResult.OK)
+                    {
+                        // remove the old URL data
+                        if (lvsicSel[i].SubItems[1].Text == "Normal" && lvsicSel[i].SubItems[2].Text == "Match")
+                            listNormalURLs.Remove(lvsicSel[i].Text);
+                        else if (lvsicSel[i].SubItems[1].Text == "Normal" && lvsicSel[i].SubItems[2].Text == "Block")
+                            listNormalBlockedURLs.Remove(lvsicSel[i].Text);
+                        else if (lvsicSel[i].SubItems[1].Text == "RegEx" && lvsicSel[i].SubItems[2].Text == "Match")
+                            listRegExURLs.Remove(lvsicSel[i].Text);
+                        else if (lvsicSel[i].SubItems[1].Text == "RegEx" && lvsicSel[i].SubItems[2].Text == "Block")
+                            listRegExBlockedURLs.Remove(lvsicSel[i].Text);
+                        RemoveURLListItem(lvsicSel[i]);
+
+                        //UpdateEntryStrings(false, false);
+                        //ResizeColumnHeaders();
+
+                        if (kfurlf.Match && !kfurlf.RegEx)
+                        {
+                            listNormalURLs.Add(kfurlf.URL);
+                            ListViewItem lvi = new ListViewItem(new string[] { kfurlf.URL, "Normal", "Match" });
+                            AddURLListItem(lvi);
+                        }
+                        if (kfurlf.Block && !kfurlf.RegEx)
+                        {
+                            listNormalBlockedURLs.Add(kfurlf.URL);
+                            ListViewItem lvi = new ListViewItem(new string[] { kfurlf.URL, "Normal", "Block" });
+                            AddURLListItem(lvi);
+                        }
+                        if (kfurlf.Match && kfurlf.RegEx)
+                        {
+                            listRegExURLs.Add(kfurlf.URL);
+                            ListViewItem lvi = new ListViewItem(new string[] { kfurlf.URL, "RegEx", "Match" });
+                            AddURLListItem(lvi);
+                        }
+                        if (kfurlf.Block && kfurlf.RegEx)
+                        {
+                            listRegExBlockedURLs.Add(kfurlf.URL);
+                            ListViewItem lvi = new ListViewItem(new string[] { kfurlf.URL, "RegEx", "Block" });
+                            AddURLListItem(lvi);
+                        }
+                        UpdateURLStrings();
+                    }
+                }
+            }
+        }
+
+        private static KeeFoxURLForm URLFormForEditing(ListView.SelectedListViewItemCollection lvsicSel, int i, List<string> others)
+        {
+            KeeFoxURLForm kfurlf = null;
+            if (lvsicSel[i].SubItems[1].Text == "Normal" && lvsicSel[i].SubItems[2].Text == "Match")
+                kfurlf = new KeeFoxURLForm(true, false, null, lvsicSel[i].Text, others);
+            else if (lvsicSel[i].SubItems[1].Text == "Normal" && lvsicSel[i].SubItems[2].Text == "Block")
+                kfurlf = new KeeFoxURLForm(false, true, null, lvsicSel[i].Text, others);
+            else if (lvsicSel[i].SubItems[1].Text == "RegEx" && lvsicSel[i].SubItems[2].Text == "Match")
+                kfurlf = new KeeFoxURLForm(true, false, lvsicSel[i].Text, null, others);
+            else if (lvsicSel[i].SubItems[1].Text == "RegEx" && lvsicSel[i].SubItems[2].Text == "Block")
+                kfurlf = new KeeFoxURLForm(false, true, lvsicSel[i].Text, null, others);
+            return kfurlf;
         }
 
         private void buttonURLDelete_Click(object sender, EventArgs e)
@@ -602,6 +607,39 @@ namespace KeePassRPC.Forms
             ListView.SelectedListViewItemCollection lvsicSel = listView2.SelectedItems;
 
             FormField tag = (FormField)lvsicSel[0].Tag;
+            using (KeeFoxFieldForm kfff = FormFieldForEditing(lvsicSel, tag))
+            {
+                if (kfff.ShowDialog() == DialogResult.OK)
+                {
+                    // Update the display name. defaulting to whatever user entered as the name unless they were editing one of the standard fields
+                    //Really? Why fix the name to this random string?!!
+                    string displayName = kfff.Name;
+                    if (kfff.Value == "{PASSWORD}")
+                        displayName = "KeePass password";
+                    else if (kfff.Value == "{USERNAME}")
+                        displayName = "KeePass username";
+
+                    string displayValue = kfff.Value;
+                    if (kfff.Type == FormFieldType.FFTpassword)
+                    {
+                        displayValue = "********";
+                        if (kfff.Value == "{PASSWORD}")
+                            displayValue = "KeePass password";
+                    }
+                    string type = Utilities.FormFieldTypeToDisplay(kfff.Type, false);
+                    int page = kfff.Page;
+
+                    ListViewItem lvi = new ListViewItem(new string[] { kfff.Name, displayValue, kfff.Id, type, page.ToString() });
+                    lvi.Tag = new FormField(kfff.Name, displayName, kfff.Value, kfff.Type, kfff.Id, page);
+                    RemoveFieldListItem(lvsicSel[0]);
+                    AddFieldListItem(lvi);
+                    UpdateFieldStrings();
+                }
+            }
+        }
+
+        private static KeeFoxFieldForm FormFieldForEditing(ListView.SelectedListViewItemCollection lvsicSel, FormField tag)
+        {
             KeeFoxFieldForm kfff = null;
             if (tag != null)
                 kfff = new KeeFoxFieldForm(tag);
@@ -611,34 +649,7 @@ namespace KeePassRPC.Forms
                 kfff = new KeeFoxFieldForm(lvsicSel[0].SubItems[0].Text, "{USERNAME}", lvsicSel[0].SubItems[2].Text, FormFieldType.FFTusername, int.Parse(lvsicSel[0].SubItems[4].Text));
             else
                 throw new Exception("Corrupt Entry found!");
-
-            if (kfff.ShowDialog() == DialogResult.OK)
-            {
-                // Update the display name. defaulting to whatever user entered as the name unless they were editing one of the standard fields
-                //Really? Why fix the name to this random string?!!
-                string displayName = kfff.Name;
-                if (kfff.Value == "{PASSWORD}")
-                    displayName = "KeePass password";
-                else if (kfff.Value == "{USERNAME}")
-                    displayName = "KeePass username";
-
-                string displayValue = kfff.Value;
-                if (kfff.Type == FormFieldType.FFTpassword)
-                {
-                    displayValue = "********";
-                    if (kfff.Value == "{PASSWORD}")
-                        displayValue = "KeePass password";
-                }
-                string type = Utilities.FormFieldTypeToDisplay(kfff.Type, false);
-                int page = kfff.Page;
-
-                ListViewItem lvi = new ListViewItem(new string[] { kfff.Name, displayValue, kfff.Id, type, page.ToString() });
-                lvi.Tag = new FormField(kfff.Name, displayName, kfff.Value, kfff.Type, kfff.Id, page);
-                RemoveFieldListItem(lvsicSel[0]);
-                AddFieldListItem(lvi);
-                UpdateFieldStrings();
-            }
-
+            return kfff;
         }
 
         private void buttonFieldDelete_Click(object sender, EventArgs e)

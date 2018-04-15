@@ -467,7 +467,8 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             {
                 // the icon wasn't in the cache so lets calculate its base64 encoding and then add it to the cache
                 using (MemoryStream ms = new MemoryStream())
-                using (Image imgNew = new Bitmap(_host.MainWindow.Icon.ToBitmap(), new Size(16, 16)))
+                using (Image originalImage = _host.MainWindow.Icon.ToBitmap())
+                using (Image imgNew = new Bitmap(originalImage, new Size(16, 16)))
                 {
                     imgNew.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                     string imageData = Convert.ToBase64String(ms.ToArray());

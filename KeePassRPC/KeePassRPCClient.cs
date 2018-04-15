@@ -651,12 +651,16 @@ namespace KeePassRPC
         {
             string jsonrpc = Decrypt(jsonrpcEncrypted);
             StringBuilder sb = new StringBuilder();
+            string output;
 
             JsonRpcDispatcher dispatcher = JsonRpcDispatcherFactory.CreateDispatcher(service);
 
-            dispatcher.Process(new StringReader(jsonrpc),
-                new StringWriter(sb), Authorised);
-            string output = sb.ToString();
+            using (StringReader request = new StringReader(jsonrpc))
+            using (StringWriter response = new StringWriter(sb))
+            {
+                dispatcher.Process(request, response, Authorised);
+                output = sb.ToString();
+            }
 
             KPRPCMessage data2client = new KPRPCMessage();
             data2client.protocol = "jsonrpc";
