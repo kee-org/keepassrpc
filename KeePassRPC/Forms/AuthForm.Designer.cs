@@ -100,8 +100,8 @@
             this.richTextBoxConfirmInstruction.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
             this.richTextBoxConfirmInstruction.Size = new System.Drawing.Size(379, 58);
             this.richTextBoxConfirmInstruction.TabIndex = 5;
-            this.richTextBoxConfirmInstruction.Text = "To authorise KeeFox to access your passwords please enter this password into the " +
-    "box KeeFox has presented to you.";
+            this.richTextBoxConfirmInstruction.Text = "To authorise the client to access your passwords please enter this password into the " +
+    "box it has presented to you.";
             // 
             // label1
             // 

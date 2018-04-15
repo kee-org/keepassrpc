@@ -1,6 +1,6 @@
 ﻿namespace KeePassRPC.Forms
 {
-    partial class KeeFoxURLForm
+    partial class KeeURLForm
     {
         /// <summary>
         /// Required designer variable.
@@ -107,7 +107,7 @@
             this.checkBoxRegEx.Text = "Regular Expression";
             this.checkBoxRegEx.UseVisualStyleBackColor = true;
             // 
-            // KeeFoxURLForm
+            // KeeURLForm
             // 
             this.AcceptButton = this.buttonOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -123,9 +123,9 @@
             this.Controls.Add(this.textBox1);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "KeeFoxURLForm";
+            this.Name = "KeeURLForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "KeeFoxURLForm";
+            this.Text = "KeeURLForm";
             this.ResumeLayout(false);
             this.PerformLayout();
 

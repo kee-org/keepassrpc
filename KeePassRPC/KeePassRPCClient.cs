@@ -300,21 +300,21 @@ namespace KeePassRPC
                 // worth of bug reports (35) 100% of unexpected application
                 // exceptions were IOExceptions.
                 //
-                // We will now ignore this type of exception and allow KeeFox to
+                // We will now ignore this type of exception and allow the client to
                 // re-establish the link to KeePass as part of its regular polling loop.
                 //
-                // The requested KPRPC signal will never be recieved by KeeFox
-                // but this should be OK in practice becuase KeeFox will 
+                // The requested KPRPC signal will never be recieved by the client
+                // but this should be OK in practice becuase the client will 
                 // re-establish the relevant state information as soon as it reconnects.
                 //
-                // BUT: the exception to this rule is when KeeFox fails to receive the
+                // BUT: the exception to this rule is when the client fails to receive the
                 // "shutdown" signal - it then gets itself in an inconsistent state
                 // and has no opportunity to recover until KeePass is running again.
                 return;
             }
             catch (Exception ex)
             {
-                System.Windows.Forms.MessageBox.Show("ERROR! Please click on this box, press CTRL-C on your keyboard and paste into a new post on the Kee forum (https://keefox.org/help/forum). Doing this will help other people to use Kee without any unexpected error messages like this. Please briefly describe what you were doing when the problem occurred, which version of Kee, KeePass and web browser you use and what other security software you run on your machine. Thanks! Technical detail follows: " + ex.ToString());
+                System.Windows.Forms.MessageBox.Show("ERROR! Please click on this box, press CTRL-C on your keyboard and paste into a new post on the Kee forum (https://forum.kee.pm). Doing this will help other people to use Kee without any unexpected error messages like this. Please briefly describe what you were doing when the problem occurred, which version of Kee, KeePass and web browser you use and what other security software you run on your machine. Thanks! Technical detail follows: " + ex.ToString());
             }
         }
 
@@ -638,11 +638,11 @@ namespace KeePassRPC
                     KPRPC.InvokeMainThread(new HideAuthDialogDelegate(HideAuthDialog));
 
                     // If we've never shown the user the welcome screen and have never
-                    // known a KeeFox add-on from the previous KPRPC protocol, show it now
+                    // known a Kee add-on from the previous KPRPC protocol, show it now
                     bool welcomeDisplayed = KPRPC._host.CustomConfig.GetBool("KeePassRPC.KeeFoxWelcomeDisplayed",false);
                     if (!welcomeDisplayed
                         && string.IsNullOrEmpty(KPRPC._host.CustomConfig.GetString("KeePassRPC.knownClients.KeeFox Firefox add-on")))
-                        KPRPC.InvokeMainThread(new KeePassRPCExt.WelcomeKeeFoxUserDelegate(KPRPC.WelcomeKeeFoxUser));
+                        KPRPC.InvokeMainThread(new KeePassRPCExt.WelcomeKeeUserDelegate(KPRPC.WelcomeKeeUser));
                     if (!welcomeDisplayed)
                         KPRPC._host.CustomConfig.SetBool("KeePassRPC.KeeFoxWelcomeDisplayed",true);
                 }

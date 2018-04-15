@@ -1,6 +1,6 @@
 ﻿namespace KeePassRPC.Forms
 {
-    partial class KeeFoxGroupUserControl
+    partial class KeeGroupUserControl
     {
         /// <summary> 
         /// Required designer variable.
@@ -83,7 +83,7 @@
             this.comboBoxLocation.TabIndex = 4;
             this.comboBoxLocation.SelectedIndexChanged += new System.EventHandler(this.comboBoxLocation_SelectedIndexChanged);
             // 
-            // KeeFoxGroupUserControl
+            // KeeGroupUserControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -93,9 +93,9 @@
             this.Controls.Add(this.l_homeExplanation);
             this.Controls.Add(this.buttonMakeHome);
             this.Controls.Add(this.l_status);
-            this.Name = "KeeFoxGroupUserControl";
+            this.Name = "KeeGroupUserControl";
             this.Size = new System.Drawing.Size(332, 150);
-            this.Load += new System.EventHandler(this.KeeFoxGroupUserControl_Load);
+            this.Load += new System.EventHandler(this.KeeGroupUserControl_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

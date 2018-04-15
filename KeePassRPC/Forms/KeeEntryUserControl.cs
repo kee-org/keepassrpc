@@ -17,7 +17,7 @@ namespace KeePassRPC.Forms
     /// <summary>
     /// We read and write to the GUI in the Advanced tab of the standard entry editing dialog. This allows us to cancel and commit changes when the user presses OK or cancel.
     /// </summary>
-    public partial class KeeFoxEntryUserControl : UserControl
+    public partial class KeeEntryUserControl : UserControl
     {
         private PwEntry _entry;
         KeePassRPCExt KeePassRPCPlugin;
@@ -25,7 +25,7 @@ namespace KeePassRPC.Forms
         ProtectedStringDictionary _strings;
         EntryConfig _conf;
 
-        public KeeFoxEntryUserControl(KeePassRPCExt keePassRPCPlugin, PwEntry entry,
+        public KeeEntryUserControl(KeePassRPCExt keePassRPCPlugin, PwEntry entry,
             CustomListViewEx advancedListView, PwEntryForm pwEntryForm, ProtectedStringDictionary strings)
         {
             KeePassRPCPlugin = keePassRPCPlugin;
@@ -48,34 +48,34 @@ namespace KeePassRPC.Forms
                 changeAdvancedString("KPRPC JSON", Jayrock.Json.Conversion.JsonConvert.ExportToString(_conf), true);
         }
         
-        private void checkBoxHideFromKeeFox_CheckedChanged(object sender, EventArgs e)
+        private void checkBoxHideFromKee_CheckedChanged(object sender, EventArgs e)
         {
-            if (checkBoxHideFromKeeFox.Checked)
+            if (checkBoxHideFromKee.Checked)
             {
                 _conf.Hide = true;
-                textBoxKeeFoxPriority.Enabled = false;
+                textBoxKeePriority.Enabled = false;
                 label1.Enabled = false;
                 groupBox1.Enabled = false;
                 groupBox2.Enabled = false;
                 groupBox3.Enabled = false;
                 labelRealm.Enabled = false;
-                textBoxKeeFoxRealm.Enabled = false;
+                textBoxKeeRealm.Enabled = false;
             }
             else
             {
                 _conf.Hide = false;
-                textBoxKeeFoxPriority.Enabled = true;
+                textBoxKeePriority.Enabled = true;
                 label1.Enabled = true;
                 groupBox1.Enabled = true;
                 groupBox2.Enabled = true;
                 groupBox3.Enabled = true;
                 labelRealm.Enabled = true;
-                textBoxKeeFoxRealm.Enabled = true;
+                textBoxKeeRealm.Enabled = true;
             }
             UpdateKPRPCJSON(_conf);
         }
 
-        private void KeeFoxEntryUserControl_Load(object sender, EventArgs e)
+        private void KeeEntryUserControl_Load(object sender, EventArgs e)
         {
             bool kfNeverAutoFill = false;
             bool kfAlwaysAutoFill = false;
@@ -85,9 +85,9 @@ namespace KeePassRPC.Forms
             if (_conf == null)
                 return;
 
-            this.checkBoxHideFromKeeFox.CheckedChanged += new System.EventHandler(this.checkBoxHideFromKeeFox_CheckedChanged);
+            this.checkBoxHideFromKee.CheckedChanged += new System.EventHandler(this.checkBoxHideFromKee_CheckedChanged);
 
-            if (_conf.Hide) { checkBoxHideFromKeeFox.Checked = true; }
+            if (_conf.Hide) { checkBoxHideFromKee.Checked = true; }
             if (_conf.BlockHostnameOnlyMatch)
             {
                 radioButton3.Checked = true;
@@ -105,7 +105,7 @@ namespace KeePassRPC.Forms
             if (_conf.NeverAutoSubmit) { kfNeverAutoSubmit = true; }
             if (_conf.AlwaysAutoSubmit) { kfAlwaysAutoSubmit = true; }
             if (_conf.Priority != 0)
-                textBoxKeeFoxPriority.Text = _conf.Priority.ToString();
+                textBoxKeePriority.Text = _conf.Priority.ToString();
                 
             listNormalURLs = new List<string>();
             listNormalBlockedURLs = new List<string>();
@@ -117,7 +117,7 @@ namespace KeePassRPC.Forms
             if (_conf.RegExURLs != null) listRegExURLs.AddRange(_conf.RegExURLs);
             if (_conf.RegExBlockedURLs != null) listRegExBlockedURLs.AddRange(_conf.RegExBlockedURLs);
 
-            textBoxKeeFoxRealm.Text = _conf.HTTPRealm;
+            textBoxKeeRealm.Text = _conf.HTTPRealm;
 
             bool standardPasswordFound = false;
             bool standardUsernameFound = false;
@@ -188,14 +188,14 @@ namespace KeePassRPC.Forms
 
             this.comboBoxAutoSubmit.SelectedIndexChanged += new System.EventHandler(this.comboBoxAutoSubmit_SelectedIndexChanged);
             this.comboBoxAutoFill.SelectedIndexChanged += new System.EventHandler(this.comboBoxAutoFill_SelectedIndexChanged);            
-            this.textBoxKeeFoxPriority.TextChanged += new System.EventHandler(this.textBoxKeeFoxPriority_TextChanged);
+            this.textBoxKeePriority.TextChanged += new System.EventHandler(this.textBoxKeePriority_TextChanged);
 
             string realmTooltip = "Set this to the realm (what the \"site says\") in the HTTP authentication popup dialog box for a more accurate match";
-            toolTipRealm.SetToolTip(this.textBoxKeeFoxRealm, realmTooltip);
+            toolTipRealm.SetToolTip(this.textBoxKeeRealm, realmTooltip);
             toolTipRealm.SetToolTip(this.labelRealm, realmTooltip);
         }
 
-        private void textBoxKeeFoxPriority_TextChanged(object sender, EventArgs e)
+        private void textBoxKeePriority_TextChanged(object sender, EventArgs e)
         {
             string priority = ((System.Windows.Forms.TextBoxBase)sender).Text;
 
@@ -216,7 +216,7 @@ namespace KeePassRPC.Forms
             return;
         }
 
-        private void textBoxKeeFoxRealm_TextChanged(object sender, EventArgs e)
+        private void textBoxKeeRealm_TextChanged(object sender, EventArgs e)
         {
             string realm = ((System.Windows.Forms.TextBoxBase)sender).Text;
 
@@ -368,7 +368,7 @@ namespace KeePassRPC.Forms
             for (int i = 0; i < listView1.Items.Count; ++i)
                 all.Add(listView1.Items[i].Text);
 
-            using (KeeFoxURLForm kfurlf = new KeeFoxURLForm(false, false, null, null, all))
+            using (KeeURLForm kfurlf = new KeeURLForm(false, false, null, null, all))
             {
                 if (kfurlf.ShowDialog() == DialogResult.OK)
                 {
@@ -418,7 +418,7 @@ namespace KeePassRPC.Forms
                 others.Remove(lvsicSel[i].Text);
 
                 // find the current data
-                using (KeeFoxURLForm kfurlf = URLFormForEditing(lvsicSel, i, others))
+                using (KeeURLForm kfurlf = URLFormForEditing(lvsicSel, i, others))
                 {
                     if (kfurlf.ShowDialog() == DialogResult.OK)
                     {
@@ -466,17 +466,17 @@ namespace KeePassRPC.Forms
             }
         }
 
-        private static KeeFoxURLForm URLFormForEditing(ListView.SelectedListViewItemCollection lvsicSel, int i, List<string> others)
+        private static KeeURLForm URLFormForEditing(ListView.SelectedListViewItemCollection lvsicSel, int i, List<string> others)
         {
-            KeeFoxURLForm kfurlf = null;
+            KeeURLForm kfurlf = null;
             if (lvsicSel[i].SubItems[1].Text == "Normal" && lvsicSel[i].SubItems[2].Text == "Match")
-                kfurlf = new KeeFoxURLForm(true, false, null, lvsicSel[i].Text, others);
+                kfurlf = new KeeURLForm(true, false, null, lvsicSel[i].Text, others);
             else if (lvsicSel[i].SubItems[1].Text == "Normal" && lvsicSel[i].SubItems[2].Text == "Block")
-                kfurlf = new KeeFoxURLForm(false, true, null, lvsicSel[i].Text, others);
+                kfurlf = new KeeURLForm(false, true, null, lvsicSel[i].Text, others);
             else if (lvsicSel[i].SubItems[1].Text == "RegEx" && lvsicSel[i].SubItems[2].Text == "Match")
-                kfurlf = new KeeFoxURLForm(true, false, lvsicSel[i].Text, null, others);
+                kfurlf = new KeeURLForm(true, false, lvsicSel[i].Text, null, others);
             else if (lvsicSel[i].SubItems[1].Text == "RegEx" && lvsicSel[i].SubItems[2].Text == "Block")
-                kfurlf = new KeeFoxURLForm(false, true, lvsicSel[i].Text, null, others);
+                kfurlf = new KeeURLForm(false, true, lvsicSel[i].Text, null, others);
             return kfurlf;
         }
 
@@ -578,7 +578,7 @@ namespace KeePassRPC.Forms
 
         private void buttonFieldAdd_Click(object sender, EventArgs e)
         {
-            using (KeeFoxFieldForm kfff = new KeeFoxFieldForm(null, null, null, FormFieldType.FFTtext, 1))
+            using (KeeFieldForm kfff = new KeeFieldForm(null, null, null, FormFieldType.FFTtext, 1))
             {
 
                 if (kfff.ShowDialog() == DialogResult.OK)
@@ -607,7 +607,7 @@ namespace KeePassRPC.Forms
             ListView.SelectedListViewItemCollection lvsicSel = listView2.SelectedItems;
 
             FormField tag = (FormField)lvsicSel[0].Tag;
-            using (KeeFoxFieldForm kfff = FormFieldForEditing(lvsicSel, tag))
+            using (KeeFieldForm kfff = FormFieldForEditing(lvsicSel, tag))
             {
                 if (kfff.ShowDialog() == DialogResult.OK)
                 {
@@ -638,15 +638,15 @@ namespace KeePassRPC.Forms
             }
         }
 
-        private static KeeFoxFieldForm FormFieldForEditing(ListView.SelectedListViewItemCollection lvsicSel, FormField tag)
+        private static KeeFieldForm FormFieldForEditing(ListView.SelectedListViewItemCollection lvsicSel, FormField tag)
         {
-            KeeFoxFieldForm kfff = null;
+            KeeFieldForm kfff = null;
             if (tag != null)
-                kfff = new KeeFoxFieldForm(tag);
+                kfff = new KeeFieldForm(tag);
             else if (lvsicSel[0].SubItems[1].Text == "{PASSWORD}")
-                kfff = new KeeFoxFieldForm(lvsicSel[0].SubItems[0].Text, "{PASSWORD}", lvsicSel[0].SubItems[2].Text, FormFieldType.FFTpassword, int.Parse(lvsicSel[0].SubItems[4].Text));
+                kfff = new KeeFieldForm(lvsicSel[0].SubItems[0].Text, "{PASSWORD}", lvsicSel[0].SubItems[2].Text, FormFieldType.FFTpassword, int.Parse(lvsicSel[0].SubItems[4].Text));
             else if (lvsicSel[0].SubItems[1].Text == "{USERNAME}")
-                kfff = new KeeFoxFieldForm(lvsicSel[0].SubItems[0].Text, "{USERNAME}", lvsicSel[0].SubItems[2].Text, FormFieldType.FFTusername, int.Parse(lvsicSel[0].SubItems[4].Text));
+                kfff = new KeeFieldForm(lvsicSel[0].SubItems[0].Text, "{USERNAME}", lvsicSel[0].SubItems[2].Text, FormFieldType.FFTusername, int.Parse(lvsicSel[0].SubItems[4].Text));
             else
                 throw new Exception("Corrupt Entry found!");
             return kfff;

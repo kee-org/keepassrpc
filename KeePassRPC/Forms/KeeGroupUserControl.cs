@@ -9,43 +9,43 @@ using KeePassLib;
 
 namespace KeePassRPC.Forms
 {
-    public partial class KeeFoxGroupUserControl : UserControl
+    public partial class KeeGroupUserControl : UserControl
     {
         KeePassRPCExt KeePassRPCPlugin;
 
         PwGroup _group;
 
-        KeeFoxHomeStatus _status = KeeFoxHomeStatus.Unknown;
+        KeeHomeStatus _status = KeeHomeStatus.Unknown;
 
         string _location = "";
 
-        KeeFoxHomeStatus Status { get {
-            if (_status == KeeFoxHomeStatus.Unknown)
+        KeeHomeStatus Status { get {
+            if (_status == KeeHomeStatus.Unknown)
             {
                 PwGroup _rootGroup = KeePassRPCPlugin.RPCService.GetRootPwGroup(KeePassRPCPlugin._host.Database, _location);
 
                 if (_rootGroup.Uuid.EqualsValue(_group.Uuid))
-                    _status = KeeFoxHomeStatus.Home;
+                    _status = KeeHomeStatus.Home;
                 else if (KeePassRPCPlugin._host.Database.RecycleBinUuid.EqualsValue(_group.Uuid))
-                    _status = KeeFoxHomeStatus.Rubbish;
+                    _status = KeeHomeStatus.Rubbish;
                 else if (_group.IsContainedIn(_rootGroup)) // returns true when _group is main root and custom root group has been selected.
-                    _status = KeeFoxHomeStatus.Inside;
+                    _status = KeeHomeStatus.Inside;
                 else
-                    _status = KeeFoxHomeStatus.Outside;
+                    _status = KeeHomeStatus.Outside;
 
             }
             return _status;
         
         } }
 
-        public KeeFoxGroupUserControl(KeePassRPCExt keePassRPCPlugin, PwGroup group)
+        public KeeGroupUserControl(KeePassRPCExt keePassRPCPlugin, PwGroup group)
         {
             KeePassRPCPlugin = keePassRPCPlugin;
             _group = group;
             InitializeComponent();
         }
 
-        private void KeeFoxGroupUserControl_Load(object sender, EventArgs e)
+        private void KeeGroupUserControl_Load(object sender, EventArgs e)
         {
             UpdateStatus();
             
@@ -76,21 +76,21 @@ and entries that are inside your Home group";
         {
             switch (Status)
             {
-                case KeeFoxHomeStatus.Home:
+                case KeeHomeStatus.Home:
                     l_status.Text = @"This is the Kee Home group. Kee can see and work with
 this group and all groups and entries that are contained within.";
                     buttonMakeHome.Enabled = false;
                     break;
-                case KeeFoxHomeStatus.Inside:
+                case KeeHomeStatus.Inside:
                     l_status.Text = @"Kee can see and work with this group.";
                     buttonMakeHome.Enabled = true;
                     break;
-                case KeeFoxHomeStatus.Outside:
+                case KeeHomeStatus.Outside:
                     l_status.Text = @"This group is hidden from Kee. You must change your Home
 group if you want Kee to work with this group.";
                     buttonMakeHome.Enabled = true;
                     break;
-                case KeeFoxHomeStatus.Rubbish:
+                case KeeHomeStatus.Rubbish:
                     l_status.Text = @"This group is hidden from Kee. You must remove it from
 the recycle bin if you want Kee to work with this group.";
                     buttonMakeHome.Enabled = false;
@@ -121,7 +121,7 @@ the recycle bin if you want Kee to work with this group.";
                 KeePassRPCPlugin._host.MainWindow.Invoke((MethodInvoker)delegate { KeePassRPCPlugin._host.MainWindow.SaveConfig(); });
             }
             
-            _status = KeeFoxHomeStatus.Unknown;
+            _status = KeeHomeStatus.Unknown;
             UpdateStatus();
             KeePassRPCPlugin._host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
         }
@@ -169,7 +169,7 @@ the recycle bin if you want Kee to work with this group.";
             {
                 // use default home group
                 _location = "";
-                _status = KeeFoxHomeStatus.Unknown;
+                _status = KeeHomeStatus.Unknown;
                 UpdateStatus();
             }
             else
@@ -192,7 +192,7 @@ the recycle bin if you want Kee to work with this group.";
                 _location = selected;
 
                     // update our idea of what the root group is so we can then refresh the dialog details and update the required behaviour if the user clicks the "make root" button
-                    _status = KeeFoxHomeStatus.Unknown;
+                    _status = KeeHomeStatus.Unknown;
                     UpdateStatus();
                     //host.Database.CustomData.Set("KeePassRPC.KeeFox.rootUUID", rootGroupId);
                     //host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
@@ -204,7 +204,7 @@ the recycle bin if you want Kee to work with this group.";
 
     }
 
-    enum KeeFoxHomeStatus
+    enum KeeHomeStatus
     {
         Unknown,
         Rubbish,

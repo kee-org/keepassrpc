@@ -687,7 +687,7 @@ namespace KeePassRPC
 
         #endregion
 
-        #region Configuration of KeePass/KeeFox and databases
+        #region Configuration of KeePass/Kee and databases
 
         [JsonRpcMethod]
         public Configuration GetCurrentKFConfig()
@@ -923,7 +923,7 @@ namespace KeePassRPC
                 return;
 
             PwDatabase chosenDB = SelectDatabase("");
-            var parentGroup = KeePassRPCPlugin.GetAndInstallKeeFoxPasswordBackupGroup(chosenDB);
+            var parentGroup = KeePassRPCPlugin.GetAndInstallKeePasswordBackupGroup(chosenDB);
 
             PwEntry newLogin = new PwEntry(true, true);
             newLogin.Strings.Set(PwDefs.TitleField, new ProtectedString(
@@ -1373,7 +1373,7 @@ namespace KeePassRPC
 
             if (!string.IsNullOrEmpty(location))
             {
-                // If any listed group UUID is found in this database, set it as the KeeFox home group
+                // If any listed group UUID is found in this database, set it as the Kee home group
                 string rootGroupsConfig = host.CustomConfig
                     .GetString("KeePassRPC.knownLocations." + location + ".RootGroups", "");
                 string[] rootGroups = new string[0];
@@ -2062,7 +2062,7 @@ namespace KeePassRPC
 
                     }
                     if (configErrors.Count > 0)
-                        MessageBox.Show("There are configuration errors in your database called '" + db.Name + "'. To fix the entries listed below and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON config' advanced string. Please ask for help on https://keefox.org/help/forum if you're not sure how to fix this. These entries are affected:" + Environment.NewLine + string.Join(Environment.NewLine, configErrors.ToArray()), "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("There are configuration errors in your database called '" + db.Name + "'. To fix the entries listed below and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON config' advanced string. Please ask for help on https://forum.kee.pm if you're not sure how to fix this. These entries are affected:" + Environment.NewLine + string.Join(Environment.NewLine, configErrors.ToArray()), "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             allEntries.Sort(delegate(Entry e1, Entry e2)

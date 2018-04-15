@@ -42,12 +42,7 @@ namespace KeePassRPC.Forms
             string secLevel = @"{\rtf1\ansi{\fonttbl\f0\fArial;}\f0\fs20" + ClientName + " will connect using {\b " + SecurityLevel + @"} security. Please go to this web page to learn about the different levels of security and how to configure your personal security preferences:\par
 ";
 
-            if (Type.GetType ("Mono.Runtime") != null)
-                secLevel += @"{\fs18https://git.io/GaKFCA}\par\par
-
-";
-            else
-                secLevel += @"{\fs18https://github.com/luckyrat/KeeFox/wiki/en-%7C-Technical-%7C-KeePassRPC-%7C-Security-levels}\par\par
+            secLevel += @"{\fs18https://forum.kee.pm/t/connection-security-levels/1075}\par\par
 
 ";
 

@@ -174,9 +174,7 @@ namespace KeePassRPC.DataExchangeModel
         public bool NeverAutoFill;
         public bool AlwaysAutoSubmit;
         public bool NeverAutoSubmit;
-        public int Priority; // "KeeFox priority" = 1 (1 = 30000 relevancy score, 2 = 29999 relevancy score)
-        // long autoTypeWhen "KeeFox config: autoType after page 2" (after/before or > / <) (page # or # seconds or #ms)
-        // bool autoTypeOnly "KeeFox config: only autoType" This is probably redundant considering feature request #19?
+        public int Priority; // "Kee priority" = 1 (1 = 30000 relevancy score, 2 = 29999 relevancy score)
 
         public Group Parent;
         public Database Db;

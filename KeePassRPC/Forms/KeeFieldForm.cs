@@ -9,7 +9,7 @@ using KeePassRPC.DataExchangeModel;
 
 namespace KeePassRPC.Forms
 {
-    public partial class KeeFoxFieldForm : Form
+    public partial class KeeFieldForm : Form
     {
         public new string Name;
         public string Value;
@@ -17,11 +17,11 @@ namespace KeePassRPC.Forms
         public FormFieldType Type;
         public int Page;
 
-        public KeeFoxFieldForm(FormField ff) : this(ff.Name, ff.Value, ff.Id, ff.Type, ff.Page)
+        public KeeFieldForm(FormField ff) : this(ff.Name, ff.Value, ff.Id, ff.Type, ff.Page)
         {
         }
 
-        public KeeFoxFieldForm(string name, string value, string id, FormFieldType type, int page)
+        public KeeFieldForm(string name, string value, string id, FormFieldType type, int page)
         {
             InitializeComponent();
             Icon = global::KeePassRPC.Properties.Resources.keefox;

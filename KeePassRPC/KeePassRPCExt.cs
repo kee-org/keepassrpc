@@ -50,7 +50,7 @@ namespace KeePassRPC
         public TextWriter logger;
 
         /// <summary>
-        /// Listens for requests from RPC clients such as KeeFox
+        /// Listens for requests from RPC clients such as Kee
         /// </summary>
         public KeePassRPCServer RPCServer
         {
@@ -68,9 +68,8 @@ namespace KeePassRPC
         internal IPluginHost _host;
 
         private ToolStripMenuItem _keePassRPCOptions = null;
-        private ToolStripMenuItem _keeFoxSampleEntries = null;
         private ToolStripSeparator _tsSeparator1 = null;
-        private ToolStripMenuItem _keeFoxRootMenu = null;
+        private ToolStripMenuItem _keeRootMenu = null;
 
         private EventHandler<GwmWindowEventArgs> GwmWindowAddedHandler;
 
@@ -160,7 +159,7 @@ namespace KeePassRPC
                     "KeePassRPC.publicSuffixDomainCache.path",
                     GetLocalConfigLocation() + "publicSuffixDomainCache.txt"));
                 
-                // The KeeFox client manager holds objects relating to the web socket connections managed by the Fleck2 library
+                // The Kee client manager holds objects relating to the web socket connections managed by the Fleck2 library
                 CreateClientManagers();
 
                 if (logger != null) logger.WriteLine("Client managers started.");
@@ -182,7 +181,7 @@ namespace KeePassRPC
                     {
                         MessageBox.Show(@"KeePassRPC is already listening for connections. To allow KeePassRPC clients (e.g. Kee in your web browser) to connect to this instance of KeePass, please close all other running instances of KeePass and restart this KeePass. If you want multiple instances of KeePass to be running at the same time, you'll need to configure some of them to connect using a different communication port.
 
-See https://github.com/luckyrat/KeeFox/wiki/en-|-Options-|-KPRPC-Port
+See https://forum.kee.pm/t/connection-security-levels/1075
 
 KeePassRPC requires this port to be available: " + portNew + ". Technical detail: " + ex.ToString());
                         if (logger != null) logger.WriteLine("Socket (port) already in use. KeePassRPC requires this port to be available: " + portNew + ". Technical detail: " + ex.ToString());
@@ -224,10 +223,10 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 ContextMenuStrip gcm = host.MainWindow.GroupContextMenu;
                 _tsSeparator1 = new ToolStripSeparator();
                 gcm.Items.Add(_tsSeparator1);
-                _keeFoxRootMenu = new ToolStripMenuItem();
-                _keeFoxRootMenu.Text = "Set as Kee start group";
-                _keeFoxRootMenu.Click += OnMenuSetRootGroup;
-                gcm.Items.Add(_keeFoxRootMenu);
+                _keeRootMenu = new ToolStripMenuItem();
+                _keeRootMenu.Text = "Set as Kee start group";
+                _keeRootMenu.Click += OnMenuSetRootGroup;
+                gcm.Items.Add(_keeRootMenu);
 
                 // not acting on upgrade info just yet but we need to track it for future proofing
                 bool upgrading = refreshVersionInfo(host);
@@ -423,10 +422,10 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             return icons;
         }
 
-        public delegate object WelcomeKeeFoxUserDelegate();
+        public delegate object WelcomeKeeUserDelegate();
 
 
-        public object WelcomeKeeFoxUser()
+        public object WelcomeKeeUser()
         {
             using (WelcomeForm wf = new WelcomeForm())
             {
@@ -580,19 +579,20 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             pd.RootGroup.AddGroup(pg, true);
         }
 
-        internal PwGroup GetAndInstallKeeFoxPasswordBackupGroup(PwDatabase pd)
+        internal PwGroup GetAndInstallKeePasswordBackupGroup(PwDatabase pd)
         {
             PwUuid groupUuid = new PwUuid(new byte[] {
                 0xea, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
                 0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x30});
 
+            var kfGroup = GetAndInstallKeeGroup(pd, true);
+
             PwGroup kfpbg = pd.RootGroup.FindGroup(groupUuid, true);
             if (kfpbg == null)
             {
-                var kfGroup = GetAndInstallKeeFoxGroup(pd, true);
                 kfpbg = new PwGroup(false, true, "Kee Generated Password Backups", PwIcon.Folder);
                 kfpbg.Uuid = groupUuid;
-                kfpbg.CustomIconUuid = GetKeeFoxIcon();
+                kfpbg.CustomIconUuid = GetKeeIcon();
                 kfGroup.AddGroup(kfpbg, true);
             }
             else if (kfpbg.Name == "KeeFox Generated Password Backups")
@@ -602,7 +602,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             return kfpbg;
         }
 
-        internal PwGroup GetAndInstallKeeFoxGroup(PwDatabase pd, bool skipGroupWarning)
+        internal PwGroup GetAndInstallKeeGroup(PwDatabase pd, bool skipGroupWarning)
         {
             PwUuid groupUuid = new PwUuid(new byte[] {
                 0xea, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
@@ -628,7 +628,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 {
                     kfpg = new PwGroup(false, true, "Kee", PwIcon.Folder);
                     kfpg.Uuid = groupUuid;
-                    kfpg.CustomIconUuid = GetKeeFoxIcon();
+                    kfpg.CustomIconUuid = GetKeeIcon();
                     pd.RootGroup.AddGroup(kfpg, true);
                 }
             }
@@ -639,12 +639,12 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             return kfpg;
         }
         
-        private PwUuid GetKeeFoxIcon()
+        private PwUuid GetKeeIcon()
         {
             //return null;
 
             // {EB9FF2ED-0512-4747-B63E-AFA515A30422}
-            PwUuid keeFoxIconUuid = new PwUuid(new byte[] {
+            PwUuid keeIconUuid = new PwUuid(new byte[] {
                 0xeb, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
                 0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x22});
 
@@ -652,7 +652,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
 
             foreach (PwCustomIcon testIcon in _host.Database.CustomIcons)
             {
-                if (testIcon.Uuid == keeFoxIconUuid)
+                if (testIcon.Uuid == keeIconUuid)
                 {
                     icon = testIcon;
                     break;
@@ -666,12 +666,12 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                     global::KeePassRPC.Properties.Resources.KeeFox16.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
 
                     // Create a new custom icon for use with this entry
-                    icon = new PwCustomIcon(keeFoxIconUuid,
+                    icon = new PwCustomIcon(keeIconUuid,
                         ms.ToArray());
                     _host.Database.CustomIcons.Add(icon);
                 }
             }
-            return keeFoxIconUuid;
+            return keeIconUuid;
 
 
             //string keeFoxIcon = @"iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAFfKj/FAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAABpUExURf///wAAAAAAAFpaWl5eXm5ubnh4eICAgIeHh5GRkaCgoKOjo66urq+vr8jIyMnJycvLy9LS0uDg4Ovr6+zs7O3t7e7u7u/v7/X19fb29vf39/j4+Pn5+fr6+vv7+/z8/P39/f7+/v///5goWdMAAAADdFJOUwAxTTRG/kEAAACRSURBVBjTTY2JEoMgDESDaO0h9m5DUZT9/49sCDLtzpB5eQwLkSTkwb0cOBnJksYxiHqORHZG3gFc88WReTzvBFoOMbUCVkN/ATw3CnwHmwLjpYCfYoF5TQphAUztMfp5zsm5phY6MEsV+LapYRPAoC/ooOLxfL33RXQifJjjsnZFWPBniksCbBU+6F4FmV+IvtrgDOmaq+PeAAAAAElFTkSuQmCC";
@@ -767,7 +767,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             // Remove group context menu items
             ContextMenuStrip gcm = _host.MainWindow.GroupContextMenu;
             gcm.Items.Remove(_tsSeparator1);
-            gcm.Items.Remove(_keeFoxRootMenu);
+            gcm.Items.Remove(_keeRootMenu);
 
             if (logger != null)
                 logger.Close();
@@ -875,7 +875,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                     // Nothing to upgrade in this DB but we'll bump up the config
                     // version count anyway to ensure that even DBs that contain no
                     // specific KPRPC information are able to be accessed 
-                    // via KPRPC clients like KeeFox
+                    // via KPRPC clients like Kee
                     e.Database.CustomData.Set("KeePassRPC.KeeFox.configVersion", "1");
                     _host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), e.Database);
                 }

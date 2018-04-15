@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -128,29 +128,29 @@
     <Compile Include="Forms\AuthForm.Designer.cs">
       <DependentUpon>AuthForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\KeeFoxEntryUserControl.cs">
+    <Compile Include="Forms\KeeEntryUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Forms\KeeFoxEntryUserControl.Designer.cs">
-      <DependentUpon>KeeFoxEntryUserControl.cs</DependentUpon>
+    <Compile Include="Forms\KeeEntryUserControl.Designer.cs">
+      <DependentUpon>KeeEntryUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\KeeFoxFieldForm.cs">
+    <Compile Include="Forms\KeeFieldForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\KeeFoxFieldForm.Designer.cs">
-      <DependentUpon>KeeFoxFieldForm.cs</DependentUpon>
+    <Compile Include="Forms\KeeFieldForm.Designer.cs">
+      <DependentUpon>KeeFieldForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\KeeFoxGroupUserControl.cs">
+    <Compile Include="Forms\KeeGroupUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Forms\KeeFoxGroupUserControl.Designer.cs">
-      <DependentUpon>KeeFoxGroupUserControl.cs</DependentUpon>
+    <Compile Include="Forms\KeeGroupUserControl.Designer.cs">
+      <DependentUpon>KeeGroupUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\KeeFoxURLForm.cs">
+    <Compile Include="Forms\KeeURLForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\KeeFoxURLForm.Designer.cs">
-      <DependentUpon>KeeFoxURLForm.cs</DependentUpon>
+    <Compile Include="Forms\KeeURLForm.Designer.cs">
+      <DependentUpon>KeeURLForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\KeyCreationSimpleForm.cs">
       <SubType>Form</SubType>
@@ -229,17 +229,17 @@
     <EmbeddedResource Include="Forms\AuthForm.resx">
       <DependentUpon>AuthForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\KeeFoxEntryUserControl.resx">
-      <DependentUpon>KeeFoxEntryUserControl.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\KeeEntryUserControl.resx">
+      <DependentUpon>KeeEntryUserControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\KeeFoxFieldForm.resx">
-      <DependentUpon>KeeFoxFieldForm.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\KeeFieldForm.resx">
+      <DependentUpon>KeeFieldForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\KeeFoxGroupUserControl.resx">
-      <DependentUpon>KeeFoxGroupUserControl.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\KeeGroupUserControl.resx">
+      <DependentUpon>KeeGroupUserControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\KeeFoxURLForm.resx">
-      <DependentUpon>KeeFoxURLForm.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\KeeURLForm.resx">
+      <DependentUpon>KeeURLForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\KeyCreationSimpleForm.resx">
       <DependentUpon>KeyCreationSimpleForm.cs</DependentUpon>

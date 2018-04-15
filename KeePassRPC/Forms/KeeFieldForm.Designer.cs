@@ -1,6 +1,6 @@
 ﻿namespace KeePassRPC.Forms
 {
-    partial class KeeFoxFieldForm
+    partial class KeeFieldForm
     {
         /// <summary>
         /// Required designer variable.
@@ -172,7 +172,7 @@
             this.label7.Text = "To change the value of the password field, please use the main KeePass edit tab";
             this.label7.Visible = false;
             // 
-            // KeeFoxFieldForm
+            // KeeFieldForm
             // 
             this.AcceptButton = this.button1;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -195,9 +195,9 @@
             this.Controls.Add(this.textBox1);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "KeeFoxFieldForm";
+            this.Name = "KeeFieldForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "KeeFoxFieldForm";
+            this.Text = "KeeFieldForm";
             this.ResumeLayout(false);
             this.PerformLayout();
 

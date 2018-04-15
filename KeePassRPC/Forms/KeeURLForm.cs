@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace KeePassRPC.Forms
 {
-    public partial class KeeFoxURLForm : Form
+    public partial class KeeURLForm : Form
     {
         public bool Match;
         public bool Block;
@@ -18,7 +18,7 @@ namespace KeePassRPC.Forms
 
         private bool _editing = false;
 
-        public KeeFoxURLForm(bool match, bool block, string regExURL, string url, List<string> otherKeys)
+        public KeeURLForm(bool match, bool block, string regExURL, string url, List<string> otherKeys)
         {
             InitializeComponent();
             Icon = global::KeePassRPC.Properties.Resources.keefox;
