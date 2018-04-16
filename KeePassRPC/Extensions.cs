@@ -12,14 +12,14 @@ namespace KeePassRPC
 {
     public static class Extensions
     {
-        public static EntryConfig GetKPRPCConfig(this PwEntry entry, ProtectedStringDictionary strings, ref List<string> configErrors)
+        public static EntryConfig GetKPRPCConfig(this PwEntry entry, ProtectedStringDictionary strings, ref List<string> configErrors, PwDatabase db)
         {
             if (strings == null)
                 strings = entry.Strings;
             EntryConfig conf = null;
             string json = strings.ReadSafe("KPRPC JSON");
             if (string.IsNullOrEmpty(json))
-                conf = new EntryConfig();
+                conf = new EntryConfig(db.GetKPRPCConfig().DefaultMatchAccuracy);
             else
             {
                 try
@@ -47,22 +47,63 @@ namespace KeePassRPC
             return conf;
         }
 
-        public static EntryConfig GetKPRPCConfig(this PwEntry entry, ProtectedStringDictionary strings)
+        public static EntryConfig GetKPRPCConfig(this PwEntry entry, ProtectedStringDictionary strings, PwDatabase db)
         {
             List<string> dummy = null;
-            return entry.GetKPRPCConfig(strings, ref dummy);
+            return entry.GetKPRPCConfig(strings, ref dummy, db);
         }
 
-        public static EntryConfig GetKPRPCConfig(this PwEntry entry)
+        public static EntryConfig GetKPRPCConfig(this PwEntry entry, PwDatabase db)
         {
             List<string> dummy = null;
-            return entry.GetKPRPCConfig(null, ref dummy);
+            return entry.GetKPRPCConfig(null, ref dummy, db);
         }
 
         public static void SetKPRPCConfig(this PwEntry entry, EntryConfig newConfig)
         {
             entry.Strings.Set("KPRPC JSON", new ProtectedString(
                 true, Jayrock.Json.Conversion.JsonConvert.ExportToString(newConfig)));
+        }
+        
+        public static MatchAccuracyMethod GetMatchAccuracyMethod(this PwEntry entry, URLSummary urlsum, PwDatabase db)
+        {
+            var conf = entry.GetKPRPCConfig(db);
+            var dbConf = db.GetKPRPCConfig();
+            MatchAccuracyMethod overridenMethod;
+            if (dbConf.MatchedURLAccuracyOverrides.TryGetValue(urlsum.Domain, out overridenMethod))
+                return overridenMethod;
+            else
+                return conf.GetMatchAccuracyMethod();
+        }
+
+        public static DatabaseConfig GetKPRPCConfig(this PwDatabase db)
+        {
+            if (!db.CustomData.Exists("KeePassRPC.Config"))
+            {
+                //TODO: Set custom data and migrate the old config custom data to this
+                // version (but don't save the DB - we can do this again and again until
+                // user decides to save a change for another reason)
+                return new DatabaseConfig();
+            }
+            else
+            {
+                try
+                {
+                    return (DatabaseConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(DatabaseConfig), db.CustomData.Get("KeePassRPC.Config"));
+                }
+                catch (Exception)
+                {
+                    // Reset to default config because the current stored config is corrupt
+                    var newConfig = new DatabaseConfig();
+                    db.SetKPRPCConfig(newConfig);
+                    return newConfig;
+                }
+            }
+        }
+
+        public static void SetKPRPCConfig(this PwDatabase db, DatabaseConfig newConfig)
+        {
+            db.CustomData.Set("KeePassRPC.Config", Jayrock.Json.Conversion.JsonConvert.ExportToString(newConfig));
         }
     }
 }

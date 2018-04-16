@@ -33,7 +33,7 @@ namespace KeePassRPC.Forms
             InitializeComponent();
             _pwEntryForm = pwEntryForm;
             _strings = strings;
-            _conf = entry.GetKPRPCConfig(strings);
+            _conf = entry.GetKPRPCConfig(strings, KeePassRPCPlugin._host.Database);
         }
 
         private void changeAdvancedString(string name, string value, bool protect)
@@ -44,7 +44,7 @@ namespace KeePassRPC.Forms
         private void UpdateKPRPCJSON(EntryConfig _conf)
         {
             // if the config is identical to an empty (default) config, only update if a JSON string already exists
-            if (!_conf.Equals(new EntryConfig()) || _strings.GetKeys().Contains("KPRPC JSON"))
+            if (!_conf.Equals(new EntryConfig(KeePassRPCPlugin._host.Database.GetKPRPCConfig().DefaultMatchAccuracy)) || _strings.GetKeys().Contains("KPRPC JSON"))
                 changeAdvancedString("KPRPC JSON", Jayrock.Json.Conversion.JsonConvert.ExportToString(_conf), true);
         }
         
@@ -88,11 +88,11 @@ namespace KeePassRPC.Forms
             this.checkBoxHideFromKee.CheckedChanged += new System.EventHandler(this.checkBoxHideFromKee_CheckedChanged);
 
             if (_conf.Hide) { checkBoxHideFromKee.Checked = true; }
-            if (_conf.BlockHostnameOnlyMatch)
+            if (_conf.GetMatchAccuracyMethod() == MatchAccuracyMethod.Exact)
             {
                 radioButton3.Checked = true;
             }
-            else if (_conf.BlockDomainOnlyMatch)
+            else if (_conf.GetMatchAccuracyMethod() == MatchAccuracyMethod.Hostname)
             {
                 radioButton2.Checked = true;
             }
@@ -713,8 +713,7 @@ namespace KeePassRPC.Forms
         {
             if (radioButton1.Checked)
             {
-                _conf.BlockDomainOnlyMatch = false;
-                _conf.BlockHostnameOnlyMatch = false;
+                _conf.SetMatchAccuracyMethod(MatchAccuracyMethod.Domain);
             }
             UpdateKPRPCJSON(_conf);
         }
@@ -723,8 +722,7 @@ namespace KeePassRPC.Forms
         {
             if (radioButton2.Checked)
             {
-                _conf.BlockDomainOnlyMatch = true;
-                _conf.BlockHostnameOnlyMatch = false;
+                _conf.SetMatchAccuracyMethod(MatchAccuracyMethod.Hostname);
             }
             UpdateKPRPCJSON(_conf);
         }
@@ -733,8 +731,7 @@ namespace KeePassRPC.Forms
         {
             if (radioButton3.Checked)
             {
-                _conf.BlockDomainOnlyMatch = false;
-                _conf.BlockHostnameOnlyMatch = true;
+                _conf.SetMatchAccuracyMethod(MatchAccuracyMethod.Exact);
             }
             UpdateKPRPCJSON(_conf);
         }

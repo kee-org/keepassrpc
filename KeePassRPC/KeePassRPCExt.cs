@@ -948,10 +948,10 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             {
                 foreach (PwEntry pwe in output)
                 {
-                    var conf = pwe.GetKPRPCConfig();
+                    var conf = pwe.GetKPRPCConfig(db);
                     if (conf == null)
                         return false;
-                    conf.BlockDomainOnlyMatch = true;
+                    conf.SetMatchAccuracyMethod(MatchAccuracyMethod.Hostname);
                     conf.Priority = 0;
                     pwe.SetKPRPCConfig(conf);
                 }
@@ -967,7 +967,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
 
             foreach (PwEntry pwe in output)
             {
-                var conf = pwe.GetKPRPCConfig();
+                var conf = pwe.GetKPRPCConfig(db);
                 if (conf == null)
                     return false;
 
@@ -986,7 +986,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                     // that they want the loose domain-level matching)
                     if (!string.IsNullOrEmpty(urlsum.Port))
                     {
-                        conf.BlockDomainOnlyMatch = true;
+                        conf.SetMatchAccuracyMethod(MatchAccuracyMethod.Hostname);
                         pwe.SetKPRPCConfig(conf);
                     }
                 }
@@ -1381,7 +1381,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             }
 
 
-            EntryConfig conf = new EntryConfig();
+            EntryConfig conf = new EntryConfig(_host.Database.GetKPRPCConfig().DefaultMatchAccuracy);
             conf.Hide = false;
             string hide = "";
             try
@@ -1402,13 +1402,13 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 catch (Exception) { hide = ""; }
             }
 
-            conf.BlockHostnameOnlyMatch = false;
+            conf.SetMatchAccuracyMethod(MatchAccuracyMethod.Domain);
             string block = "";
             try
             {
                 block = GetPwEntryString(pwe, "KPRPC Block hostname-only match", db);
                 if (!string.IsNullOrEmpty(block))
-                    conf.BlockHostnameOnlyMatch = true;
+                    conf.SetMatchAccuracyMethod(MatchAccuracyMethod.Exact);
             }
             catch (Exception) { block = ""; }
 

@@ -241,7 +241,7 @@ namespace KeePassRPC.DataExchangeModel
             UsernameValue = usernameValue;
         }
     }
-
+    
     public class EntryConfig
     {
         public int Version = 1;
@@ -262,13 +262,67 @@ namespace KeePassRPC.DataExchangeModel
         /// <summary>
         /// Exact match required
         /// </summary>
+        /// <remarks>This has to be public because Jayrock</remarks>
         public bool BlockHostnameOnlyMatch;
 
         /// <summary>
         /// Hostname/port match required
         /// </summary>
+        /// <remarks>This has to be public because Jayrock</remarks>
         public bool BlockDomainOnlyMatch;
 
+        /// <remarks>This has to be a method because Jayrock</remarks>
+        public MatchAccuracyMethod GetMatchAccuracyMethod()
+        {
+            if (BlockHostnameOnlyMatch) return MatchAccuracyMethod.Exact;
+            else if (BlockDomainOnlyMatch) return MatchAccuracyMethod.Hostname;
+            else return MatchAccuracyMethod.Domain;
+        }
+
+        /// <remarks>This has to be a method because Jayrock</remarks>
+        public void SetMatchAccuracyMethod(MatchAccuracyMethod value)
+        {
+            if (value == MatchAccuracyMethod.Domain)
+            {
+                BlockDomainOnlyMatch = false;
+                BlockHostnameOnlyMatch = false;
+            }
+            else if (value == MatchAccuracyMethod.Hostname)
+            {
+                BlockDomainOnlyMatch = true;
+                BlockHostnameOnlyMatch = false;
+            } else
+            {
+                BlockDomainOnlyMatch = false;
+                BlockHostnameOnlyMatch = true;
+            }
+        }
+
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EntryConfig"/> class.
+        /// Match configuration depends on defaults in DB settings
+        /// </summary>
+        public EntryConfig(MatchAccuracyMethod accuracyMethod)
+        {
+            switch (accuracyMethod)
+            {
+                case MatchAccuracyMethod.Exact: BlockDomainOnlyMatch = false; BlockHostnameOnlyMatch = true; break;
+                case MatchAccuracyMethod.Hostname: BlockDomainOnlyMatch = true; BlockHostnameOnlyMatch = false; break;
+                case MatchAccuracyMethod.Domain: BlockDomainOnlyMatch = false; BlockHostnameOnlyMatch = false; break;
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EntryConfig"/> class.
+        /// Match configuration defaults to MatchAccuracyMethod.Domain. In practice 
+        /// this is only called by Jayrock deserialisation methods so the match accuracy
+        /// method will be set to whatever value is stored in the JSON being used to
+        /// represent this EntryConfig when at rest inside a custom string.
+        /// </summary>
+        public EntryConfig()
+        {
+        }
 
         public override bool Equals(System.Object obj)
         {

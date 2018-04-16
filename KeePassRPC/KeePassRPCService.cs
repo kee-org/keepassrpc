@@ -276,7 +276,7 @@ namespace KeePassRPC
 
         private LightEntry GetEntryFromPwEntry(PwEntry pwe, int matchAccuracy, bool fullDetails, PwDatabase db, bool abortIfHidden)
         {
-            EntryConfig conf = pwe.GetKPRPCConfig();
+            EntryConfig conf = pwe.GetKPRPCConfig(db);
             if (conf == null)
                 return null;
             return GetEntryFromPwEntry(pwe, conf, matchAccuracy, fullDetails, db, abortIfHidden);
@@ -453,7 +453,7 @@ namespace KeePassRPC
         private void setPwEntryFromEntry(PwEntry pwe, Entry login)
         {
             bool firstPasswordFound = false;
-            EntryConfig conf = new EntryConfig();
+            EntryConfig conf = new EntryConfig(host.Database.GetKPRPCConfig().DefaultMatchAccuracy);
             List<FormField> ffl = new List<FormField>();
 
             // Go through each form field, mostly just making a copy but with occasional tweaks such as default username and password selection
@@ -491,7 +491,7 @@ namespace KeePassRPC
                     // with a port configured (user can override in the rare case
                     // that they want the loose domain-level matching)
                     if (!string.IsNullOrEmpty(urlsum.Port))
-                        conf.BlockDomainOnlyMatch = true;
+                        conf.SetMatchAccuracyMethod(MatchAccuracyMethod.Hostname);
 
                     pwe.Strings.Set("URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, url ?? ""));
                 }
@@ -932,8 +932,7 @@ namespace KeePassRPC
                 chosenDB.MemoryProtection.ProtectUrl, url));
             newLogin.Strings.Set(PwDefs.PasswordField, new ProtectedString(
                 chosenDB.MemoryProtection.ProtectPassword, password));
-            EntryConfig conf = new EntryConfig();
-            conf.BlockDomainOnlyMatch = true;
+            EntryConfig conf = new EntryConfig(MatchAccuracyMethod.Hostname);
             conf.Hide = true;
             newLogin.SetKPRPCConfig(conf);
             parentGroup.AddEntry(newLogin, true);
@@ -1220,11 +1219,11 @@ namespace KeePassRPC
 
         private void MergeEntries(PwEntry destination, PwEntry source, int urlMergeMode, PwDatabase db)
         {
-            EntryConfig destConfig = destination.GetKPRPCConfig();
+            EntryConfig destConfig = destination.GetKPRPCConfig(db);
             if (destConfig == null)
                 return;
 
-            EntryConfig sourceConfig = source.GetKPRPCConfig();
+            EntryConfig sourceConfig = source.GetKPRPCConfig(db);
             if (sourceConfig == null)
                 return;
 
@@ -1761,8 +1760,8 @@ namespace KeePassRPC
         // Must match host name; if allowHostnameOnlyMatch is false, exact URL must be matched
         private int bestMatchAccuracyForAnyURL(PwEntry pwe, EntryConfig conf, string url, URLSummary urlSummary)
         {
-            bool requireExactURLMatch = conf.BlockHostnameOnlyMatch;
-            bool requireAtLeastHostnameAndPortURLMatch = conf.BlockDomainOnlyMatch;
+            bool requireExactURLMatch = conf.GetMatchAccuracyMethod() == MatchAccuracyMethod.Exact;
+            bool requireAtLeastHostnameAndPortURLMatch = conf.GetMatchAccuracyMethod() == MatchAccuracyMethod.Hostname;
 
             int bestMatchSoFar = MatchAccuracy.None;
 
@@ -1959,11 +1958,8 @@ namespace KeePassRPC
                         entryUserName = KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, entryUserName, db);
                         if (EntryIsInRecycleBin(pwe, db))
                             continue; // ignore if it's in the recycle bin
-
-                        //if (string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
-                        //    continue; // entries must have a standard URL entry
                         
-                        EntryConfig conf = pwe.GetKPRPCConfig(null, ref configErrors);
+                        EntryConfig conf = pwe.GetKPRPCConfig(null, ref configErrors, db);
 
                         if (conf == null || conf.Hide)
                             continue;
