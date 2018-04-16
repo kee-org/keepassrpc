@@ -33,7 +33,7 @@ namespace KeePassRPC.Forms
             InitializeComponent();
             _pwEntryForm = pwEntryForm;
             _strings = strings;
-            _conf = entry.GetKPRPCConfig(strings, KeePassRPCPlugin._host.Database);
+            _conf = entry.GetKPRPCConfig(strings, KeePassRPCPlugin._host.Database.GetKPRPCConfig().DefaultMatchAccuracy);
         }
 
         private void changeAdvancedString(string name, string value, bool protect)

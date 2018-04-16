@@ -12,14 +12,14 @@ namespace KeePassRPC
 {
     public static class Extensions
     {
-        public static EntryConfig GetKPRPCConfig(this PwEntry entry, ProtectedStringDictionary strings, ref List<string> configErrors, PwDatabase db)
+        public static EntryConfig GetKPRPCConfig(this PwEntry entry, ProtectedStringDictionary strings, ref List<string> configErrors, MatchAccuracyMethod mam)
         {
             if (strings == null)
                 strings = entry.Strings;
             EntryConfig conf = null;
             string json = strings.ReadSafe("KPRPC JSON");
             if (string.IsNullOrEmpty(json))
-                conf = new EntryConfig(db.GetKPRPCConfig().DefaultMatchAccuracy);
+                conf = new EntryConfig(mam);
             else
             {
                 try
@@ -47,16 +47,16 @@ namespace KeePassRPC
             return conf;
         }
 
-        public static EntryConfig GetKPRPCConfig(this PwEntry entry, ProtectedStringDictionary strings, PwDatabase db)
+        public static EntryConfig GetKPRPCConfig(this PwEntry entry, ProtectedStringDictionary strings, MatchAccuracyMethod mam)
         {
             List<string> dummy = null;
-            return entry.GetKPRPCConfig(strings, ref dummy, db);
+            return entry.GetKPRPCConfig(strings, ref dummy, mam);
         }
 
-        public static EntryConfig GetKPRPCConfig(this PwEntry entry, PwDatabase db)
+        public static EntryConfig GetKPRPCConfig(this PwEntry entry, MatchAccuracyMethod mam)
         {
             List<string> dummy = null;
-            return entry.GetKPRPCConfig(null, ref dummy, db);
+            return entry.GetKPRPCConfig(null, ref dummy, mam);
         }
 
         public static void SetKPRPCConfig(this PwEntry entry, EntryConfig newConfig)
@@ -65,10 +65,9 @@ namespace KeePassRPC
                 true, Jayrock.Json.Conversion.JsonConvert.ExportToString(newConfig)));
         }
         
-        public static MatchAccuracyMethod GetMatchAccuracyMethod(this PwEntry entry, URLSummary urlsum, PwDatabase db)
+        public static MatchAccuracyMethod GetMatchAccuracyMethod(this PwEntry entry, URLSummary urlsum, DatabaseConfig dbConf)
         {
-            var conf = entry.GetKPRPCConfig(db);
-            var dbConf = db.GetKPRPCConfig();
+            var conf = entry.GetKPRPCConfig(MatchAccuracyMethod.Domain);
             MatchAccuracyMethod overridenMethod;
             if (dbConf.MatchedURLAccuracyOverrides.TryGetValue(urlsum.Domain, out overridenMethod))
                 return overridenMethod;
@@ -80,10 +79,16 @@ namespace KeePassRPC
         {
             if (!db.CustomData.Exists("KeePassRPC.Config"))
             {
-                //TODO: Set custom data and migrate the old config custom data to this
+                // Set custom data and migrate the old config custom data to this
                 // version (but don't save the DB - we can do this again and again until
                 // user decides to save a change for another reason)
-                return new DatabaseConfig();
+                var newConfig = new DatabaseConfig();
+
+                if (db.CustomData.Exists("KeePassRPC.KeeFox.rootUUID"))
+                    newConfig.RootUUID = db.CustomData.Get("KeePassRPC.KeeFox.rootUUID");
+
+                db.SetKPRPCConfig(newConfig);
+                return newConfig;
             }
             else
             {

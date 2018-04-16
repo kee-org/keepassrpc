@@ -276,7 +276,7 @@ namespace KeePassRPC
 
         private LightEntry GetEntryFromPwEntry(PwEntry pwe, int matchAccuracy, bool fullDetails, PwDatabase db, bool abortIfHidden)
         {
-            EntryConfig conf = pwe.GetKPRPCConfig(db);
+            EntryConfig conf = pwe.GetKPRPCConfig(db.GetKPRPCConfig().DefaultMatchAccuracy);
             if (conf == null)
                 return null;
             return GetEntryFromPwEntry(pwe, conf, matchAccuracy, fullDetails, db, abortIfHidden);
@@ -1219,11 +1219,11 @@ namespace KeePassRPC
 
         private void MergeEntries(PwEntry destination, PwEntry source, int urlMergeMode, PwDatabase db)
         {
-            EntryConfig destConfig = destination.GetKPRPCConfig(db);
+            EntryConfig destConfig = destination.GetKPRPCConfig(db.GetKPRPCConfig().DefaultMatchAccuracy);
             if (destConfig == null)
                 return;
 
-            EntryConfig sourceConfig = source.GetKPRPCConfig(db);
+            EntryConfig sourceConfig = source.GetKPRPCConfig(db.GetKPRPCConfig().DefaultMatchAccuracy);
             if (sourceConfig == null)
                 return;
 
@@ -1395,9 +1395,10 @@ namespace KeePassRPC
                 // If no locations found we'll just return the default root group
             }
 
-            if (pwd.CustomData.Exists("KeePassRPC.KeeFox.rootUUID") && pwd.CustomData.Get("KeePassRPC.KeeFox.rootUUID").Length == 32)
+            var conf = pwd.GetKPRPCConfig();
+            if (!string.IsNullOrWhiteSpace(conf.RootUUID) && conf.RootUUID.Length == 32)
             {
-                string uuid = pwd.CustomData.Get("KeePassRPC.KeeFox.rootUUID");
+                string uuid = conf.RootUUID;
 
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
@@ -1450,8 +1451,14 @@ namespace KeePassRPC
 
         private bool ConfigIsCorrectVersion(PwDatabase t)
         {
+            // Both version 2 and 3 are correct since their differences 
+            // do not extend to the public API exposed by KPRPC
             if (t.CustomData.Exists("KeePassRPC.KeeFox.configVersion") 
-                && t.CustomData.Get("KeePassRPC.KeeFox.configVersion") == KeePassRPCPlugin.CurrentConfigVersion)
+                && t.CustomData.Get("KeePassRPC.KeeFox.configVersion") == "2")
+            {
+                return true;
+            }
+            else if (t.GetKPRPCConfig().Version == 3)
             {
                 return true;
             }
@@ -1959,7 +1966,7 @@ namespace KeePassRPC
                         if (EntryIsInRecycleBin(pwe, db))
                             continue; // ignore if it's in the recycle bin
                         
-                        EntryConfig conf = pwe.GetKPRPCConfig(null, ref configErrors, db);
+                        EntryConfig conf = pwe.GetKPRPCConfig(null, ref configErrors, db.GetKPRPCConfig().DefaultMatchAccuracy);
 
                         if (conf == null || conf.Hide)
                             continue;

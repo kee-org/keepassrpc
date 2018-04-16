@@ -75,7 +75,6 @@ namespace KeePassRPC
 
         private static LockManager _lockRPCClientManagers = new LockManager();
         private Dictionary<string, KeePassRPCClientManager> _RPCClientManagers = new Dictionary<string, KeePassRPCClientManager>(3);
-        public string CurrentConfigVersion = "2";
         public volatile bool terminating = false;
 
         private int FindKeePassRPCPort(IPluginHost host)
@@ -400,8 +399,9 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             if (pg == null || pg.Uuid == null || pg.Uuid == PwUuid.Zero)
                 return;
 
-            _host.Database.CustomData.Set("KeePassRPC.KeeFox.rootUUID",
-                KeePassLib.Utility.MemUtil.ByteArrayToHexString(pg.Uuid.UuidBytes));
+            var conf = _host.Database.GetKPRPCConfig();
+            conf.RootUUID = KeePassLib.Utility.MemUtil.ByteArrayToHexString(pg.Uuid.UuidBytes);
+            _host.Database.SetKPRPCConfig(conf);
 
             _host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
         }
@@ -550,7 +550,8 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
 
                 InsertStandardKeePassData(pd);
 
-                pd.CustomData.Set("KeePassRPC.KeeFox.configVersion", CurrentConfigVersion);
+                var conf = pd.GetKPRPCConfig();
+                pd.SetKPRPCConfig(conf);
 
                 // save the new database & update UI appearance
                 pd.Save(_host.MainWindow.CreateStatusBarLogger());
@@ -766,7 +767,8 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
 
         private void OnKPDBCreated(object sender, FileCreatedEventArgs e)
         {
-            e.Database.CustomData.Set("KeePassRPC.KeeFox.configVersion", CurrentConfigVersion);
+            var conf = e.Database.GetKPRPCConfig();
+            e.Database.SetKPRPCConfig(conf);
             EnsureDBIconIsInKPRPCIconCache();
             //KeePassRPCService.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting JSONRPC thread can go ahead
             SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_OPEN);
@@ -786,15 +788,35 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
         {
             EnsureDBIconIsInKPRPCIconCache();
 
+            MigrateVeryOldConfigVersions(e);
+
+            // Config versions < 3 will be lazily updated when a v2 config
+            // is first accessed and the DB next saved.
+
+            // IMPORTANT: GetKPRPCConfig() MUST NOT be invoked on the current 
+            // database before the migration from very old versions has completed.
+
+            // The old v2 config flag will be left in place at least for the time
+            // being because this will enable rollback to an earlier version of 
+            // KeePassRPC, albeit also rolling back to a different 
+            // configuration - the Kee home group will be effectively reset 
+            // as the user swaps between config v2 and v3 versions of KPRPC
+
+            SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_OPEN);
+        }
+
+        private void MigrateVeryOldConfigVersions(FileOpenedEventArgs e)
+        {
+
             // If we've not already upgraded the KPRPC data for this database...
-            if (GetConfigVersion(e.Database) < 1)
+            if (GetConfigVersionForLegacyMigration(e.Database) < 1)
             {
                 // We used to just remove duplicates but may as well tidy up all while we're here.
                 RemoveKeeFoxTutorialEntries(e.Database);
 
                 bool foundStringsToUpgrade = false;
                 // Scan every string of every entry to find out whether we need to disturb the user
-                KeePassLib.Delegates.EntryHandler eh = delegate(PwEntry pe)
+                KeePassLib.Delegates.EntryHandler eh = delegate (PwEntry pe)
                 {
                     foreach (KeyValuePair<string, ProtectedString> kvp in pe.Strings)
                     {
@@ -829,7 +851,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                         // User has confirmed they have a recent backup so we start the upgrade
 
                         // Scan every string of every entry to find entries we will update
-                        KeePassLib.Delegates.EntryHandler ehupgrade = delegate(PwEntry pe)
+                        KeePassLib.Delegates.EntryHandler ehupgrade = delegate (PwEntry pe)
                         {
                             foreach (KeyValuePair<string, ProtectedString> kvp in pe.Strings)
                             {
@@ -867,7 +889,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 }
             }
 
-            if (GetConfigVersion(e.Database) < 2)
+            if (GetConfigVersionForLegacyMigration(e.Database) < 2)
             {
                 // v2 entry config is backwards compatible but we need to upgrade any KeeFox tutorial
                 // entries. This means each entry's config version will remain at 1 but the overall
@@ -879,11 +901,9 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                     _host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), e.Database);
                 }
             }
-
-            SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_OPEN);
         }
 
-        private int GetConfigVersion(PwDatabase db)
+        private int GetConfigVersionForLegacyMigration(PwDatabase db)
         {
             if (db.CustomData.Exists("KeePassRPC.KeeFox.configVersion"))
             {
@@ -948,9 +968,11 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             {
                 foreach (PwEntry pwe in output)
                 {
-                    var conf = pwe.GetKPRPCConfig(db);
+                    var conf = pwe.GetKPRPCConfig(MatchAccuracyMethod.Hostname);
                     if (conf == null)
                         return false;
+                    // Explicitly override - we don't know if we found an existing
+                    // config for this entry or created a new one
                     conf.SetMatchAccuracyMethod(MatchAccuracyMethod.Hostname);
                     conf.Priority = 0;
                     pwe.SetKPRPCConfig(conf);
@@ -967,7 +989,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
 
             foreach (PwEntry pwe in output)
             {
-                var conf = pwe.GetKPRPCConfig(db);
+                var conf = pwe.GetKPRPCConfig(MatchAccuracyMethod.Domain);
                 if (conf == null)
                     return false;
 
@@ -1381,7 +1403,11 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             }
 
 
-            EntryConfig conf = new EntryConfig(_host.Database.GetKPRPCConfig().DefaultMatchAccuracy);
+            // We can't use _host.Database.GetKPRPCConfig().DefaultMatchAccuracy here because:
+            // a) We know it does not exist since we're migrating from an ancient DB config version
+            // b) If we do, we would trigger the migration to a v3+ config before we have
+            // performed these intermediate migrations
+            EntryConfig conf = new EntryConfig(MatchAccuracyMethod.Domain);
             conf.Hide = false;
             string hide = "";
             try
@@ -1402,7 +1428,6 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 catch (Exception) { hide = ""; }
             }
 
-            conf.SetMatchAccuracyMethod(MatchAccuracyMethod.Domain);
             string block = "";
             try
             {

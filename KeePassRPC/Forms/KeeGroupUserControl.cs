@@ -102,8 +102,9 @@ the recycle bin if you want Kee to work with this group.";
         {
             if (string.IsNullOrEmpty(_location))
             {
-                KeePassRPCPlugin._host.Database.CustomData.Set("KeePassRPC.KeeFox.rootUUID",
-                    KeePassLib.Utility.MemUtil.ByteArrayToHexString(_group.Uuid.UuidBytes));
+                var conf = KeePassRPCPlugin._host.Database.GetKPRPCConfig();
+                conf.RootUUID = KeePassLib.Utility.MemUtil.ByteArrayToHexString(_group.Uuid.UuidBytes);
+                KeePassRPCPlugin._host.Database.SetKPRPCConfig(conf);
             }
             else
             {
@@ -174,31 +175,9 @@ the recycle bin if you want Kee to work with this group.";
             }
             else
             {
-                // use custom home group for this location if it's been set
-                //string klrgs = KeePassRPCPlugin._host.CustomConfig.GetString("KeePassRPC.knownLocations." + selected + ".RootGroups","");
-                //if (!string.IsNullOrEmpty(klrgs))
-                //{
-                //    string[] rootGroups = new string[0];
-
-                //    rootGroups = klrgs.Split(',');
-                //foreach (string rootGroupId in rootGroups)
-                //{
-                //    PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(rootGroupId));
-                //    PwGroup matchedGroup = KeePassRPCPlugin._host.Database.RootGroup.Uuid == pwuuid ? KeePassRPCPlugin._host.Database.RootGroup : KeePassRPCPlugin._host.Database.RootGroup.FindGroup(pwuuid, true);
-
-                //    if (matchedGroup == null)
-                //        continue;
-
                 _location = selected;
-
-                    // update our idea of what the root group is so we can then refresh the dialog details and update the required behaviour if the user clicks the "make root" button
-                    _status = KeeHomeStatus.Unknown;
-                    UpdateStatus();
-                    //host.Database.CustomData.Set("KeePassRPC.KeeFox.rootUUID", rootGroupId);
-                    //host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
-                    //break;
-               // }
-           // }
+                _status = KeeHomeStatus.Unknown;
+                UpdateStatus();
             }
         }
 
