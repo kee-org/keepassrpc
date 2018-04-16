@@ -85,7 +85,7 @@ namespace KeePassRPC.Forms
             Name = textBox1.Text;
             Value = textBox2.Text;
             Id = textBox3.Text;
-            Page = int.Parse(textBox4.Text);
+            if (!int.TryParse(textBox4.Text, out Page)) Page = 1;
             if (comboBox1.Text == "Password")
                 Type = FormFieldType.FFTpassword;
             else if (comboBox1.Text == "Select")
