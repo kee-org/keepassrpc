@@ -585,7 +585,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 0xea, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
                 0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x30});
 
-            var kfGroup = GetAndInstallKeeGroup(pd, true);
+            var keeGroup = GetKeeGroup(pd);
 
             PwGroup kfpbg = pd.RootGroup.FindGroup(groupUuid, true);
             if (kfpbg == null)
@@ -593,7 +593,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 kfpbg = new PwGroup(false, true, "Kee Generated Password Backups", PwIcon.Folder);
                 kfpbg.Uuid = groupUuid;
                 kfpbg.CustomIconUuid = GetKeeIcon();
-                kfGroup.AddGroup(kfpbg, true);
+                keeGroup.AddGroup(kfpbg, true);
             }
             else if (kfpbg.Name == "KeeFox Generated Password Backups")
             {
@@ -602,35 +602,21 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             return kfpbg;
         }
 
-        internal PwGroup GetAndInstallKeeGroup(PwDatabase pd, bool skipGroupWarning)
+        /// <summary>
+        /// Gets the kee group and renames it from KeeFox if necessary.
+        /// </summary>
+        /// <param name="pd">The database</param>
+        /// <returns>The Kee group or the root group if the group does not exist</returns>
+        internal PwGroup GetKeeGroup(PwDatabase pd)
         {
             PwUuid groupUuid = new PwUuid(new byte[] {
                 0xea, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
                 0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x23});
 
-            PwGroup kfpg = RPCService.GetRootPwGroup(pd, "").FindGroup(groupUuid, true);
+            PwGroup kfpg = pd.RootGroup.FindGroup(groupUuid, true);
             if (kfpg == null)
             {
-                // check that the group doesn't exist outside of the visible home group
-                PwGroup kfpgTestRoot = pd.RootGroup.FindGroup(groupUuid, true);
-                if (kfpgTestRoot != null)
-                {
-                    if (skipGroupWarning)
-                    {
-                        return kfpgTestRoot;
-                    } else
-                    {
-                        MessageBox.Show("The Kee group already exists but your current home group setting is preventing Kee in your web browser from seeing it. Please change your home group or move the 'Kee' group to a location inside your current home group.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return null;
-                    }
-                }
-                else
-                {
-                    kfpg = new PwGroup(false, true, "Kee", PwIcon.Folder);
-                    kfpg.Uuid = groupUuid;
-                    kfpg.CustomIconUuid = GetKeeIcon();
-                    pd.RootGroup.AddGroup(kfpg, true);
-                }
+                return pd.RootGroup;
             }
             else if (kfpg.Name == "KeeFox")
             {
