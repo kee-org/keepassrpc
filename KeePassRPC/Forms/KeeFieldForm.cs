@@ -24,7 +24,7 @@ namespace KeePassRPC.Forms
         public KeeFieldForm(string name, string value, string id, FormFieldType type, int page)
         {
             InitializeComponent();
-            Icon = global::KeePassRPC.Properties.Resources.keefox;
+            Icon = global::KeePassRPC.Properties.Resources.kee;
             if (string.IsNullOrEmpty(name))
                 this.Text = "Add a form field";
             else

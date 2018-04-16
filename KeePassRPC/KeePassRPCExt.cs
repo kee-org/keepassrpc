@@ -649,7 +649,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             {
                 using (MemoryStream ms = new MemoryStream())
                 {
-                    global::KeePassRPC.Properties.Resources.KeeFox16.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    global::KeePassRPC.Properties.Resources.Kee16.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
 
                     // Create a new custom icon for use with this entry
                     icon = new PwCustomIcon(keeIconUuid,

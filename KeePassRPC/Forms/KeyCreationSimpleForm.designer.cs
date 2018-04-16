@@ -199,7 +199,7 @@
             // 
             // m_bannerImage
             // 
-            this.m_bannerImage.Image = global::KeePassRPC.Properties.Resources.KeeFox64;
+            this.m_bannerImage.Image = global::KeePassRPC.Properties.Resources.Kee64;
             this.m_bannerImage.Location = new System.Drawing.Point(0, -2);
             this.m_bannerImage.Name = "m_bannerImage";
             this.m_bannerImage.Padding = new System.Windows.Forms.Padding(10, 0, 0, 10);

@@ -124,7 +124,7 @@ namespace KeePassRPC
             keeTabPage.Controls.Add(entryControl);
             if (mainTabControl.ImageList == null)
                 mainTabControl.ImageList = new ImageList();
-            int imageIndex = mainTabControl.ImageList.Images.Add(global::KeePassRPC.Properties.Resources.KeeFox16, Color.Transparent);
+            int imageIndex = mainTabControl.ImageList.Images.Add(global::KeePassRPC.Properties.Resources.Kee16, Color.Transparent);
             keeTabPage.ImageIndex = imageIndex;
             mainTabControl.TabPages.Add(keeTabPage);
         }
@@ -137,7 +137,7 @@ namespace KeePassRPC
             keeTabPage.Controls.Add(groupControl);
             if (mainTabControl.ImageList == null)
                 mainTabControl.ImageList = new ImageList();
-            int imageIndex = mainTabControl.ImageList.Images.Add(global::KeePassRPC.Properties.Resources.KeeFox16, Color.Transparent);
+            int imageIndex = mainTabControl.ImageList.Images.Add(global::KeePassRPC.Properties.Resources.Kee16, Color.Transparent);
             keeTabPage.ImageIndex = imageIndex;
             mainTabControl.TabPages.Add(keeTabPage);
         }
@@ -160,7 +160,7 @@ namespace KeePassRPC
             keefoxTabPage.Controls.Add(entryControl);
             if (mainTabControl.ImageList == null)
                 mainTabControl.ImageList = new ImageList();
-            int imageIndex = mainTabControl.ImageList.Images.Add(global::KeePassRPC.Properties.Resources.KeeFox16, Color.Transparent);
+            int imageIndex = mainTabControl.ImageList.Images.Add(global::KeePassRPC.Properties.Resources.Kee16, Color.Transparent);
             keefoxTabPage.ImageIndex = imageIndex;
             mainTabControl.TabPages.Add(keefoxTabPage);
         }
@@ -173,7 +173,7 @@ namespace KeePassRPC
             keefoxTabPage.Controls.Add(groupControl);
             if (mainTabControl.ImageList == null)
                 mainTabControl.ImageList = new ImageList();
-            int imageIndex = mainTabControl.ImageList.Images.Add(global::KeePassRPC.Properties.Resources.KeeFox16, Color.Transparent);
+            int imageIndex = mainTabControl.ImageList.Images.Add(global::KeePassRPC.Properties.Resources.Kee16, Color.Transparent);
             keefoxTabPage.ImageIndex = imageIndex;
             mainTabControl.TabPages.Add(keefoxTabPage);
         }

@@ -255,11 +255,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\KeeFox64.png" />
+    <None Include="Resources\Kee64.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\buttonGradient.png" />
@@ -269,11 +270,10 @@
     <None Include="Resources\buttonGradientHover.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\KeeFox16.png" />
+    <None Include="Resources\Kee16.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\keefox.ico" />
-    <None Include="Resources\KeeFoxIcon.bmp" />
+    <Content Include="Resources\kee.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
