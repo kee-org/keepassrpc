@@ -24,6 +24,7 @@ namespace KeePassRPC.Forms
         PwEntryForm _pwEntryForm;
         ProtectedStringDictionary _strings;
         EntryConfig _conf;
+        DatabaseConfig _dbConf;
 
         public KeeEntryUserControl(KeePassRPCExt keePassRPCPlugin, PwEntry entry,
             CustomListViewEx advancedListView, PwEntryForm pwEntryForm, ProtectedStringDictionary strings)
@@ -33,7 +34,8 @@ namespace KeePassRPC.Forms
             InitializeComponent();
             _pwEntryForm = pwEntryForm;
             _strings = strings;
-            _conf = entry.GetKPRPCConfig(strings, KeePassRPCPlugin._host.Database.GetKPRPCConfig().DefaultMatchAccuracy);
+            _dbConf = KeePassRPCPlugin._host.Database.GetKPRPCConfig();
+            _conf = entry.GetKPRPCConfig(strings, _dbConf.DefaultMatchAccuracy);
         }
 
         private void changeAdvancedString(string name, string value, bool protect)
@@ -58,6 +60,7 @@ namespace KeePassRPC.Forms
                 groupBox1.Enabled = false;
                 groupBox2.Enabled = false;
                 groupBox3.Enabled = false;
+                groupBox4.Enabled = false;
                 labelRealm.Enabled = false;
                 textBoxKeeRealm.Enabled = false;
             }
@@ -69,6 +72,7 @@ namespace KeePassRPC.Forms
                 groupBox1.Enabled = true;
                 groupBox2.Enabled = true;
                 groupBox3.Enabled = true;
+                groupBox4.Enabled = true;
                 labelRealm.Enabled = true;
                 textBoxKeeRealm.Enabled = true;
             }
@@ -100,6 +104,15 @@ namespace KeePassRPC.Forms
             {
                 radioButton1.Checked = true;
             }
+            RadioButton defaultRadioButton = null;
+            switch (_dbConf.DefaultMatchAccuracy)
+            {
+                case MatchAccuracyMethod.Exact: defaultRadioButton = radioButton3; break;
+                case MatchAccuracyMethod.Hostname: defaultRadioButton = radioButton2; break;
+                case MatchAccuracyMethod.Domain: defaultRadioButton = radioButton1; break;
+            }
+            toolTipRealm.SetToolTip(defaultRadioButton, "This is the default behaviour for new entries. Change in the Database Settings dialog.");
+
             if (_conf.NeverAutoFill) { kfNeverAutoFill = true; }
             if (_conf.AlwaysAutoFill) { kfAlwaysAutoFill = true; }
             if (_conf.NeverAutoSubmit) { kfNeverAutoSubmit = true; }

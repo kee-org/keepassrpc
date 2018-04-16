@@ -422,7 +422,6 @@
             this.radioButton2.TabIndex = 5;
             this.radioButton2.TabStop = true;
             this.radioButton2.Text = "Hostname: The URL must match the hostname (domain and subdomains) and port.";
-            this.toolTipRealm.SetToolTip(this.radioButton2, "This was the default behaviour in KeeFox 1.4 and lower.");
             this.radioButton2.UseVisualStyleBackColor = true;
             this.radioButton2.CheckedChanged += new System.EventHandler(this.radioButton2_CheckedChanged);
             // 
@@ -435,7 +434,6 @@
             this.radioButton1.TabIndex = 4;
             this.radioButton1.TabStop = true;
             this.radioButton1.Text = "Domain: The URL only needs to be part of the same domain to match.";
-            this.toolTipRealm.SetToolTip(this.radioButton1, "This is the default behaviour.");
             this.radioButton1.UseVisualStyleBackColor = true;
             this.radioButton1.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
             // 

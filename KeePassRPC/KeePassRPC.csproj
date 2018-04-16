@@ -129,6 +129,12 @@
     <Compile Include="Forms\AuthForm.Designer.cs">
       <DependentUpon>AuthForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\DatabaseSettingsUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\DatabaseSettingsUserControl.Designer.cs">
+      <DependentUpon>DatabaseSettingsUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\KeeEntryUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -230,6 +236,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Forms\AuthForm.resx">
       <DependentUpon>AuthForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\DatabaseSettingsUserControl.resx">
+      <DependentUpon>DatabaseSettingsUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\KeeEntryUserControl.resx">
       <DependentUpon>KeeEntryUserControl.cs</DependentUpon>

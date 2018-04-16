@@ -207,7 +207,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 _host.MainWindow.FileSaved += OnKPDBSaved;
 
                 _host.MainWindow.DocumentManager.ActiveDocumentSelected += OnKPDBSelected;
-
+                
                 // Get a reference to the 'Tools' menu item container
                 ToolStripItemCollection tsMenu = _host.MainWindow.ToolsMenu.DropDownItems;
 
@@ -274,19 +274,58 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
         
         void GlobalWindowManager_WindowAdded(object sender, GwmWindowEventArgs e)
         {
-            PwEntryForm ef = e.Form as PwEntryForm;
+            var ef = e.Form as PwEntryForm;
             if (ef != null)
             {
                 ef.Shown += new EventHandler(editEntryFormShown);
                 return;
             }
 
-            GroupForm gf = e.Form as GroupForm;
+            var gf = e.Form as GroupForm;
             if (gf != null)
             {
                 gf.Shown += new EventHandler(editGroupFormShown);
                 return;
             }
+
+            var dsf = e.Form as DatabaseSettingsForm;
+            if (dsf != null)
+            {
+                dsf.Shown += new EventHandler(databaseSettingsFormShown);
+            }
+        }
+
+        void databaseSettingsFormShown(object sender, EventArgs e)
+        {
+            TabControl mainTabControl = null;
+            var dsf = sender as DatabaseSettingsForm;
+
+            //This might not work, but might as well use the feature if possible.
+            try
+            {
+                Control[] cs = dsf.Controls.Find("m_tabMain", true);
+                if (cs.Length == 0)
+                    return;
+                mainTabControl = cs[0] as TabControl;
+            }
+            catch
+            {
+                // that's life, just move on.
+                return;
+            }
+
+            if (mainTabControl == null) return;
+
+            var dbSettingsUserControl = new DatabaseSettingsUserControl(_host.MainWindow.ActiveDatabase);
+
+            TabPage keeTabPage = new TabPage("Kee");
+            dbSettingsUserControl.Dock = DockStyle.Fill;
+            keeTabPage.Controls.Add(dbSettingsUserControl);
+            if (mainTabControl.ImageList == null)
+                mainTabControl.ImageList = new ImageList();
+            int imageIndex = mainTabControl.ImageList.Images.Add(global::KeePassRPC.Properties.Resources.Kee16, Color.Transparent);
+            keeTabPage.ImageIndex = imageIndex;
+            mainTabControl.TabPages.Add(keeTabPage);
         }
 
         void editGroupFormShown(object sender, EventArgs e)
