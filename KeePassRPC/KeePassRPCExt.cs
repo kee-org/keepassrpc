@@ -480,7 +480,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
         /// <summary>
         /// Called when [file new].
         /// </summary>
-        /// <remarks>Review whenever private KeePass.MainForm.OnFileNew method changes. Last reviewed 20150523</remarks>
+        /// <remarks>Review whenever private KeePass.MainForm.OnFileNew method changes. Last reviewed 20180416</remarks>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         internal void CreateNewDatabase()
