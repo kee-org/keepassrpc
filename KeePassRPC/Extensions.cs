@@ -69,7 +69,7 @@ namespace KeePassRPC
         {
             var conf = entry.GetKPRPCConfig(MatchAccuracyMethod.Domain);
             MatchAccuracyMethod overridenMethod;
-            if (dbConf.MatchedURLAccuracyOverrides.TryGetValue(urlsum.Domain, out overridenMethod))
+            if (dbConf.MatchedURLAccuracyOverrides.TryGetValue(urlsum.Domain.RegistrableDomain, out overridenMethod))
                 return overridenMethod;
             else
                 return conf.GetMatchAccuracyMethod();

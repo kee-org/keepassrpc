@@ -153,6 +153,12 @@
     <Compile Include="Forms\KeeGroupUserControl.Designer.cs">
       <DependentUpon>KeeGroupUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\KeeMAMOverride.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\KeeMAMOverride.Designer.cs">
+      <DependentUpon>KeeMAMOverride.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\KeeURLForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -248,6 +254,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\KeeGroupUserControl.resx">
       <DependentUpon>KeeGroupUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\KeeMAMOverride.resx">
+      <DependentUpon>KeeMAMOverride.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\KeeURLForm.resx">
       <DependentUpon>KeeURLForm.cs</DependentUpon>

@@ -7,7 +7,7 @@ namespace KeePassRPC
         public int Version = 3;
         public string RootUUID;
         public MatchAccuracyMethod DefaultMatchAccuracy;
-        public Dictionary<DomainPublicSuffix.DomainName, MatchAccuracyMethod> MatchedURLAccuracyOverrides;
+        public Dictionary<string, MatchAccuracyMethod> MatchedURLAccuracyOverrides;
 
         public DatabaseConfig()
         {

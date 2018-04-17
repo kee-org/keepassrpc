@@ -1765,10 +1765,11 @@ namespace KeePassRPC
         }
 
         // Must match host name; if allowHostnameOnlyMatch is false, exact URL must be matched
-        private int bestMatchAccuracyForAnyURL(PwEntry pwe, EntryConfig conf, string url, URLSummary urlSummary)
+        private int bestMatchAccuracyForAnyURL(PwEntry pwe, EntryConfig conf, string url, URLSummary urlSummary, DatabaseConfig dbConf)
         {
-            bool requireExactURLMatch = conf.GetMatchAccuracyMethod() == MatchAccuracyMethod.Exact;
-            bool requireAtLeastHostnameAndPortURLMatch = conf.GetMatchAccuracyMethod() == MatchAccuracyMethod.Hostname;
+            var mam = pwe.GetMatchAccuracyMethod(urlSummary, dbConf);
+            
+            
 
             int bestMatchSoFar = MatchAccuracy.None;
 
@@ -1783,7 +1784,7 @@ namespace KeePassRPC
                     return MatchAccuracy.Best;
 
                 // If we require very accurate matches, we can skip the more complex assessment below
-                if (requireExactURLMatch)
+                if (mam == MatchAccuracyMethod.Exact)
                     continue;
 
                 int entryUrlQSStartIndex = entryURL.IndexOf('?');
@@ -1808,7 +1809,7 @@ namespace KeePassRPC
                 // If we need at least a matching hostname and port (equivelent to
                 // KeeFox <1.5) or we are missing the information needed to match
                 // more loose components of the URL we have to skip these last tests
-                if (requireAtLeastHostnameAndPortURLMatch || entryUrlSummary.Domain == null || urlSummary.Domain == null)
+                if (mam == MatchAccuracyMethod.Hostname || entryUrlSummary.Domain == null || urlSummary.Domain == null)
                     continue;
 
                 if (bestMatchSoFar < MatchAccuracy.Hostname
@@ -1952,6 +1953,8 @@ namespace KeePassRPC
                 //foreach DB...
                 foreach (PwDatabase db in dbs)
                 {
+                    var dbConf = db.GetKPRPCConfig();
+
                     KeePassLib.Collections.PwObjectList<PwEntry> output = new KeePassLib.Collections.PwObjectList<PwEntry>();
 
                     PwGroup searchGroup = GetRootPwGroup(db);
@@ -1966,7 +1969,7 @@ namespace KeePassRPC
                         if (EntryIsInRecycleBin(pwe, db))
                             continue; // ignore if it's in the recycle bin
                         
-                        EntryConfig conf = pwe.GetKPRPCConfig(null, ref configErrors, db.GetKPRPCConfig().DefaultMatchAccuracy);
+                        EntryConfig conf = pwe.GetKPRPCConfig(null, ref configErrors, dbConf.DefaultMatchAccuracy);
 
                         if (conf == null || conf.Hide)
                             continue;
@@ -2002,7 +2005,7 @@ namespace KeePassRPC
                             foreach (string URL in URLs)
                         {
                             
-                                int accuracy = bestMatchAccuracyForAnyURL(pwe, conf, URL, URLHostnameAndPorts[URL]);
+                                int accuracy = bestMatchAccuracyForAnyURL(pwe, conf, URL, URLHostnameAndPorts[URL], dbConf);
                                 if (accuracy > bestMatchAccuracy)
                                     bestMatchAccuracy = accuracy;
 
@@ -2016,7 +2019,7 @@ namespace KeePassRPC
                         {
                             foreach (string URL in URLs)
                             {
-                                int accuracy = bestMatchAccuracyForAnyURL(pwe, conf, URL, URLHostnameAndPorts[URL]);
+                                int accuracy = bestMatchAccuracyForAnyURL(pwe, conf, URL, URLHostnameAndPorts[URL], dbConf);
                                 if (accuracy > bestMatchAccuracy)
                                     bestMatchAccuracy = accuracy;
                             }
