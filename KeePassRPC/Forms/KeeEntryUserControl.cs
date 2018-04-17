@@ -748,6 +748,5 @@ namespace KeePassRPC.Forms
             }
             UpdateKPRPCJSON(_conf);
         }
-
     }
 }

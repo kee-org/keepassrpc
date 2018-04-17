@@ -191,5 +191,13 @@ namespace KeePassRPC.Forms
                 buttonURLDelete.Enabled = false;
             }
         }
+
+        private void listView1_DoubleClick(object sender, EventArgs e)
+        {
+            if (listView1.SelectedItems.Count > 0)
+            {
+                buttonURLEdit_Click(sender, e);
+            }
+        }
     }
 }
