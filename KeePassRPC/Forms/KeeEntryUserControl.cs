@@ -748,5 +748,21 @@ namespace KeePassRPC.Forms
             }
             UpdateKPRPCJSON(_conf);
         }
+
+        private void listView1_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete)
+            {
+                buttonURLDelete_Click(sender, e);
+            }
+        }
+
+        private void listView2_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete)
+            {
+                buttonFieldDelete_Click(sender, e);
+            }
+        }
     }
 }

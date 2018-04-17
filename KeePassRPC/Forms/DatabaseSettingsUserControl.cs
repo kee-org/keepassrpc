@@ -1,13 +1,7 @@
-﻿using System;
+﻿using KeePassLib;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using KeePassLib;
 
 namespace KeePassRPC.Forms
 {
@@ -197,6 +191,14 @@ namespace KeePassRPC.Forms
             if (listView1.SelectedItems.Count > 0)
             {
                 buttonURLEdit_Click(sender, e);
+            }
+        }
+
+        private void listView1_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete)
+            {
+                buttonURLDelete_Click(sender, e);
             }
         }
     }
