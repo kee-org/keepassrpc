@@ -257,8 +257,10 @@
             this.groupBox3.Controls.Add(this.buttonURLAdd);
             this.groupBox3.Controls.Add(this.listView1);
             this.groupBox3.Location = new System.Drawing.Point(6, 173);
+            this.groupBox3.Margin = new System.Windows.Forms.Padding(3, 3, 3, 1);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(443, 141);
+            this.groupBox3.Padding = new System.Windows.Forms.Padding(3, 3, 3, 1);
+            this.groupBox3.Size = new System.Drawing.Size(443, 136);
             this.groupBox3.TabIndex = 0;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Additional URLs";
@@ -308,7 +310,7 @@
             this.listView1.MultiSelect = false;
             this.listView1.Name = "listView1";
             this.listView1.ShowItemToolTips = true;
-            this.listView1.Size = new System.Drawing.Size(366, 119);
+            this.listView1.Size = new System.Drawing.Size(366, 112);
             this.listView1.TabIndex = 3;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
@@ -338,7 +340,7 @@
             this.tabControl1.Location = new System.Drawing.Point(5, 3);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(463, 343);
+            this.tabControl1.Size = new System.Drawing.Size(463, 338);
             this.tabControl1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.tabControl1.TabIndex = 3;
             // 
@@ -353,7 +355,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(455, 317);
+            this.tabPage1.Size = new System.Drawing.Size(455, 312);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "General";
             this.tabPage1.ToolTipText = "Basic Kee settings for this entry";
@@ -381,9 +383,10 @@
             this.tabPage2.Controls.Add(this.groupBox4);
             this.tabPage2.Controls.Add(this.groupBox3);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(455, 317);
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3, 3, 3, 0);
+            this.tabPage2.Size = new System.Drawing.Size(455, 312);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "URLs";
             this.tabPage2.ToolTipText = "Which URLs should this entry match or be blocked from matching?";
@@ -463,7 +466,7 @@
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(455, 317);
+            this.tabPage3.Size = new System.Drawing.Size(455, 312);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Form fields";
             this.tabPage3.ToolTipText = "Define the web page form fields this entry applies to";
@@ -476,7 +479,7 @@
             this.BackColor = System.Drawing.SystemColors.Window;
             this.Controls.Add(this.tabControl1);
             this.Name = "KeeEntryUserControl";
-            this.Size = new System.Drawing.Size(470, 352);
+            this.Size = new System.Drawing.Size(470, 344);
             this.Load += new System.EventHandler(this.KeeEntryUserControl_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
