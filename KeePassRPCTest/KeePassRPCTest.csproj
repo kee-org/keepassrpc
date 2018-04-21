@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="URLMatchTest.cs" />
     <Compile Include="URLSummaryTest.cs" />
   </ItemGroup>
   <ItemGroup>
