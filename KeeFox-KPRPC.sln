@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2037
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5B0C7A3B-64E0-4A3C-A3E3-49178249EC46}"
 	ProjectSection(SolutionItems) = preProject
@@ -18,7 +18,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jayrock", "Jayrock\src\Jayr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jayrock.Json", "Jayrock\src\Jayrock.Json\Jayrock.Json.csproj", "{F10A6A7D-B8E4-4F8B-8BD9-5B42ACE5520E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeePassRPCTest", "KeePassRPCTest\KeePassRPCTest.csproj", "{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeePassRPCTest", "KeePassRPCTest\KeePassRPCTest.csproj", "{8EDF4429-251A-416D-BB68-93F227191BCF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -90,33 +90,36 @@ Global
 		{F10A6A7D-B8E4-4F8B-8BD9-5B42ACE5520E}.ReleasePLGX|Mixed Platforms.Build.0 = Release|Any CPU
 		{F10A6A7D-B8E4-4F8B-8BD9-5B42ACE5520E}.ReleasePLGX|Win32.ActiveCfg = Release|Any CPU
 		{F10A6A7D-B8E4-4F8B-8BD9-5B42ACE5520E}.ReleasePLGX|x86.ActiveCfg = Release|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.Debug|Win32.Build.0 = Debug|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.Debug|x86.Build.0 = Debug|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.Release|Win32.ActiveCfg = Release|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.Release|Win32.Build.0 = Release|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.Release|x86.ActiveCfg = Release|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.Release|x86.Build.0 = Release|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.ReleasePLGX|Any CPU.ActiveCfg = Release|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.ReleasePLGX|Any CPU.Build.0 = Release|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.ReleasePLGX|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.ReleasePLGX|Mixed Platforms.Build.0 = Release|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.ReleasePLGX|Win32.ActiveCfg = Release|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.ReleasePLGX|Win32.Build.0 = Release|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.ReleasePLGX|x86.ActiveCfg = Release|Any CPU
-		{9801B42E-49C3-4CFB-B37D-D3F5FA8F6989}.ReleasePLGX|x86.Build.0 = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Win32.Build.0 = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|x86.Build.0 = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Win32.ActiveCfg = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Win32.Build.0 = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|x86.ActiveCfg = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|x86.Build.0 = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.ReleasePLGX|Any CPU.ActiveCfg = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.ReleasePLGX|Any CPU.Build.0 = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.ReleasePLGX|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.ReleasePLGX|Mixed Platforms.Build.0 = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.ReleasePLGX|Win32.ActiveCfg = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.ReleasePLGX|Win32.Build.0 = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.ReleasePLGX|x86.ActiveCfg = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.ReleasePLGX|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1A2D3CDA-450D-4A3B-8934-7142D0FCB74A}
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = KeeFox.vsmdi

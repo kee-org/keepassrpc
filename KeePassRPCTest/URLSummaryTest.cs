@@ -1,19 +1,19 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using KeePassRPC;
+﻿using KeePassRPC;
 using DomainPublicSuffix;
+using NUnit.Framework;
 
 namespace KeePassRPCTest
 {
-    [TestClass]
+    [TestFixture]
     public class URLSummaryTest
     {
-        [ClassInitialize()]
-        public static void MyClassInitialize(TestContext testContext)
+        [OneTimeSetUp]
+        public static void OneTimeSetUp()
         {
             TLDRulesCache.Init(@"C:\temp\publicSuffixDomainCache.txt");
         }
 
-        [TestMethod]
+        [Test]
         public void StandardHttpWithPath()
         {
             var summary = URLSummary.FromURL("http://www.google.com/any/path");
@@ -22,7 +22,7 @@ namespace KeePassRPCTest
             Assert.AreEqual("google.com", summary.Domain.RegistrableDomain);
         }
 
-        [TestMethod]
+        [Test]
         public void StandardLocalFile()
         {
             var summary = URLSummary.FromURL("file://c/any/path/file.ext");
@@ -31,7 +31,7 @@ namespace KeePassRPCTest
             Assert.IsNull(summary.Domain);
         }
 
-        [TestMethod]
+        [Test]
         public void MalformedLocalFile()
         {
             var summary = URLSummary.FromURL(@"c:\any\path\file.ext");
@@ -40,7 +40,7 @@ namespace KeePassRPCTest
             Assert.IsNull(summary.Domain);
         }
 
-        [TestMethod]
+        [Test]
         public void StandardHttpsWithPortAndPath()
         {
             var summary = URLSummary.FromURL("http://www.google.com:12345/any/path");
@@ -49,7 +49,7 @@ namespace KeePassRPCTest
             Assert.AreEqual("google.com", summary.Domain.RegistrableDomain);
         }
 
-        [TestMethod]
+        [Test]
         public void StandardData()
         {
             var summary = URLSummary.FromURL("data:,_www.google.com");
@@ -58,7 +58,7 @@ namespace KeePassRPCTest
             Assert.IsNull(summary.Domain);
         }
 
-        [TestMethod]
+        [Test]
         public void DataEndingWithQSAndFile()
         {
             var summary = URLSummary.FromURL("data:,_www.google.com?anything.file://");
@@ -67,7 +67,7 @@ namespace KeePassRPCTest
             Assert.IsNull(summary.Domain);
         }
         
-        [TestMethod]
+        [Test]
         public void DataEndingWithFile()
         {
             var summary = URLSummary.FromURL("data:,_www.google.com.file://");
@@ -76,7 +76,7 @@ namespace KeePassRPCTest
             Assert.IsNull(summary.Domain);
         }
 
-        [TestMethod]
+        [Test]
         public void DataEndingWithQSAndHttps()
         {
             var summary = URLSummary.FromURL("data:,_www.google.com?anything.https://");
@@ -84,6 +84,6 @@ namespace KeePassRPCTest
             Assert.AreEqual("", summary.Port);
             Assert.IsNull(summary.Domain);
         }
-        
+
     }
 }

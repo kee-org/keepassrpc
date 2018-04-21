@@ -16,5 +16,6 @@
 *.orig
 /temp
 /local
+/packages
 .vs
 Jayrock.Json.csproj.FileListAbsolute.txt

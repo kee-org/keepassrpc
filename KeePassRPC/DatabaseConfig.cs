@@ -12,6 +12,7 @@ namespace KeePassRPC
         public DatabaseConfig()
         {
             DefaultMatchAccuracy = MatchAccuracyMethod.Domain;
+            MatchedURLAccuracyOverrides = new Dictionary<string, MatchAccuracyMethod>();
         }
     }
 }

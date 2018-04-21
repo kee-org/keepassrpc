@@ -485,6 +485,10 @@ namespace KeePassRPC
                 string url = login.URLs[i];
                 if (i == 0)
                 {
+                    // We can't use the framework Uri.Port property here because
+                    // we are interested in whether it is explicit or not - the 
+                    // Port property returns the default port for a protocol if 
+                    // one is not explicitly included in the URL
                     URLSummary urlsum = URLSummary.FromURL(url);
 
                     // Require more strict default matching for entries that come
@@ -1765,12 +1769,8 @@ namespace KeePassRPC
         }
 
         // Must match host name; if allowHostnameOnlyMatch is false, exact URL must be matched
-        private int bestMatchAccuracyForAnyURL(PwEntry pwe, EntryConfig conf, string url, URLSummary urlSummary, DatabaseConfig dbConf)
+        public static int BestMatchAccuracyForAnyURL(PwEntry pwe, EntryConfig conf, string url, URLSummary urlSummary, MatchAccuracyMethod mam)
         {
-            var mam = pwe.GetMatchAccuracyMethod(urlSummary, dbConf);
-            
-            
-
             int bestMatchSoFar = MatchAccuracy.None;
 
             List<string> URLs = new List<string>(3);
@@ -2003,9 +2003,9 @@ namespace KeePassRPC
                                 && (string.IsNullOrEmpty(username) || username == entryUserName))
                         {
                             foreach (string URL in URLs)
-                        {
-                            
-                                int accuracy = bestMatchAccuracyForAnyURL(pwe, conf, URL, URLHostnameAndPorts[URL], dbConf);
+                            {
+                                var mam = pwe.GetMatchAccuracyMethod(URLHostnameAndPorts[URL], dbConf);
+                                int accuracy = BestMatchAccuracyForAnyURL(pwe, conf, URL, URLHostnameAndPorts[URL], mam);
                                 if (accuracy > bestMatchAccuracy)
                                     bestMatchAccuracy = accuracy;
 
@@ -2019,7 +2019,8 @@ namespace KeePassRPC
                         {
                             foreach (string URL in URLs)
                             {
-                                int accuracy = bestMatchAccuracyForAnyURL(pwe, conf, URL, URLHostnameAndPorts[URL], dbConf);
+                                var mam = pwe.GetMatchAccuracyMethod(URLHostnameAndPorts[URL], dbConf);
+                                int accuracy = BestMatchAccuracyForAnyURL(pwe, conf, URL, URLHostnameAndPorts[URL], mam);
                                 if (accuracy > bestMatchAccuracy)
                                     bestMatchAccuracy = accuracy;
                             }
