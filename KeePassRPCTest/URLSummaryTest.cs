@@ -32,12 +32,21 @@ namespace KeePassRPCTest
         }
 
         [Test]
-        public void MalformedLocalFile()
+        public void MalformedLocalFileWithoutExtension()
+        {
+            var summary = URLSummary.FromURL(@"c:\any\path\file");
+            Assert.AreEqual(@"c:\any\path\file", summary.HostnameAndPort);
+            Assert.AreEqual("", summary.Port);
+            Assert.IsNull(summary.Domain.RegistrableDomain);
+        }
+
+        [Test]
+        public void MalformedLocalFileWithExtension()
         {
             var summary = URLSummary.FromURL(@"c:\any\path\file.ext");
             Assert.AreEqual(@"c:\any\path\file.ext", summary.HostnameAndPort);
             Assert.AreEqual("", summary.Port);
-            Assert.IsNull(summary.Domain);
+            Assert.AreEqual("ext", summary.Domain.TLD);
         }
 
         [Test]
