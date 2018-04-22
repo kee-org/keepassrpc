@@ -81,7 +81,8 @@ namespace KeePassRPC.DataExchangeModel
     public enum FormFieldType { FFTradio, FFTusername, FFTtext, FFTpassword, FFTselect, FFTcheckbox } // ..., HTML 5, etc.
     // FFTusername is special type because bultin FF supports with only username and password
 
-        
+    public enum PlaceholderHandling { Default, Enabled, Disabled }
+
     public enum MatchAccuracyEnum
     {
         // Best = Non-URL match (i.e. we matched by UUID instead)
@@ -144,6 +145,7 @@ namespace KeePassRPC.DataExchangeModel
         public FormFieldType @Type;
         public string Id;
         public int Page;
+        public PlaceholderHandling PlaceholderHandling;
 
         public FormField() { }
 
@@ -152,7 +154,8 @@ namespace KeePassRPC.DataExchangeModel
         string value,
         FormFieldType @type,
         string id,
-        int page)
+        int page,
+        PlaceholderHandling placeholderHandling)
         {
             Name = name;
             DisplayName = displayName;
@@ -160,6 +163,7 @@ namespace KeePassRPC.DataExchangeModel
             @Type = @type;
             Id = id;
             Page = page;
+            PlaceholderHandling = placeholderHandling;
         }
     }
 

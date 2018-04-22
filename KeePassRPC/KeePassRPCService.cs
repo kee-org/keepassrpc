@@ -304,36 +304,46 @@ namespace KeePassRPC
             if (abortIfHidden && conf.Hide)
                 return null;
 
-            if (!fullDetails)
-            {
+            bool dbDefaultPlaceholderHandlingEnabled = db.GetKPRPCConfig().DefaultPlaceholderHandling == PlaceholderHandling.Enabled;
 
-            }
-            else
+            //TODO: probably a bug here. why is fulldetails inconsistant across different source of username?
+            if (fullDetails)
             {
                 if (conf.FormFieldList != null)
                 {
                     foreach (FormField ff in conf.FormFieldList)
                     {
-                        if (ff.Type == FormFieldType.FFTpassword)
+                        bool enablePlaceholders = false;
+                        string displayName = ff.Name;
+                        string ffValue = ff.Value;
+
+                        if (ff.PlaceholderHandling == PlaceholderHandling.Enabled || 
+                            (ff.PlaceholderHandling == PlaceholderHandling.Default && dbDefaultPlaceholderHandlingEnabled))
                         {
-                            string ffValue = KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ff.Value, db);
+                            enablePlaceholders = true;
+                        }
+
+                        if (ff.Type == FormFieldType.FFTpassword && ff.Value == "{PASSWORD}")
+                        {
+                            ffValue = KeePassRPCPlugin.GetPwEntryString(pwe, "Password", db);
                             if (!string.IsNullOrEmpty(ffValue))
                             {
-                                formFieldList.Add(new FormField(ff.Name, "KeePass password", ffValue, ff.Type, ff.Id, ff.Page));
+                                displayName = "KeePass password";
                                 passwordFound = true;
                             }
                         }
-                        else if (ff.Type == FormFieldType.FFTusername)
+                        else if (ff.Type == FormFieldType.FFTusername && ff.Value == "{USERNAME}")
                         {
-                            string ffValue = KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ff.Value, db);
+                            ffValue = KeePassRPCPlugin.GetPwEntryString(pwe, "UserName", db);
                             if (!string.IsNullOrEmpty(ffValue))
                             {
-                                formFieldList.Add(new FormField(ff.Name, "KeePass username", ffValue, ff.Type, ff.Id, ff.Page));
+                                displayName = "KeePass username";
                                 usernameFound = true;
                             }
                         }
-                        else
-                            formFieldList.Add(new FormField(ff.Name, ff.Name, ff.Value, ff.Type, ff.Id, ff.Page));
+
+                        string derefValue = enablePlaceholders ? KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ffValue, db) : ffValue;
+                        formFieldList.Add(new FormField(ff.Name, displayName, derefValue, ff.Type, ff.Id, ff.Page, ff.PlaceholderHandling));
                     }
                 }
             }
@@ -345,11 +355,11 @@ namespace KeePassRPC
             if (fullDetails && !passwordFound)
             {
                 string ffValue = KeePassRPCPlugin.GetPwEntryString(pwe, "Password", db);
-                ffValue = KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ffValue, db);
+                string derefValue = dbDefaultPlaceholderHandlingEnabled ? KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ffValue, db) : ffValue;
                 if (!string.IsNullOrEmpty(ffValue))
                 {
                     formFieldList.Add(new FormField("password",
-                        "KeePass password", ffValue, FormFieldType.FFTpassword, "password", 1));
+                        "KeePass password", derefValue, FormFieldType.FFTpassword, "password", 1, PlaceholderHandling.Default));
                 }
             }
 
@@ -358,11 +368,11 @@ namespace KeePassRPC
             if (!usernameFound)
             {
                 string ffValue = KeePassRPCPlugin.GetPwEntryString(pwe, "UserName", db);
-                ffValue = KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ffValue, db);
+                string derefValue = dbDefaultPlaceholderHandlingEnabled ? KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ffValue, db) : ffValue;
                 if (!string.IsNullOrEmpty(ffValue))
                 {
                     formFieldList.Add(new FormField("username",
-                        "KeePass username", ffValue, FormFieldType.FFTusername, "username", 1));
+                        "KeePass username", derefValue, FormFieldType.FFTusername, "username", 1, PlaceholderHandling.Default));
                     usernameName = "username";
                     usernameValue = ffValue;
                 }
@@ -462,18 +472,18 @@ namespace KeePassRPC
             {
                 if (kpff.Type == FormFieldType.FFTpassword && !firstPasswordFound)
                 {
-                    ffl.Add(new FormField(kpff.Name, "KeePass password", "{PASSWORD}", kpff.Type, kpff.Id, kpff.Page));
+                    ffl.Add(new FormField(kpff.Name, "KeePass password", "{PASSWORD}", kpff.Type, kpff.Id, kpff.Page, PlaceholderHandling.Default));
                     pwe.Strings.Set("Password", new ProtectedString(host.Database.MemoryProtection.ProtectPassword, kpff.Value));
                     firstPasswordFound = true;
                 }
                 else if (kpff.Type == FormFieldType.FFTusername)
                 {
-                    ffl.Add(new FormField(kpff.Name, "KeePass username", "{USERNAME}", kpff.Type, kpff.Id, kpff.Page));
+                    ffl.Add(new FormField(kpff.Name, "KeePass username", "{USERNAME}", kpff.Type, kpff.Id, kpff.Page, PlaceholderHandling.Default));
                     pwe.Strings.Set("UserName", new ProtectedString(host.Database.MemoryProtection.ProtectUserName, kpff.Value));
                 }
                 else
                 {
-                    ffl.Add(new FormField(kpff.Name, kpff.Name, kpff.Value, kpff.Type, kpff.Id, kpff.Page));
+                    ffl.Add(new FormField(kpff.Name, kpff.Name, kpff.Value, kpff.Type, kpff.Id, kpff.Page, PlaceholderHandling.Default));
                 }
             }
             conf.FormFieldList = ffl.ToArray();

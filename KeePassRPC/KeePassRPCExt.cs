@@ -1324,14 +1324,14 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                     {
                         if (pwe.Strings.Exists("Form field " + fieldName + " value"))
                             formFieldList.Add(new FormField(fieldName,
-                                fieldName, GetPwEntryString(pwe, "Form field " + fieldName + " value", db), FormFieldType.FFTpassword, fieldId, fieldPage));
+                                fieldName, GetPwEntryString(pwe, "Form field " + fieldName + " value", db), FormFieldType.FFTpassword, fieldId, fieldPage, PlaceholderHandling.Default));
                         else if (pwe.Strings.Exists("KPRPC Form field " + fieldName + " value"))
                             formFieldList.Add(new FormField(fieldName,
-                                fieldName, GetPwEntryString(pwe, "KPRPC Form field " + fieldName + " value", db), FormFieldType.FFTpassword, fieldId, fieldPage));
+                                fieldName, GetPwEntryString(pwe, "KPRPC Form field " + fieldName + " value", db), FormFieldType.FFTpassword, fieldId, fieldPage, PlaceholderHandling.Default));
                         else if (!passwordFound) // it's the default password
                         {
                             formFieldList.Add(new FormField(fieldName,
-                                "KeePass password", "{PASSWORD}", FormFieldType.FFTpassword, fieldId, fieldPage));
+                                "KeePass password", "{PASSWORD}", FormFieldType.FFTpassword, fieldId, fieldPage, PlaceholderHandling.Default));
                             passwordFound = true;
                         }
                     }
@@ -1341,7 +1341,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                         //if (usernameFound)
                         //    displayUser = fieldName;
                         formFieldList.Add(new FormField(fieldName,
-                            displayUser, "{USERNAME}", FormFieldType.FFTusername, fieldId, fieldPage));
+                            displayUser, "{USERNAME}", FormFieldType.FFTusername, fieldId, fieldPage, PlaceholderHandling.Default));
                         usernameName = fieldName;
                         usernameValue = GetPwEntryString(pwe, "UserName", db);
                         //usernameFound = true;
@@ -1349,22 +1349,22 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                     else if (pweValue == "text")
                     {
                         formFieldList.Add(new FormField(fieldName,
-                fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTtext, fieldId, fieldPage));
+                fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTtext, fieldId, fieldPage, PlaceholderHandling.Default));
                     }
                     else if (pweValue == "radio")
                     {
                         formFieldList.Add(new FormField(fieldName,
-                fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTradio, fieldId, fieldPage));
+                fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTradio, fieldId, fieldPage, PlaceholderHandling.Default));
                     }
                     else if (pweValue == "select")
                     {
                         formFieldList.Add(new FormField(fieldName,
-                fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTselect, fieldId, fieldPage));
+                fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTselect, fieldId, fieldPage, PlaceholderHandling.Default));
                     }
                     else if (pweValue == "checkbox")
                     {
                         formFieldList.Add(new FormField(fieldName,
-                fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTcheckbox, fieldId, fieldPage));
+                fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTcheckbox, fieldId, fieldPage, PlaceholderHandling.Default));
                     }
                 }
                 else if (pweKey == "Alternative URLs" || pweKey == "KPRPC Alternative URLs")

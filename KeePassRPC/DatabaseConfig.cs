@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using KeePassRPC.DataExchangeModel;
 
 namespace KeePassRPC
 {
@@ -8,11 +9,13 @@ namespace KeePassRPC
         public string RootUUID;
         public MatchAccuracyMethod DefaultMatchAccuracy;
         public Dictionary<string, MatchAccuracyMethod> MatchedURLAccuracyOverrides;
+        public PlaceholderHandling DefaultPlaceholderHandling;
 
         public DatabaseConfig()
         {
             DefaultMatchAccuracy = MatchAccuracyMethod.Domain;
             MatchedURLAccuracyOverrides = new Dictionary<string, MatchAccuracyMethod>();
+            DefaultPlaceholderHandling = PlaceholderHandling.Disabled;
         }
     }
 }

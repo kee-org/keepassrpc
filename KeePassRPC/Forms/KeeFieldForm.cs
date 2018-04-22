@@ -16,12 +16,13 @@ namespace KeePassRPC.Forms
         public string Id;
         public FormFieldType Type;
         public int Page;
+        public PlaceholderHandling PlaceholderHandling;
 
-        public KeeFieldForm(FormField ff) : this(ff.Name, ff.Value, ff.Id, ff.Type, ff.Page)
+        public KeeFieldForm(FormField ff) : this(ff.Name, ff.Value, ff.Id, ff.Type, ff.Page, ff.PlaceholderHandling)
         {
         }
 
-        public KeeFieldForm(string name, string value, string id, FormFieldType type, int page)
+        public KeeFieldForm(string name, string value, string id, FormFieldType type, int page, PlaceholderHandling phh)
         {
             InitializeComponent();
             Icon = global::KeePassRPC.Properties.Resources.kee;
@@ -64,6 +65,8 @@ namespace KeePassRPC.Forms
             textBox3.Text = Id = id;
             Page = page;
             textBox4.Text = Page.ToString();
+
+            //phh...
         }
 
         private void button1_Click(object sender, EventArgs e)

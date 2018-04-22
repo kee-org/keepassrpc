@@ -591,12 +591,11 @@ namespace KeePassRPC.Forms
 
         private void buttonFieldAdd_Click(object sender, EventArgs e)
         {
-            using (KeeFieldForm kfff = new KeeFieldForm(null, null, null, FormFieldType.FFTtext, 1))
+            using (KeeFieldForm kfff = new KeeFieldForm(null, null, null, FormFieldType.FFTtext, 1, PlaceholderHandling.Default))
             {
-
                 if (kfff.ShowDialog() == DialogResult.OK)
                 {
-                    FormField ff = new FormField(kfff.Name, kfff.Name, kfff.Value, kfff.Type, kfff.Id, kfff.Page);
+                    FormField ff = new FormField(kfff.Name, kfff.Name, kfff.Value, kfff.Type, kfff.Id, kfff.Page, kfff.PlaceholderHandling);
 
                     string type = Utilities.FormFieldTypeToDisplay(kfff.Type, false);
                     int page = kfff.Page;
@@ -643,7 +642,7 @@ namespace KeePassRPC.Forms
                     int page = kfff.Page;
 
                     ListViewItem lvi = new ListViewItem(new string[] { kfff.Name, displayValue, kfff.Id, type, page.ToString() });
-                    lvi.Tag = new FormField(kfff.Name, displayName, kfff.Value, kfff.Type, kfff.Id, page);
+                    lvi.Tag = new FormField(kfff.Name, displayName, kfff.Value, kfff.Type, kfff.Id, page, kfff.PlaceholderHandling);
                     RemoveFieldListItem(lvsicSel[0]);
                     AddFieldListItem(lvi);
                     UpdateFieldStrings();
@@ -657,9 +656,9 @@ namespace KeePassRPC.Forms
             if (tag != null)
                 kfff = new KeeFieldForm(tag);
             else if (lvsicSel[0].SubItems[1].Text == "{PASSWORD}")
-                kfff = new KeeFieldForm(lvsicSel[0].SubItems[0].Text, "{PASSWORD}", lvsicSel[0].SubItems[2].Text, FormFieldType.FFTpassword, int.Parse(lvsicSel[0].SubItems[4].Text));
+                kfff = new KeeFieldForm(lvsicSel[0].SubItems[0].Text, "{PASSWORD}", lvsicSel[0].SubItems[2].Text, FormFieldType.FFTpassword, int.Parse(lvsicSel[0].SubItems[4].Text), PlaceholderHandling.Default);
             else if (lvsicSel[0].SubItems[1].Text == "{USERNAME}")
-                kfff = new KeeFieldForm(lvsicSel[0].SubItems[0].Text, "{USERNAME}", lvsicSel[0].SubItems[2].Text, FormFieldType.FFTusername, int.Parse(lvsicSel[0].SubItems[4].Text));
+                kfff = new KeeFieldForm(lvsicSel[0].SubItems[0].Text, "{USERNAME}", lvsicSel[0].SubItems[2].Text, FormFieldType.FFTusername, int.Parse(lvsicSel[0].SubItems[4].Text), PlaceholderHandling.Default);
             else
                 throw new Exception("Corrupt Entry found!");
             return kfff;
