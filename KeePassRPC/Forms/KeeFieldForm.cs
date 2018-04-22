@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
@@ -77,8 +78,12 @@ namespace KeePassRPC.Forms
             Page = page;
             textBox4.Text = Page.ToString();
 
-            //phh...
-
+            switch (phh)
+            {
+                case PlaceholderHandling.Default: radioButton1.Checked = true; break;
+                case PlaceholderHandling.Enabled: radioButton2.Checked = true; break;
+                case PlaceholderHandling.Disabled: radioButton3.Checked = true; break;
+            }
 
             comboBox1.SelectedIndexChanged += new System.EventHandler(comboBox1_SelectedIndexChanged);
         }
@@ -122,6 +127,10 @@ namespace KeePassRPC.Forms
             {
                 Value = textBox2.Text;
             }
+
+            if (radioButton1.Checked) PlaceholderHandling = PlaceholderHandling.Default;
+            if (radioButton2.Checked) PlaceholderHandling = PlaceholderHandling.Enabled;
+            if (radioButton3.Checked) PlaceholderHandling = PlaceholderHandling.Disabled;
         }
         
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -140,6 +149,12 @@ namespace KeePassRPC.Forms
                 checkBox1.Visible = false;
                 checkBox1.Checked = false;
             }
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Process p = new Process();
+            p = Process.Start("https://forum.kee.pm");
         }
     }
 }

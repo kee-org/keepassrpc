@@ -117,4 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="label8.Text" xml:space="preserve">
+    <value>It is your responsibility to ensure that the placeholders you use do not reduce the security of your database and accounts.
+
+You can learn more about placeholders and the impact of using them by loading the web page link below.</value>
+  </data>
 </root>
