@@ -1,6 +1,8 @@
 ﻿using KeePassLib;
+using KeePassRPC.DataExchangeModel;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace KeePassRPC.Forms
@@ -17,6 +19,7 @@ namespace KeePassRPC.Forms
             InitializeComponent();
             PresentDefaultMatchAccuracy();
             PresentDomains();
+            PresentDefaultPlaceholderHandling();
         }
         
         protected override void OnLoad(EventArgs e)
@@ -31,6 +34,7 @@ namespace KeePassRPC.Forms
                       {
                           config.DefaultMatchAccuracy = DetermineDefaultMatchAccuracy();
                           config.MatchedURLAccuracyOverrides = DetermineMatchedURLAccuracyOverrides();
+                          config.DefaultPlaceholderHandling = DetermineDefaultPlaceholderHandling();
                           database.SetKPRPCConfig(config);
                       }
                   };
@@ -41,17 +45,29 @@ namespace KeePassRPC.Forms
         {
             switch (config.DefaultMatchAccuracy)
             {
-                case MatchAccuracyMethod.Exact: radioButton3.Checked = true; break;
-                case MatchAccuracyMethod.Hostname: radioButton2.Checked = true; break;
-                case MatchAccuracyMethod.Domain: radioButton1.Checked = true; break;
+                case MatchAccuracyMethod.Exact: radioButton6.Checked = true; break;
+                case MatchAccuracyMethod.Hostname: radioButton5.Checked = true; break;
+                case MatchAccuracyMethod.Domain: radioButton4.Checked = true; break;
             }
         }
 
         private MatchAccuracyMethod DetermineDefaultMatchAccuracy()
         {
-            if (radioButton3.Checked) return MatchAccuracyMethod.Exact;
-            else if (radioButton2.Checked) return MatchAccuracyMethod.Hostname;
+            if (radioButton6.Checked) return MatchAccuracyMethod.Exact;
+            else if (radioButton5.Checked) return MatchAccuracyMethod.Hostname;
             else return MatchAccuracyMethod.Domain;
+        }
+
+        private void PresentDefaultPlaceholderHandling()
+        {
+            if (config.DefaultPlaceholderHandling == PlaceholderHandling.Enabled) radioButton8.Checked = true;
+            else radioButton7.Checked = true;
+        }
+
+        private PlaceholderHandling DetermineDefaultPlaceholderHandling()
+        {
+            if (radioButton8.Checked) return PlaceholderHandling.Enabled;
+            else return PlaceholderHandling.Disabled;
         }
 
         private Dictionary<string, MatchAccuracyMethod> DetermineMatchedURLAccuracyOverrides()
@@ -200,6 +216,12 @@ namespace KeePassRPC.Forms
             {
                 buttonURLDelete_Click(sender, e);
             }
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Process p = new Process();
+            p = Process.Start("https://forum.kee.pm");
         }
     }
 }

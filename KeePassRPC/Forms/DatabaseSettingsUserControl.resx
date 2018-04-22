@@ -117,4 +117,11 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="label8.Text" xml:space="preserve">
+    <value>Changing this setting can increase the risk of information from your database or computer being collected by malicious or compromised websites.
+
+It is strongly recommended to enable this feature only as a temporary aid for migration between KeePassRPC version 1.7.3 and 1.8.
+
+You can learn more about placeholders and the impact of using them by loading the web page link below.</value>
+  </data>
 </root>
