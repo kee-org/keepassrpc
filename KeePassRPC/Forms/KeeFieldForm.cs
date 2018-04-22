@@ -33,14 +33,14 @@ namespace KeePassRPC.Forms
 
             if (value == "{USERNAME}")
             {
-                textBox2.Enabled = false;
+                textBox2.Text = Value = value;
                 comboBox1.Text = "Username";
                 comboBox1.Enabled = false;
                 label6.Visible = true;
             } else
             if (value == "{PASSWORD}")
             {
-                textBox2.Enabled = false;
+                textBox2.Text = Value = value;
                 comboBox1.Text = "Password";
                 comboBox1.Enabled = false;
                 label7.Visible = true;
@@ -58,27 +58,41 @@ namespace KeePassRPC.Forms
                 else if (type == FormFieldType.FFTusername)
                     comboBox1.Text = "Username";
                 else if (type == FormFieldType.FFTcheckbox)
-                    comboBox1.Text = "Checkbox";                    
+                    comboBox1.Text = "Checkbox";
+
+                if (type == FormFieldType.FFTcheckbox)
+                {
+                    checkBox1.Visible = true;
+                    Value = value;
+                    checkBox1.Checked = Value == "KEEFOX_CHECKED_FLAG_TRUE" ? true : false;
+                } else
+                {
+                    textBox2.Text = Value = value;
+                    textBox2.Visible = true;
+                    label2.Visible = true;
+                }
             }
             textBox1.Text = Name = name;
-            textBox2.Text = Value = value;
             textBox3.Text = Id = id;
             Page = page;
             textBox4.Text = Page.ToString();
 
             //phh...
+
+
+            comboBox1.SelectedIndexChanged += new System.EventHandler(comboBox1_SelectedIndexChanged);
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (textBox2.Text.Length <= 0)
+            if (textBox2.Visible && textBox2.Text.Length <= 0)
             {
                 MessageBox.Show(this, "Please specify a value");
                 this.DialogResult = DialogResult.None;
                 return;
             }
 
-            if (textBox2.Enabled && (textBox2.Text == "{USERNAME}" || textBox2.Text == "{PASSWORD}"))
+            if (textBox2.Visible && (textBox2.Text == "{USERNAME}" || textBox2.Text == "{PASSWORD}"))
             {
                 MessageBox.Show(this, "Please change the value of this form field - it is currently set to a value that Kee needs to reserve for internal use. Sorry, please report this on the support forums if you are inconvenienced by this choice of reserved phrase.");
                 this.DialogResult = DialogResult.None;
@@ -86,7 +100,6 @@ namespace KeePassRPC.Forms
             }
 
             Name = textBox1.Text;
-            Value = textBox2.Text;
             Id = textBox3.Text;
             if (!int.TryParse(textBox4.Text, out Page)) Page = 1;
             if (comboBox1.Text == "Password")
@@ -101,6 +114,32 @@ namespace KeePassRPC.Forms
                 Type = FormFieldType.FFTusername;
             else if (comboBox1.Text == "Checkbox")
                 Type = FormFieldType.FFTcheckbox;
+
+            if (comboBox1.Text == "Checkbox")
+            {
+                Value = checkBox1.Checked ? "KEEFOX_CHECKED_FLAG_TRUE" : "KEEFOX_CHECKED_FLAG_FALSE";
+            } else
+            {
+                Value = textBox2.Text;
+            }
+        }
+        
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBox1.Text == "Checkbox")
+            {
+                textBox2.Visible = false;
+                label2.Visible = false;
+                checkBox1.Visible = true;
+                checkBox1.Checked = false;
+            }
+            else
+            {
+                textBox2.Visible = true;
+                label2.Visible = true;
+                checkBox1.Visible = false;
+                checkBox1.Checked = false;
+            }
         }
     }
 }

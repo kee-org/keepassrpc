@@ -42,6 +42,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // textBox1
@@ -63,18 +64,20 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(10, 38);
+            this.label2.Location = new System.Drawing.Point(10, 64);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(34, 13);
             this.label2.TabIndex = 0;
             this.label2.Text = "Value";
+            this.label2.Visible = false;
             // 
             // textBox2
             // 
-            this.textBox2.Location = new System.Drawing.Point(50, 35);
+            this.textBox2.Location = new System.Drawing.Point(50, 61);
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(218, 20);
             this.textBox2.TabIndex = 3;
+            this.textBox2.Visible = false;
             // 
             // comboBox1
             // 
@@ -92,7 +95,7 @@
             // 
             // textBox3
             // 
-            this.textBox3.Location = new System.Drawing.Point(50, 61);
+            this.textBox3.Location = new System.Drawing.Point(50, 35);
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(218, 20);
             this.textBox3.TabIndex = 5;
@@ -128,7 +131,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(28, 64);
+            this.label3.Location = new System.Drawing.Point(28, 38);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(16, 13);
             this.label3.TabIndex = 0;
@@ -155,7 +158,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(9, 84);
+            this.label6.Location = new System.Drawing.Point(8, 64);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(390, 13);
             this.label6.TabIndex = 0;
@@ -165,12 +168,25 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(9, 84);
+            this.label7.Location = new System.Drawing.Point(9, 64);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(389, 13);
             this.label7.TabIndex = 0;
             this.label7.Text = "To change the value of the password field, please use the main KeePass edit tab";
             this.label7.Visible = false;
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.checkBox1.Location = new System.Drawing.Point(6, 63);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(59, 17);
+            this.checkBox1.TabIndex = 8;
+            this.checkBox1.Text = "Enable";
+            this.checkBox1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.Visible = false;
             // 
             // KeeFieldForm
             // 
@@ -178,7 +194,8 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.button2;
-            this.ClientSize = new System.Drawing.Size(413, 138);
+            this.ClientSize = new System.Drawing.Size(413, 145);
+            this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
@@ -219,5 +236,6 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.CheckBox checkBox1;
     }
 }
