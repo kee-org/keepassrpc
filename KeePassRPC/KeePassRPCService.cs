@@ -2012,10 +2012,9 @@ namespace KeePassRPC
                             }
                         }
 
-                        // Check for matching URLs for the HTTP Auth containing the form
+                        // Check for matching URLs for the HTTP Auth request
                         if (!entryIsAMatch && lst != LoginSearchType.LSTnoRealms
                                 && (string.IsNullOrEmpty(username) || username == entryUserName)) 
-                            
                         {
                             foreach (string URL in URLs)
                             {
@@ -2024,6 +2023,7 @@ namespace KeePassRPC
                                 if (accuracy > bestMatchAccuracy)
                                     bestMatchAccuracy = accuracy;
                             }
+                            bestMatchAccuracy = AdjustMatchAccuracyForHTTPRealm(bestMatchAccuracy, httpRealm, conf.HTTPRealm);
                         }
 
                         if (bestMatchAccuracy == MatchAccuracy.Best
@@ -2078,6 +2078,36 @@ namespace KeePassRPC
             });
 
             return allEntries.ToArray();
+        }
+
+        private int AdjustMatchAccuracyForHTTPRealm(int bestMatchAccuracy, string httpRealmSearch, string httpRealmEntry)
+        {
+            // Bump the accuracy down:
+            // 1 level if the entry doesn't have an HTTP Realm configured
+            // 2 levels if the entry has the wrong HTTP Realm configured
+            bool httpRealmExists = !string.IsNullOrWhiteSpace(httpRealmEntry);
+            bool httpRealmCorrect = !httpRealmExists || httpRealmEntry.ToLowerInvariant() == httpRealmSearch.ToLowerInvariant();
+
+            switch (bestMatchAccuracy)
+            {
+                case (int)MatchAccuracyEnum.Best:
+                    if (!httpRealmCorrect) return MatchAccuracy.HostnameAndPort;
+                    else if (!httpRealmExists) return MatchAccuracy.Close;
+                    break;
+                case (int)MatchAccuracyEnum.Close:
+                    if (!httpRealmCorrect) return MatchAccuracy.Hostname;
+                    else if (!httpRealmExists) return MatchAccuracy.HostnameAndPort;
+                    break;
+                case (int)MatchAccuracyEnum.HostnameAndPort:
+                    if (!httpRealmCorrect) return MatchAccuracy.Domain;
+                    else if (!httpRealmExists) return MatchAccuracy.Hostname;
+                    break;
+                case (int)MatchAccuracyEnum.Hostname:
+                    if (!httpRealmCorrect) return MatchAccuracy.Domain;
+                    else if (!httpRealmExists) return MatchAccuracy.Domain;
+                    break;
+            }
+            return bestMatchAccuracy;
         }
 
         [JsonRpcMethod]
