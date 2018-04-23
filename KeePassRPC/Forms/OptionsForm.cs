@@ -272,9 +272,9 @@ namespace KeePassRPC.Forms
 
         private void comboBoxSecLevelKeePass_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboBoxSecLevelKeePass.SelectedItem == "Low")
+            if ((string)comboBoxSecLevelKeePass.SelectedItem == "Low")
                 labelSecLevelWarning.Text = "A low security setting could increase the chance of your passwords being stolen. Please make sure you read the information in the manual (see link above).";
-            else if (comboBoxSecLevelKeePass.SelectedItem == "High")
+            else if ((string)comboBoxSecLevelKeePass.SelectedItem == "High")
                 labelSecLevelWarning.Text = "A high security setting will require you to enter a randomly generated password every time you start KeePass or its client. A medium setting should suffice in most situations, especially if you set a low authorisation timeout below.";
             else
                 labelSecLevelWarning.Text = "";
