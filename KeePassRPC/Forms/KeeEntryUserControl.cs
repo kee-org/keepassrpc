@@ -623,21 +623,26 @@ namespace KeePassRPC.Forms
             {
                 if (kfff.ShowDialog() == DialogResult.OK)
                 {
-                    // Update the display name. defaulting to whatever user entered as the name unless they were editing one of the standard fields
-                    //Really? Why fix the name to this random string?!!
-                    string displayName = kfff.Name;
-                    if (kfff.Value == "{PASSWORD}")
-                        displayName = "KeePass password";
-                    else if (kfff.Value == "{USERNAME}")
-                        displayName = "KeePass username";
-
                     string displayValue = kfff.Value;
                     if (kfff.Type == FormFieldType.FFTpassword)
                     {
                         displayValue = "********";
-                        if (kfff.Value == "{PASSWORD}")
-                            displayValue = "KeePass password";
                     }
+
+                    // Update the display name. defaulting to whatever user entered as the name unless they were editing one of the standard fields
+                    //Really? Why fix the name to this random string?!!
+                    string displayName = kfff.Name;
+                    if (kfff.Value == "{PASSWORD}")
+                    {
+                        displayName = "KeePass password";
+                        displayValue = "KeePass password";
+                    }
+                    else if (kfff.Value == "{USERNAME}")
+                    {
+                        displayName = "KeePass username";
+                        displayValue = "KeePass username";
+                    }
+
                     string type = Utilities.FormFieldTypeToDisplay(kfff.Type, false);
                     int page = kfff.Page;
 
