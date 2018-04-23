@@ -227,48 +227,46 @@ namespace KeePassRPC.Forms
 
 		private void OnClickKeyFileCreate(object sender, EventArgs e)
 		{
-		    using (SaveFileDialog sfd = UIUtil.CreateSaveFileDialog(KPRes.KeyFileCreate,
-		        UrlUtil.StripExtension(UrlUtil.GetFileName(m_ioInfo.Path)) + "." +
-		        AppDefs.FileExtension.KeyFile, UIUtil.CreateFileTypeFilter("key",
-		            KPRes.KeyFiles, true), 1, "key", true))
-		    {
-		        if (sfd.ShowDialog() == DialogResult.OK)
-		        {
-		            using (EntropyForm dlg = new EntropyForm())
-		            {
-		                if (dlg.ShowDialog() == DialogResult.OK)
-		                {
-		                    byte[] pbAdditionalEntropy = dlg.GeneratedEntropy;
+            SaveFileDialogEx sfd = UIUtil.CreateSaveFileDialog(KPRes.KeyFileCreate,
+                UrlUtil.StripExtension(UrlUtil.GetFileName(m_ioInfo.Path)) + "." +
+                AppDefs.FileExtension.KeyFile, UIUtil.CreateFileTypeFilter("key",
+                    KPRes.KeyFiles, true), 1, "key", null);
 
-		                    try
-		                    {
-		                        KcpKeyFile.Create(sfd.FileName, pbAdditionalEntropy);
-		                    }
-		                    catch (Exception exKC)
-		                    {
-		                        MessageService.ShowWarning(exKC);
-		                    }
-		                }
-		            }
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                using (EntropyForm dlg = new EntropyForm())
+                {
+                    if (dlg.ShowDialog() == DialogResult.OK)
+                    {
+                        byte[] pbAdditionalEntropy = dlg.GeneratedEntropy;
 
-		            EnableUserControls();
-		        }
-		    }
+                        try
+                        {
+                            KcpKeyFile.Create(sfd.FileName, pbAdditionalEntropy);
+                        }
+                        catch (Exception exKC)
+                        {
+                            MessageService.ShowWarning(exKC);
+                        }
+                    }
+                }
+
+                EnableUserControls();
+            }
 		}
 
 		private void OnClickKeyFileBrowse(object sender, EventArgs e)
 		{
-		    using (OpenFileDialog ofd = UIUtil.CreateOpenFileDialog(KPRes.KeyFileUseExisting,
-		        UIUtil.CreateFileTypeFilter("key", KPRes.KeyFiles, true), 2, null,
-		        false, true))
-		    {
-		        if (ofd.ShowDialog() == DialogResult.OK)
-		        {
-		            string str = ofd.FileName;
-		        }
+            OpenFileDialogEx ofd = UIUtil.CreateOpenFileDialog(KPRes.KeyFileUseExisting,
+                UIUtil.CreateFileTypeFilter("key", KPRes.KeyFiles, true), 2, null,
+                false, null);
 
-		        EnableUserControls();
+		    if (ofd.ShowDialog() == DialogResult.OK)
+		    {
+		        string str = ofd.FileName;
 		    }
+
+		    EnableUserControls();
 		}
 
 		private void OnWinUserCheckedChanged(object sender, EventArgs e)

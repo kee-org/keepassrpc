@@ -24,9 +24,9 @@ namespace KeePassRPC.Forms
             {
                 PwGroup _rootGroup = KeePassRPCPlugin.RPCService.GetRootPwGroup(KeePassRPCPlugin._host.Database, _location);
 
-                if (_rootGroup.Uuid.EqualsValue(_group.Uuid))
+                if (_rootGroup.Uuid.Equals(_group.Uuid))
                     _status = KeeHomeStatus.Home;
-                else if (KeePassRPCPlugin._host.Database.RecycleBinUuid.EqualsValue(_group.Uuid))
+                else if (KeePassRPCPlugin._host.Database.RecycleBinUuid.Equals(_group.Uuid))
                     _status = KeeHomeStatus.Rubbish;
                 else if (_group.IsContainedIn(_rootGroup)) // returns true when _group is main root and custom root group has been selected.
                     _status = KeeHomeStatus.Inside;

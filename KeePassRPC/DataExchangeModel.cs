@@ -273,8 +273,11 @@ namespace KeePassRPC.DataExchangeModel
             UsernameValue = usernameValue;
         }
     }
-    
+
+    // We have no immutable properties and no known need for GetHashCode so default behaviour is as good as any
+#pragma warning disable CS0659
     public class EntryConfig
+#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     {
         public int Version = 1;
         public string FormActionURL;

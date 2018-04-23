@@ -23,6 +23,7 @@ using KeePassRPC.DataExchangeModel;
 using Fleck2.Interfaces;
 using DomainPublicSuffix;
 using KeePassLib.Utility;
+using KeePass.Util.Spr;
 
 namespace KeePassRPC
 {
@@ -1232,7 +1233,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
 
         public string GetPwEntryStringFromDereferencableValue(PwEntry pwe, string name, PwDatabase db)
         {
-            return KeePass.Util.Spr.SprEngine.Compile(name, false, pwe, db, false, false);
+            return SprEngine.Compile(name, new SprContext(pwe, db, SprCompileFlags.All & ~SprCompileFlags.Run, false, false));
         }
 
         // This is only called by legacy migration code now

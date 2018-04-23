@@ -153,7 +153,7 @@ namespace KeePassRPC
         {
             using (GroupForm gf = new GroupForm())
             {
-                gf.InitEx(pg, host.MainWindow.ClientIcons, host.Database);
+                gf.InitEx(pg, false, host.MainWindow.ClientIcons, host.Database);
 
                 gf.BringToFront();
                 gf.ShowInTaskbar = true;
@@ -1573,7 +1573,7 @@ namespace KeePassRPC
             PwGroup parent = pwe.ParentGroup;
             while (parent != null)
             {
-                if (db.RecycleBinUuid.EqualsValue(parent.Uuid))
+                if (db.RecycleBinUuid.Equals(parent.Uuid))
                     return true;
                 parent = parent.ParentGroup;
             }
@@ -1732,7 +1732,7 @@ namespace KeePassRPC
 
             foreach (PwGroup pwg in output)
             {
-                if (pwd.RecycleBinUuid.EqualsValue(pwg.Uuid))
+                if (pwd.RecycleBinUuid.Equals(pwg.Uuid))
                     continue; // ignore if it's the recycle bin
 
                 Group kpg = GetGroupFromPwGroup(pwg);
