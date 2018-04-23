@@ -366,8 +366,8 @@ namespace KeePassRPC
                 string derefValue = dbDefaultPlaceholderHandlingEnabled ? KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ffValue, db) : ffValue;
                 if (!string.IsNullOrEmpty(ffValue))
                 {
-                    formFieldList.Add(new FormField("password",
-                        "KeePass password", derefValue, FormFieldType.FFTpassword, "password", 1, PlaceholderHandling.Default));
+                    formFieldList.Add(new FormField("",
+                        "KeePass password", derefValue, FormFieldType.FFTpassword, "", 1, PlaceholderHandling.Default));
                 }
             }
 
@@ -381,8 +381,8 @@ namespace KeePassRPC
                 {
                     if (fullDetails)
                     {
-                        formFieldList.Add(new FormField("username",
-                            "KeePass username", derefValue, FormFieldType.FFTusername, "username", 1, PlaceholderHandling.Default));
+                        formFieldList.Add(new FormField("",
+                            "KeePass username", derefValue, FormFieldType.FFTusername, "", 1, PlaceholderHandling.Default));
                     }
                     else
                     {

@@ -43,7 +43,11 @@ namespace KeePassRPC
 
             // GetAllEntries or GetAllChildEntries can be used to 
             // include results even if they have no URL
-            "KPRPC_ENTRIES_WITH_NO_URL"
+            "KPRPC_ENTRIES_WITH_NO_URL",
+
+            // Form fields with no configured name or ID will output an empty value
+            // Before this feature, default name and IDs were used ("username" and "password")
+            "KPRPC_FIELD_DEFAULT_NAME_AND_ID_EMPTY"
 
             // in the rare event that we want to check for the absense of a feature
             // we would add a feature flag along the lines of "KPRPC_FEATURE_REMOVED_INCOMPATIBLE_THING_X"
