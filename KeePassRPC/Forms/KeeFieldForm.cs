@@ -154,7 +154,7 @@ namespace KeePassRPC.Forms
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             Process p = new Process();
-            p = Process.Start("https://forum.kee.pm");
+            p = Process.Start("https://forum.kee.pm/t/placeholder-handling/1100");
         }
     }
 }
