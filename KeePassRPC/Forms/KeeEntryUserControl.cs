@@ -173,12 +173,12 @@ namespace KeePassRPC.Forms
             // we don't add them to the list of actual fields though - just the display list.
             if (!standardPasswordFound)
             {
-                ListViewItem lvi = new ListViewItem(new string[] { "", "{PASSWORD}", "", "password", "1" });
+                ListViewItem lvi = new ListViewItem(new string[] { "", "KeePass password", "", "password", "1" });
                 AddFieldListItem(lvi);
             }
             if (!standardUsernameFound)
             {
-                ListViewItem lvi = new ListViewItem(new string[] { "", "{USERNAME}", "", "username", "1" });
+                ListViewItem lvi = new ListViewItem(new string[] { "", "KeePass username", "", "username", "1" });
                 AddFieldListItem(lvi);
             }
 
@@ -676,9 +676,9 @@ namespace KeePassRPC.Forms
             KeeFieldForm kfff = null;
             if (tag != null)
                 kfff = new KeeFieldForm(tag);
-            else if (lvsicSel[0].SubItems[1].Text == "{PASSWORD}")
+            else if (lvsicSel[0].SubItems[1].Text == "KeePass password")
                 kfff = new KeeFieldForm(lvsicSel[0].SubItems[0].Text, "{PASSWORD}", lvsicSel[0].SubItems[2].Text, FormFieldType.FFTpassword, int.Parse(lvsicSel[0].SubItems[4].Text), PlaceholderHandling.Default);
-            else if (lvsicSel[0].SubItems[1].Text == "{USERNAME}")
+            else if (lvsicSel[0].SubItems[1].Text == "KeePass username")
                 kfff = new KeeFieldForm(lvsicSel[0].SubItems[0].Text, "{USERNAME}", lvsicSel[0].SubItems[2].Text, FormFieldType.FFTusername, int.Parse(lvsicSel[0].SubItems[4].Text), PlaceholderHandling.Default);
             else
                 throw new Exception("Corrupt Entry found!");
