@@ -156,6 +156,10 @@ namespace KeePassRPC.Forms
                         standardPasswordFound = true;
                         value = ff.DisplayName;
                     }
+                    if (ff.Type == FormFieldType.FFTcheckbox)
+                    {
+                        value = ff.Value == "KEEFOX_CHECKED_FLAG_TRUE" ? "Enabled" : "Disabled";
+                    }
                     ListViewItem lvi = new ListViewItem(new string[] { ff.Name, value, ff.Id, type, ff.Page.ToString() });
                     lvi.Tag = ff;
                     AddFieldListItem(lvi);
@@ -591,21 +595,30 @@ namespace KeePassRPC.Forms
 
         private void buttonFieldAdd_Click(object sender, EventArgs e)
         {
-            using (KeeFieldForm kfff = new KeeFieldForm(null, null, null, FormFieldType.FFTtext, 1, PlaceholderHandling.Default))
+            using (KeeFieldForm kff = new KeeFieldForm(null, null, null, FormFieldType.FFTtext, 1, PlaceholderHandling.Default))
             {
-                if (kfff.ShowDialog() == DialogResult.OK)
+                if (kff.ShowDialog() == DialogResult.OK)
                 {
-                    FormField ff = new FormField(kfff.Name, kfff.Name, kfff.Value, kfff.Type, kfff.Id, kfff.Page, kfff.PlaceholderHandling);
+                    FormField ff = new FormField(kff.Name, kff.Name, kff.Value, kff.Type, kff.Id, kff.Page, kff.PlaceholderHandling);
 
-                    string type = Utilities.FormFieldTypeToDisplay(kfff.Type, false);
-                    int page = kfff.Page;
+                    string type = Utilities.FormFieldTypeToDisplay(kff.Type, false);
+                    int page = kff.Page;
 
                     // We know any new passwords are not the main Entry password
                     // Also know that the display name can be same as main name
+                    string displayValue = kff.Value;
+                    if (kff.Type == FormFieldType.FFTpassword)
+                    {
+                        displayValue = "********";
+                    }
+                    if (kff.Type == FormFieldType.FFTcheckbox)
+                    {
+                        displayValue = kff.Value == "KEEFOX_CHECKED_FLAG_TRUE" ? "Enabled" : "Disabled";
+                    }
+
                     ListViewItem lvi = new ListViewItem(new string[]
                     {
-                        kfff.Name, kfff.Type == FormFieldType.FFTpassword ? "********" : kfff.Value, kfff.Id, type,
-                        page.ToString()
+                        kff.Name, displayValue, kff.Id, type, page.ToString()
                     });
                     lvi.Tag = ff;
                     AddFieldListItem(lvi);
@@ -619,35 +632,38 @@ namespace KeePassRPC.Forms
             ListView.SelectedListViewItemCollection lvsicSel = listView2.SelectedItems;
 
             FormField tag = (FormField)lvsicSel[0].Tag;
-            using (KeeFieldForm kfff = FormFieldForEditing(lvsicSel, tag))
+            using (KeeFieldForm kff = FormFieldForEditing(lvsicSel, tag))
             {
-                if (kfff.ShowDialog() == DialogResult.OK)
+                if (kff.ShowDialog() == DialogResult.OK)
                 {
-                    string displayValue = kfff.Value;
-                    if (kfff.Type == FormFieldType.FFTpassword)
+                    string displayValue = kff.Value;
+                    if (kff.Type == FormFieldType.FFTpassword)
                     {
                         displayValue = "********";
                     }
 
-                    // Update the display name. defaulting to whatever user entered as the name unless they were editing one of the standard fields
-                    //Really? Why fix the name to this random string?!!
-                    string displayName = kfff.Name;
-                    if (kfff.Value == "{PASSWORD}")
+                    string displayName = kff.Name;
+                    if (kff.Value == "{PASSWORD}")
                     {
                         displayName = "KeePass password";
                         displayValue = "KeePass password";
                     }
-                    else if (kfff.Value == "{USERNAME}")
+                    else if (kff.Value == "{USERNAME}")
                     {
                         displayName = "KeePass username";
                         displayValue = "KeePass username";
                     }
 
-                    string type = Utilities.FormFieldTypeToDisplay(kfff.Type, false);
-                    int page = kfff.Page;
+                    if (kff.Type == FormFieldType.FFTcheckbox)
+                    {
+                        displayValue = kff.Value == "KEEFOX_CHECKED_FLAG_TRUE" ? "Enabled" : "Disabled";
+                    }
 
-                    ListViewItem lvi = new ListViewItem(new string[] { kfff.Name, displayValue, kfff.Id, type, page.ToString() });
-                    lvi.Tag = new FormField(kfff.Name, displayName, kfff.Value, kfff.Type, kfff.Id, page, kfff.PlaceholderHandling);
+                    string type = Utilities.FormFieldTypeToDisplay(kff.Type, false);
+                    int page = kff.Page;
+
+                    ListViewItem lvi = new ListViewItem(new string[] { kff.Name, displayValue, kff.Id, type, page.ToString() });
+                    lvi.Tag = new FormField(kff.Name, displayName, kff.Value, kff.Type, kff.Id, page, kff.PlaceholderHandling);
                     RemoveFieldListItem(lvsicSel[0]);
                     AddFieldListItem(lvi);
                     UpdateFieldStrings();
