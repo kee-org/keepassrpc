@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
@@ -18,7 +19,8 @@ namespace KeePassRPC.Forms
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            MessageBox.Show("Please visit the Kee website to find out where to get help. https://www.kee.pm");
+            Process p = new Process();
+            p = Process.Start("https://forum.kee.pm/t/help-and-support/24");
         }
 
     }

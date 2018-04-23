@@ -67,7 +67,7 @@
             this.button2.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button2.Location = new System.Drawing.Point(16, 204);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(420, 54);
+            this.button2.Size = new System.Drawing.Size(453, 54);
             this.button2.TabIndex = 4;
             this.button2.Text = "No thanks, I will use an existing KeePass database";
             this.button2.UseVisualStyleBackColor = true;
@@ -91,7 +91,7 @@
             this.button1.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button1.Location = new System.Drawing.Point(16, 133);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(420, 54);
+            this.button1.Size = new System.Drawing.Size(453, 54);
             this.button1.TabIndex = 3;
             this.button1.Text = "Create a new database";
             this.button1.UseVisualStyleBackColor = true;
@@ -142,7 +142,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(448, 291);
+            this.ClientSize = new System.Drawing.Size(481, 291);
             this.Controls.Add(this.richTextBox3);
             this.Controls.Add(this.richTextBox1);
             this.Controls.Add(this.linkLabel1);
