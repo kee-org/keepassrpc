@@ -33,13 +33,13 @@
     <Reference Include="DomainPublicSuffix">
       <HintPath>..\KeePassRPC\DomainPublicSuffix.dll</HintPath>
     </Reference>
-    <Reference Include="KeePass">
-      <HintPath>..\..\..\..\Program Files (x86)\KeePass Password Safe 2 DEV\KeePass.exe</HintPath>
-    </Reference>
     <Reference Include="nunit.framework, Version=3.6.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.6.1\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="KeePass">
+      <HintPath>\home\luckyrat\keepass-dev\KeePass.exe</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />

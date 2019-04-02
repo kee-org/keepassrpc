@@ -55,7 +55,6 @@
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>true</UseVSHostingProcess>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <LangVersion>5</LangVersion>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -102,11 +101,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Jayrock.Json.dll</HintPath>
     </Reference>
-    <Reference Include="KeePass, Version=2.1.8.29009, Culture=neutral, PublicKeyToken=7952fc8ece49a093, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <ExecutableExtension>.exe</ExecutableExtension>
-      <HintPath>..\..\..\..\Program Files (x86)\KeePass Password Safe 2 DEV\KeePass.exe</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Configuration.Install" />
@@ -116,6 +110,9 @@
     <Reference Include="System.Security" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="KeePass">
+      <HintPath>\home\luckyrat\keepass-dev\KeePass.exe</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BigInteger.cs" />
@@ -322,8 +319,8 @@
 
       REM copy output DLLs to KeePass plugins directory
       copy "$(ProjectName).dll" "%25KPPDir%25\$(ProjectName).dll"
+      copy "$(ProjectName).pdb" "%25KPPDir%25\$(ProjectName).pdb"
       if errorlevel 1 goto BuildEventFailed
-      copy "KeePassRPC.Mono.Security.dll" "%25KPPDir%25\KeePassRPC.Mono.Security.dll"
       copy "Jayrock.dll" "%25KPPDir%25\Jayrock.dll"
       copy "Jayrock.Json.dll" "%25KPPDir%25\Jayrock.Json.dll"
       copy "Fleck2.dll" "%25KPPDir%25\Fleck2.dll"
@@ -342,7 +339,6 @@
       REM delete the DLLs from any previous Debug build
       del /Q "%25KPPDir%25$(ProjectName).dll"
       if errorlevel 1 goto BuildEventFailed
-      del /Q "%25KPPDir%25\KeePassRPC.Mono.Security.dll"
       del /Q "%25KPPDir%25\Jayrock.dll"
       del /Q "%25KPPDir%25\Jayrock.Json.dll"
       del /Q "%25KPPDir%25\Fleck2.dll"
@@ -359,7 +355,6 @@
       REM copy relevant project files to temporary directory
       REM (for simple KeePass plugins you may need to
       REM copy only *.cs files and .csproj file)
-      copy "KeePassRPC.Mono.Security.dll" "%25KPPTempDir%25\KeePassRPC.Mono.Security.dll"
       copy "Jayrock.dll" "%25KPPTempDir%25\Jayrock.dll"
       copy "Jayrock.Json.dll" "%25KPPTempDir%25\Jayrock.Json.dll"
       copy "Fleck2.dll" "%25KPPTempDir%25\Fleck2.dll"
@@ -405,6 +400,106 @@
       exit 1
 
       :BuildEventOK
+      echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK</PostBuildEvent>
+  </PropertyGroup>
+    <PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
+    <PostBuildEvent>
+      #!/bin/bash
+      echo POSTBUILDSTEP for $(ProjectName)
+
+      export KPDir="${HOME}/keepass-dev/"
+      export KPPDir=${KPDir}Plugins/
+      export KPPTempDir="${KPPDir}$(ProjectName)"
+            
+      # delete the PLGX from any previous ReleasePLGX build
+      rm -f "${KPPDir}$(ProjectName).plgx"
+      if [ $? = 1 ]; then echo POSTBUILDSTEP for $(ProjectName) FAILED; exit 1; fi
+      echo Release plgx deleted
+
+      # copy output DLLs to KeePass plugins directory
+      cp "$(ProjectName).dll" "${KPPDir}$(ProjectName).dll"
+      cp "$(ProjectName).pdb" "${KPPDir}$(ProjectName).pdb"
+      
+      if [ $? = 1 ]; then echo POSTBUILDSTEP for $(ProjectName) FAILED; exit 1; fi
+            
+      cp "Jayrock.dll" "${KPPDir}Jayrock.dll"
+      cp "Jayrock.Json.dll" "${KPPDir}Jayrock.Json.dll"
+      cp "Fleck2.dll" "${KPPDir}Fleck2.dll"
+      cp "DomainPublicSuffix.dll" "${KPPDir}DomainPublicSuffix.dll"
+      
+      if [ $? = 1 ]; then echo POSTBUILDSTEP for $(ProjectName) FAILED; exit 1; fi
+            
+      echo Debug DLLs copied to plugins directory
+
+      echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK</PostBuildEvent>
+  </PropertyGroup>
+    <PropertyGroup Condition="'$(OS)' != 'Windows_NT' AND '$(ConfigurationName)' == 'ReleasePLGX'">
+    <PostBuildEvent>
+      #!/bin/bash
+      echo POSTBUILDSTEP for $(ProjectName)
+
+      export KPDir="${HOME}/keepass-dev/"
+      export KPPDir=${KPDir}Plugins/
+      export KPPTempDir="${KPPDir}$(ProjectName)"
+            
+      rm -f "${KPPDir}$(ProjectName).dll"
+      rm -f "${KPPDir}$(ProjectName).pdb"
+      rm -f "${KPPDir}\Jayrock.dll"
+      rm -f "${KPPDir}\Jayrock.Json.dll"
+      rm -f "${KPPDir}\Fleck2.dll"
+      rm -f "${KPPDir}\DomainPublicSuffix.dll"
+      echo Debug DLLs deleted
+      
+      # create temporary directory
+      rm -rf "${KPPTempDir}"
+      mkdir "${KPPTempDir}"
+      if [ $? = 1 ]; then echo POSTBUILDSTEP for $(ProjectName) FAILED - prep temp dir; exit 1; fi
+      echo Temporary directory created
+            
+      cp "Jayrock.dll" "${KPPDir}Jayrock.dll"
+      cp "Jayrock.Json.dll" "${KPPDir}Jayrock.Json.dll"
+      cp "Fleck2.dll" "${KPPDir}Fleck2.dll"
+      cp "DomainPublicSuffix.dll" "${KPPDir}DomainPublicSuffix.dll"
+      
+      # copy relevant project files to temporary directory
+      # (for simple KeePass plugins you may need to
+      # copy only *.cs files and .csproj file)
+      cp "Jayrock.dll" "${KPPTempDir}\Jayrock.dll"
+      cp "Jayrock.Json.dll" "${KPPTempDir}\Jayrock.Json.dll"
+      cp "Fleck2.dll" "${KPPTempDir}\Fleck2.dll"
+      cp "DomainPublicSuffix.dll" "${KPPTempDir}\DomainPublicSuffix.dll"
+      if [ $? = 1 ]; then echo POSTBUILDSTEP for $(ProjectName) FAILED - copy DLL deps; exit 1; fi
+            
+      cp "$(ProjectDir)"*.cs "${KPPTempDir}"
+      if [ $? = 1 ]; then echo POSTBUILDSTEP for $(ProjectName) FAILED - copy source files; exit 1; fi
+      cp "$(ProjectDir)$(ProjectName).csproj" "${KPPTempDir}\$(ProjectName).csproj"
+      if [ $? = 1 ]; then echo POSTBUILDSTEP for $(ProjectName) FAILED - copy csproj; exit 1; fi
+            
+      mkdir "${KPPTempDir}\Forms"
+      cp "$(ProjectDir)Forms\"*.cs "${KPPTempDir}\Forms"
+      cp "$(ProjectDir)Forms\"*.resx "${KPPTempDir}\Forms"
+      if [ $? = 1 ]; then echo POSTBUILDSTEP for $(ProjectName) FAILED - copy forms sources; exit 1; fi
+            
+      mkdir "${KPPTempDir}\Properties"
+      cp "$(ProjectDir)Properties\AssemblyInfo.cs" "${KPPTempDir}\Properties\AssemblyInfo.cs"
+      cp "$(ProjectDir)Properties\Resources.resx" "${KPPTempDir}\Properties\Resources.resx"
+      cp "$(ProjectDir)Properties\Resources.Designer.cs" "${KPPTempDir}\Properties\Resources.Designer.cs"
+      mkdir "${KPPTempDir}\Resources"
+      cp "$(ProjectDir)Resources\"*.png "${KPPTempDir}\Resources"
+      cp "$(ProjectDir)Resources\"*.ico "${KPPTempDir}\Resources"
+      if [ $? = 1 ]; then echo POSTBUILDSTEP for $(ProjectName) FAILED - copy properties and resources; exit 1; fi
+            
+      echo Files copied to temporary directory
+
+      # create the PLGX
+      "${KPDir}KeePass.exe" --plgx-create "${KPPTempDir}" --plgx-prereq-kp:2.34
+      if [ $? = 1 ]; then echo POSTBUILDSTEP for $(ProjectName) FAILED - create PLGX; exit 1; fi
+      echo PLGX created
+
+      rm -rf "${KPPTempDir}"
+      if [ $? = 1 ]; then echo POSTBUILDSTEP for $(ProjectName) FAILED - temp dir tidy up; exit 1; fi
+      echo Temporary directory deleted
+            
       echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK</PostBuildEvent>
   </PropertyGroup>
 </Project>
