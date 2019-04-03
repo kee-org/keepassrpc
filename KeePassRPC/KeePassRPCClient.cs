@@ -47,7 +47,10 @@ namespace KeePassRPC
 
             // Form fields with no configured name or ID will output an empty value
             // Before this feature, default name and IDs were used ("username" and "password")
-            "KPRPC_FIELD_DEFAULT_NAME_AND_ID_EMPTY"
+            "KPRPC_FIELD_DEFAULT_NAME_AND_ID_EMPTY",
+
+            // OpenAndFocusDatabase can focus KeePass with a database, opening it first if required
+            "KPRPC_OPEN_AND_FOCUS_DATABASE"
 
             // in the rare event that we want to check for the absense of a feature
             // we would add a feature flag along the lines of "KPRPC_FEATURE_REMOVED_INCOMPATIBLE_THING_X"

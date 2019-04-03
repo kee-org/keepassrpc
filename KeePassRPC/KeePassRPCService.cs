@@ -41,7 +41,7 @@ namespace KeePassRPC
             _standardIconsBase64 = standardIconsBase64;
         }
         #endregion
-        
+
         #region KeePass GUI routines
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace KeePassRPC
                 //ensureDBisOpenEWH.Reset(); // ensures we will wait even if DB has been opened previously.
                 // maybe tiny opportunity for deadlock if user opens DB exactly between DB.IsOpen and this statement?
                 // TODO2: consider moving above statement to top of method - shouldn't do any harm and could rule out rare deadlock?
-                host.MainWindow.BeginInvoke((MethodInvoker)delegate { promptUserToOpenDB(null); });
+                host.MainWindow.BeginInvoke((MethodInvoker)delegate { promptUserToOpenDB(null, true); });
                 //ensureDBisOpenEWH.WaitOne(15000, false); // wait until DB has been opened
 
                 if (!host.Database.IsOpen)
@@ -65,12 +65,13 @@ namespace KeePassRPC
             return true;
         }
 
-        void promptUserToOpenDB(IOConnectionInfo ioci)
+        void promptUserToOpenDB(IOConnectionInfo ioci, bool returnFocus)
         {
             //TODO: find out z-index of firefox and push keepass just behind it rather than right to the back
             //TODO: focus open DB dialog box if it's there
 
-            IntPtr ffWindow = Native.GetForegroundWindowHandle();
+            IntPtr ffWindow = IntPtr.Zero;
+            if (returnFocus) ffWindow = Native.GetForegroundWindowHandle();
             bool minimised = KeePass.Program.MainForm.WindowState == FormWindowState.Minimized;
             bool trayed = KeePass.Program.MainForm.IsTrayed();
 
@@ -85,11 +86,13 @@ namespace KeePassRPC
                 // because any appropriate "enter master key" dialog is triggered after 
                 // minimising and restoring the window
                 Native.AttachToActiveAndBringToForeground(KeePass.Program.MainForm.Handle);
-            } else {
+            }
+            else
+            {
                 Native.EnsureForegroundWindow(KeePass.Program.MainForm.Handle);
                 if (KeePass.Program.MainForm.IsFileLocked(null) && !KeePass.Program.MainForm.UIIsAutoUnlockBlocked())
                 {
-                    this.showOpenDB(ioci);
+                    showOpenDB(ioci);
                 }
 
             }
@@ -116,7 +119,7 @@ namespace KeePassRPC
             }
 
             // Make Firefox active again
-            Native.EnsureForegroundWindow(ffWindow);
+            if (returnFocus) Native.EnsureForegroundWindow(ffWindow);
         }
 
         bool showOpenDB(IOConnectionInfo ioci)
@@ -125,7 +128,7 @@ namespace KeePassRPC
             if (KeePass.Program.MainForm.UIIsInteractionBlocked()) { return false; }
 
             // Make sure the login dialog (or options and other windows) are not already visible. Same behaviour as KP.
-            if (KeePass.UI.GlobalWindowManager.WindowCount != 0) return false;
+            if (GlobalWindowManager.WindowCount != 0) return false;
 
             // Prompt user to open database
             KeePass.Program.MainForm.OpenDatabase(ioci, null, false);
@@ -333,7 +336,7 @@ namespace KeePassRPC
                     string displayName = ff.Name;
                     string ffValue = ff.Value;
 
-                    if (ff.PlaceholderHandling == PlaceholderHandling.Enabled || 
+                    if (ff.PlaceholderHandling == PlaceholderHandling.Enabled ||
                         (ff.PlaceholderHandling == PlaceholderHandling.Default && dbDefaultPlaceholderHandlingEnabled))
                     {
                         enablePlaceholders = true;
@@ -363,7 +366,8 @@ namespace KeePassRPC
                     if (fullDetails)
                     {
                         formFieldList.Add(new FormField(ff.Name, displayName, derefValue, ff.Type, ff.Id, ff.Page, ff.PlaceholderHandling));
-                    } else
+                    }
+                    else
                     {
                         usernameName = "username";
                         usernameValue = derefValue;
@@ -438,7 +442,7 @@ namespace KeePassRPC
                 KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
                 alwaysAutoFill, neverAutoFill, alwaysAutoSubmit, neverAutoSubmit, priority,
                 GetGroupFromPwGroup(pwe.ParentGroup), imageData,
-                GetDatabaseFromPwDatabase(db, false, true),matchAccuracy);
+                GetDatabaseFromPwDatabase(db, false, true), matchAccuracy);
                 return kpe;
             }
             else
@@ -755,7 +759,7 @@ namespace KeePassRPC
             string MonoVersion = "unknown";
             // No point in outputting KeePassRPC version here since we know it has
             // to match in order to be able to call this function
-            
+
             NETCLR = Environment.Version.Major.ToString();
             KeePassVersion = PwDefs.VersionString;
 
@@ -785,12 +789,12 @@ namespace KeePassRPC
 
                 // v3.0 is of no interest to us and difficult to detect so we ignore
                 // it and bundle those users in the v2 group
-                NETversion = 
-                    IsNet451OrNewer() ? "4.5.1" : 
-                    IsNet45OrNewer() ? "4.5" : 
-                    NETCLR == "4" ? "4.0" : 
+                NETversion =
+                    IsNet451OrNewer() ? "4.5.1" :
+                    IsNet45OrNewer() ? "4.5" :
+                    NETCLR == "4" ? "4.0" :
                     IsNet35OrNewer() ? "3.5" :
-                    NETCLR == "2" ? "2.0" : 
+                    NETCLR == "2" ? "2.0" :
                     "unknown";
             }
 
@@ -802,7 +806,7 @@ namespace KeePassRPC
         {
             return Type.GetType("System.GCCollectionMode", false) != null;
         }
-        
+
         public static bool IsNet45OrNewer()
         {
             return Type.GetType("System.Reflection.ReflectionContext", false) != null;
@@ -833,6 +837,18 @@ namespace KeePassRPC
         }
 
         /// <summary>
+        /// Focuses KeePass with a database, opening it first if required
+        /// </summary>
+        /// <param name="fileName">Path to database to open. If empty, user is prompted to choose a file</param>
+        [JsonRpcMethod]
+        public void OpenAndFocusDatabase(string fileName)
+        {
+            IOConnectionInfo ioci = SelectActiveDatabase(fileName);
+            OpenIfRequired(ioci, false);
+            return;
+        }
+
+        /// <summary>
         /// changes current active database
         /// </summary>
         /// <param name="fileName">Path to database to open. If empty, user is prompted to choose a file</param>
@@ -846,11 +862,18 @@ namespace KeePassRPC
                 host.MainWindow.DocumentManager.CloseDatabase(host.MainWindow.DocumentManager.ActiveDatabase);
             }
 
-            KeePassLib.Serialization.IOConnectionInfo ioci = null;
+            IOConnectionInfo ioci = SelectActiveDatabase(fileName);
+            OpenIfRequired(ioci, true);
+            return;
+        }
 
-            if (fileName != null && fileName.Length > 0)
+        private IOConnectionInfo SelectActiveDatabase(string fileName)
+        {
+            IOConnectionInfo ioci = null;
+
+            if (!string.IsNullOrEmpty(fileName))
             {
-                ioci = new KeePassLib.Serialization.IOConnectionInfo();
+                ioci = new IOConnectionInfo();
                 ioci.Path = fileName;
                 ioci = CompleteConnectionInfoUsingMru(ioci);
             }
@@ -882,8 +905,12 @@ namespace KeePassRPC
                 doc.LockedIoc = ioci;
             }
 
-            host.MainWindow.BeginInvoke((MethodInvoker)delegate { promptUserToOpenDB(ioci); });
-            return;
+            return ioci;
+        }
+
+        private void OpenIfRequired(IOConnectionInfo ioci, bool returnFocus)
+        {
+            host.MainWindow.BeginInvoke((MethodInvoker)delegate { promptUserToOpenDB(ioci, returnFocus); });
         }
 
         /// <summary>
@@ -926,7 +953,7 @@ namespace KeePassRPC
         public string GeneratePassword(string profileName, string url)
         {
             PwProfile profile = null;
-            
+
             if (string.IsNullOrEmpty(profileName))
                 profile = KeePass.Program.Config.PasswordGenerator.LastUsedProfile;
             else
@@ -951,7 +978,7 @@ namespace KeePassRPC
 
             if (host.CustomConfig.GetBool("KeePassRPC.KeeFox.backupNewPasswords", true))
                 AddPasswordBackupLogin(password, url);
-            
+
             return password;
         }
 
@@ -1229,7 +1256,7 @@ namespace KeePassRPC
                 throw new ArgumentException("oldLoginUUID was not passed to the updateLogin function");
             if (string.IsNullOrEmpty(dbFileName))
                 throw new ArgumentException("dbFileName was not passed to the updateLogin function");
-            
+
             // Make sure there is an active database
             if (!ensureDBisOpen()) return null;
 
@@ -1317,7 +1344,7 @@ namespace KeePassRPC
             destination.Strings.Set("URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, destURLs[0]));
             destConfig.AltURLs = new string[0];
             if (destURLs.Count > 1)
-                destConfig.AltURLs = destURLs.GetRange(1,destURLs.Count-1).ToArray();
+                destConfig.AltURLs = destURLs.GetRange(1, destURLs.Count - 1).ToArray();
 
             destination.SetKPRPCConfig(destConfig);
             destination.Touch(true);
@@ -1491,7 +1518,7 @@ namespace KeePassRPC
         {
             // Both version 2 and 3 are correct since their differences 
             // do not extend to the public API exposed by KPRPC
-            if (t.CustomData.Exists("KeePassRPC.KeeFox.configVersion") 
+            if (t.CustomData.Exists("KeePassRPC.KeeFox.configVersion")
                 && t.CustomData.Get("KeePassRPC.KeeFox.configVersion") == "2")
             {
                 return true;
@@ -1570,7 +1597,7 @@ namespace KeePassRPC
                 }
             }
 
-            allEntries.Sort(delegate(Entry e1, Entry e2)
+            allEntries.Sort(delegate (Entry e1, Entry e2)
             {
                 return e1.Title.CompareTo(e2.Title);
             });
@@ -1688,7 +1715,7 @@ namespace KeePassRPC
 
                 if (fullDetails)
                 {
-                    allEntries.Sort(delegate(Entry e1, Entry e2)
+                    allEntries.Sort(delegate (Entry e1, Entry e2)
                     {
                         return e1.Title.CompareTo(e2.Title);
                     });
@@ -1696,7 +1723,7 @@ namespace KeePassRPC
                 }
                 else
                 {
-                    allLightEntries.Sort(delegate(LightEntry e1, LightEntry e2)
+                    allLightEntries.Sort(delegate (LightEntry e1, LightEntry e2)
                     {
                         return e1.Title.CompareTo(e2.Title);
                     });
@@ -1758,7 +1785,7 @@ namespace KeePassRPC
                 allGroups.Add(kpg);
             }
 
-            allGroups.Sort(delegate(Group g1, Group g2)
+            allGroups.Sort(delegate (Group g1, Group g2)
             {
                 return g1.Title.CompareTo(g2.Title);
             });
@@ -1881,7 +1908,7 @@ namespace KeePassRPC
         /// <returns>An entry suitable for use by a JSON-RPC client.</returns>
         [JsonRpcMethod]
         public Entry[] FindLogins(string[] unsanitisedURLs, string actionURL,
-            string httpRealm, LoginSearchType lst, bool requireFullURLMatches, 
+            string httpRealm, LoginSearchType lst, bool requireFullURLMatches,
             string uniqueID, string dbFileName, string freeTextSearch, string username)
         {
             List<PwDatabase> dbs = null;
@@ -1946,7 +1973,7 @@ namespace KeePassRPC
                     sp.SearchInTags = true;
 
                     searchGroup.SearchEntries(sp, output);
-                    
+
                     foreach (PwEntry pwe in output)
                     {
                         Entry kpe = (Entry)GetEntryFromPwEntry(pwe, MatchAccuracy.None, true, db);
@@ -2002,7 +2029,7 @@ namespace KeePassRPC
                         entryUserName = KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, entryUserName, db);
                         if (EntryIsInRecycleBin(pwe, db))
                             continue; // ignore if it's in the recycle bin
-                        
+
                         EntryConfig conf = pwe.GetKPRPCConfig(null, ref configErrors, dbConf.DefaultMatchAccuracy);
 
                         if (conf == null || conf.Hide)
@@ -2048,8 +2075,8 @@ namespace KeePassRPC
 
                         // Check for matching URLs for the HTTP Auth containing the form
                         if (!entryIsAMatch && lst != LoginSearchType.LSTnoRealms
-                                && (string.IsNullOrEmpty(username) || username == entryUserName)) 
-                            
+                                && (string.IsNullOrEmpty(username) || username == entryUserName))
+
                         {
                             foreach (string URL in URLs)
                             {
@@ -2106,7 +2133,7 @@ namespace KeePassRPC
                         MessageBox.Show("There are configuration errors in your database called '" + db.Name + "'. To fix the entries listed below and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON config' advanced string. Please ask for help on https://forum.kee.pm if you're not sure how to fix this. These entries are affected:" + Environment.NewLine + string.Join(Environment.NewLine, configErrors.ToArray()), "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
-            allEntries.Sort(delegate(Entry e1, Entry e2)
+            allEntries.Sort(delegate (Entry e1, Entry e2)
             {
                 return e1.Title.CompareTo(e2.Title);
             });
