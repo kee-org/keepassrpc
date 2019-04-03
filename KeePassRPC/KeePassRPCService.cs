@@ -70,17 +70,33 @@ namespace KeePassRPC
             //TODO: find out z-index of firefox and push keepass just behind it rather than right to the back
             //TODO: focus open DB dialog box if it's there
 
-            IntPtr ffWindow = Native.GetForegroundWindow();
+            IntPtr ffWindow = Native.GetForegroundWindowHandle();
             bool minimised = KeePass.Program.MainForm.WindowState == FormWindowState.Minimized;
             bool trayed = KeePass.Program.MainForm.IsTrayed();
 
             if (ioci == null)
                 ioci = KeePass.Program.Config.Application.LastUsedFile;
 
-            Native.AttachToActiveAndBringToForeground(KeePass.Program.MainForm.Handle);
+            if (!Native.IsUnix())
+            {
+                // We can't just Native.EnsureForegroundWindow() because most recent
+                // Windows versions just flash the taskbar rather than actually focus 
+                // the window without these shenanigans. We don't need to this.showOpenDB(ioci)
+                // because any appropriate "enter master key" dialog is triggered after 
+                // minimising and restoring the window
+                Native.AttachToActiveAndBringToForeground(KeePass.Program.MainForm.Handle);
+            } else {
+                Native.EnsureForegroundWindow(KeePass.Program.MainForm.Handle);
+                if (KeePass.Program.MainForm.IsFileLocked(null) && !KeePass.Program.MainForm.UIIsAutoUnlockBlocked())
+                {
+                    this.showOpenDB(ioci);
+                }
+
+            }
             KeePass.Program.MainForm.Activate();
 
-            // refresh the UI in case user cancelled the dialog box and/or KeePass native calls have left us in a bit of a weird state
+            // refresh the UI in case user cancelled the dialog box and/or KeePass 
+            // native calls have left us in a bit of a weird state
             host.MainWindow.UpdateUI(true, null, true, null, true, null, false);
 
             // Set the program state back to what is was unless the user has
@@ -855,8 +871,6 @@ namespace KeePassRPC
                         (doc.Database.IsOpen && doc.Database.IOConnectionInfo.Path == fileName))
                         host.MainWindow.DocumentManager.ActiveDocument = doc;
 
-            // Going to take a new approach for a bit to see how it works out...
-            //
             // before explicitly asking user to log into the correct DB we'll set up a "fake" document in KeePass
             // in the hope that the minimise/restore trick will get KeePass to prompt the user on our behalf
             // (regardless of state of existing documents and newly requested document)
@@ -865,13 +879,9 @@ namespace KeePassRPC
                 && !(!host.MainWindow.DocumentManager.ActiveDocument.Database.IsOpen && host.MainWindow.DocumentManager.ActiveDocument.LockedIoc.Path == fileName))
             {
                 PwDocument doc = host.MainWindow.DocumentManager.CreateNewDocument(true);
-                //IOConnectionInfo ioci = new IOConnectionInfo();
-                //ioci.Path = fileName;
                 doc.LockedIoc = ioci;
             }
 
-            // NB: going to modify implementation of the following function call so that only KeePass initiates the prompt (need to verify cross-platform, etc. even if it seems to work on win7x64)
-            // if it works on some platforms, I will make it work on all platforms that support it and fall back to the old clunky method for others.
             host.MainWindow.BeginInvoke((MethodInvoker)delegate { promptUserToOpenDB(ioci); });
             return;
         }

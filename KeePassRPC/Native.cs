@@ -1,7 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading;
 using System.Windows.Forms;
+using KeePassLib;
+using KeePassLib.Utility;
 
 namespace KeePassRPC
 {
@@ -27,11 +34,244 @@ namespace KeePassRPC
         private const int SW_MINIMIZE = 6;
         private const int SW_RESTORE = 9;
 
+        private static bool? m_bIsUnix = null;
+        public static bool IsUnix()
+        {
+            if (m_bIsUnix.HasValue) return m_bIsUnix.Value;
+
+            PlatformID p = GetPlatformID();
+
+            // Mono defines Unix as 128 in early .NET versions
+#if !KeePassLibSD
+            m_bIsUnix = ((p == PlatformID.Unix) || (p == PlatformID.MacOSX) ||
+                ((int)p == 128));
+#else
+            m_bIsUnix = (((int)p == 4) || ((int)p == 6) || ((int)p == 128));
+#endif
+            return m_bIsUnix.Value;
+        }
+
+        private static PlatformID? m_platID = null;
+        public static PlatformID GetPlatformID()
+        {
+            if (m_platID.HasValue) return m_platID.Value;
+
+#if KeePassUAP
+            m_platID = EnvironmentExt.OSVersion.Platform;
+#else
+            m_platID = Environment.OSVersion.Platform;
+#endif
+
+#if (!KeePassLibSD && !KeePassUAP)
+            // Mono returns PlatformID.Unix on Mac OS X, workaround this
+            if (m_platID.Value == PlatformID.Unix)
+            {
+                if ((RunConsoleApp("uname", null) ?? string.Empty).Trim().Equals(
+                    "Darwin", StrUtil.CaseIgnoreCmp))
+                    m_platID = PlatformID.MacOSX;
+            }
+#endif
+
+            return m_platID.Value;
+        }
+        public static string RunConsoleApp(string strAppPath, string strParams)
+        {
+            return RunConsoleApp(strAppPath, strParams, null);
+        }
+
+        public static string RunConsoleApp(string strAppPath, string strParams,
+            string strStdInput)
+        {
+            return RunConsoleApp(strAppPath, strParams, strStdInput,
+                (AppRunFlags.GetStdOutput | AppRunFlags.WaitForExit));
+        }
+
+        private delegate string RunProcessDelegate();
+
+        public static string RunConsoleApp(string strAppPath, string strParams,
+            string strStdInput, AppRunFlags f)
+        {
+            if (strAppPath == null) throw new ArgumentNullException("strAppPath");
+            if (strAppPath.Length == 0) throw new ArgumentException("strAppPath");
+
+            bool bStdOut = ((f & AppRunFlags.GetStdOutput) != AppRunFlags.None);
+
+            RunProcessDelegate fnRun = delegate ()
+            {
+                Process pToDispose = null;
+                try
+                {
+                    ProcessStartInfo psi = new ProcessStartInfo();
+
+                    psi.CreateNoWindow = true;
+                    psi.FileName = strAppPath;
+                    psi.WindowStyle = ProcessWindowStyle.Hidden;
+                    psi.UseShellExecute = false;
+                    psi.RedirectStandardOutput = bStdOut;
+
+                    if (strStdInput != null) psi.RedirectStandardInput = true;
+
+                    if (!string.IsNullOrEmpty(strParams)) psi.Arguments = strParams;
+
+                    Process p = Process.Start(psi);
+                    pToDispose = p;
+
+                    if (strStdInput != null)
+                    {
+                        EnsureNoBom(p.StandardInput);
+
+                        p.StandardInput.Write(strStdInput);
+                        p.StandardInput.Close();
+                    }
+
+                    string strOutput = string.Empty;
+                    if (bStdOut) strOutput = p.StandardOutput.ReadToEnd();
+
+                    if ((f & AppRunFlags.WaitForExit) != AppRunFlags.None)
+                        p.WaitForExit();
+                    else if ((f & AppRunFlags.GCKeepAlive) != AppRunFlags.None)
+                    {
+                        pToDispose = null; // Thread disposes it
+
+                        Thread th = new Thread(delegate ()
+                        {
+                            try { p.WaitForExit(); p.Dispose(); }
+                            catch (Exception) { Debug.Assert(false); }
+                        });
+                        th.Start();
+                    }
+
+                    return strOutput;
+                }
+#if DEBUG
+                catch (Exception ex) { Debug.Assert(ex is ThreadAbortException); }
+#else
+                catch(Exception) { }
+#endif
+                finally
+                {
+                    try { if (pToDispose != null) pToDispose.Dispose(); }
+                    catch (Exception) { Debug.Assert(false); }
+                }
+
+                return null;
+            };
+
+            if ((f & AppRunFlags.DoEvents) != AppRunFlags.None)
+            {
+                List<Form> lDisabledForms = new List<Form>();
+                if ((f & AppRunFlags.DisableForms) != AppRunFlags.None)
+                {
+                    foreach (Form form in Application.OpenForms)
+                    {
+                        if (!form.Enabled) continue;
+
+                        lDisabledForms.Add(form);
+                        form.Enabled = false;
+                    }
+                }
+
+                IAsyncResult ar = fnRun.BeginInvoke(null, null);
+
+                while (!ar.AsyncWaitHandle.WaitOne(0))
+                {
+                    Application.DoEvents();
+                    Thread.Sleep(2);
+                }
+
+                string strRet = fnRun.EndInvoke(ar);
+
+                for (int i = lDisabledForms.Count - 1; i >= 0; --i)
+                    lDisabledForms[i].Enabled = true;
+
+                return strRet;
+            }
+
+            return fnRun();
+        }
+
+        private static void EnsureNoBom(StreamWriter sw)
+        {
+            if (sw == null) { Debug.Assert(false); return; }
+            if (!MonoWorkarounds.IsRequired(1219)) return;
+
+            try
+            {
+                Encoding enc = sw.Encoding;
+                if (enc == null) { Debug.Assert(false); return; }
+                byte[] pbBom = enc.GetPreamble();
+                if ((pbBom == null) || (pbBom.Length == 0)) return;
+
+                // For Mono >= 4.0 (using Microsoft's reference source)
+                try
+                {
+                    FieldInfo fi = typeof(StreamWriter).GetField("haveWrittenPreamble",
+                        BindingFlags.Instance | BindingFlags.NonPublic);
+                    if (fi != null)
+                    {
+                        fi.SetValue(sw, true);
+                        return;
+                    }
+                }
+                catch (Exception) { Debug.Assert(false); }
+
+                // For Mono < 4.0
+                FieldInfo fiPD = typeof(StreamWriter).GetField("preamble_done",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+                if (fiPD != null) fiPD.SetValue(sw, true);
+                else { Debug.Assert(false); }
+            }
+            catch (Exception) { Debug.Assert(false); }
+        }
+
+        internal static IntPtr GetForegroundWindowHandle()
+        {
+            if (!Native.IsUnix())
+                return GetForegroundWindow(); // Windows API
+
+            try
+            {
+                return new IntPtr(long.Parse(RunXDoTool(
+                    "getactivewindow").Trim()));
+            }
+            catch (Exception) { Debug.Assert(false); }
+            return IntPtr.Zero;
+        }
+
+
+        internal static string RunXDoTool(string strParams)
+        {
+            try
+            {
+                Application.DoEvents(); // E.g. for clipboard updates
+                string strOutput = Native.RunConsoleApp("xdotool", strParams);
+                Application.DoEvents(); // E.g. for clipboard updates
+                return (strOutput ?? string.Empty);
+            }
+            catch (Exception) { Debug.Assert(false); }
+
+            return string.Empty;
+        }
+
+
+        internal static bool SetForegroundWindowEx(IntPtr hWnd)
+        {
+            if (!Native.IsUnix())
+                return SetForegroundWindow(hWnd);
+
+            return (RunXDoTool("windowactivate " +
+                hWnd.ToInt64().ToString()).Trim().Length == 0);
+        }
+
         [DllImport("User32.dll")]
-        internal static extern IntPtr GetForegroundWindow();
+        private static extern IntPtr GetForegroundWindow();
 
         [DllImport("User32.dll")]
         internal static extern IntPtr GetWindow(IntPtr hWnd, uint wCmd);
+
+        [DllImport("User32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool IsWindow(IntPtr hWnd);
 
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         internal static extern IntPtr SetFocus(IntPtr hwnd);
@@ -158,19 +398,38 @@ namespace KeePassRPC
 
         }
 
+        internal static bool IsWindowEx(IntPtr hWnd)
+        {
+            if (!Native.IsUnix()) // Windows
+                return IsWindow(hWnd);
+
+            return true;
+        }
+
         internal static bool EnsureForegroundWindow(IntPtr hWnd)
         {
-            if (SetForegroundWindow(hWnd) == false)
+            if (!IsWindowEx(hWnd)) return false;
+
+            IntPtr hWndInit = GetForegroundWindowHandle();
+
+            if (!SetForegroundWindowEx(hWnd))
             {
                 Debug.Assert(false);
                 return false;
             }
 
             int nStartMS = Environment.TickCount;
-            while ((Environment.TickCount - nStartMS) < 1000)
+            while ((Environment.TickCount - nStartMS) < 250)
             {
-                IntPtr h = GetForegroundWindow();
+                IntPtr h = GetForegroundWindowHandle();
                 if (h == hWnd) return true;
+
+                // Some applications (like Microsoft Edge) have multiple
+                // windows and automatically redirect the focus to other
+                // windows, thus also break when a different window gets
+                // focused (except when h is zero, which can occur while
+                // the focus transfer occurs)
+                if ((h != IntPtr.Zero) && (h != hWndInit)) return true;
 
                 Application.DoEvents();
             }
