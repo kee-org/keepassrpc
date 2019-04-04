@@ -84,6 +84,7 @@ namespace KeePassRPC
                 // user decides to save a change for another reason)
                 var newConfig = new DatabaseConfig();
 
+                // This migration can be removed in 2021
                 if (db.CustomData.Exists("KeePassRPC.KeeFox.rootUUID"))
                     newConfig.RootUUID = db.CustomData.Get("KeePassRPC.KeeFox.rootUUID");
 

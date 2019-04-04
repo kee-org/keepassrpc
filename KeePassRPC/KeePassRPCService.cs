@@ -1514,16 +1514,9 @@ namespace KeePassRPC
             return dbarray;
         }
 
-        private bool ConfigIsCorrectVersion(PwDatabase t)
+        private bool ConfigIsCorrectVersion(PwDatabase db)
         {
-            // Both version 2 and 3 are correct since their differences 
-            // do not extend to the public API exposed by KPRPC
-            if (t.CustomData.Exists("KeePassRPC.KeeFox.configVersion")
-                && t.CustomData.Get("KeePassRPC.KeeFox.configVersion") == "2")
-            {
-                return true;
-            }
-            else if (t.GetKPRPCConfig().Version == 3)
+            if (db.GetKPRPCConfig().Version == 3)
             {
                 return true;
             }
