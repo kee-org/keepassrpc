@@ -111,5 +111,12 @@ namespace KeePassRPC
         {
             db.CustomData.Set("KeePassRPC.Config", Jayrock.Json.Conversion.JsonConvert.ExportToString(newConfig));
         }
+
+        public static bool IsOrIsContainedIn(this PwGroup gp, PwGroup hostGroup)
+        {
+            if (gp == hostGroup) return true;
+            return gp.IsContainedIn(hostGroup);
+        }
+
     }
 }

@@ -158,7 +158,7 @@ namespace KeePassRPC
                 TLDRulesCache.Init(host.CustomConfig.GetString(
                     "KeePassRPC.publicSuffixDomainCache.path",
                     GetLocalConfigLocation() + "publicSuffixDomainCache.txt"));
-                
+
                 // The Kee client manager holds objects relating to the web socket connections managed by the Fleck2 library
                 CreateClientManagers();
 
@@ -208,7 +208,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 _host.MainWindow.FileSaved += OnKPDBSaved;
 
                 _host.MainWindow.DocumentManager.ActiveDocumentSelected += OnKPDBSelected;
-                
+
                 // Get a reference to the 'Tools' menu item container
                 ToolStripItemCollection tsMenu = _host.MainWindow.ToolsMenu.DropDownItems;
 
@@ -230,7 +230,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
 
                 // not acting on upgrade info just yet but we need to track it for future proofing
                 bool upgrading = refreshVersionInfo(host);
-                
+
                 // for debug only:
                 //WelcomeForm wf = new WelcomeForm();
                 //DialogResult dr = wf.ShowDialog();
@@ -439,6 +439,12 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             if (pg == null || pg.Uuid == null || pg.Uuid == PwUuid.Zero)
                 return;
 
+            var rid = _host.Database.RecycleBinUuid;
+            if (rid != null && rid != PwUuid.Zero && pg.IsOrIsContainedIn(_host.Database.RootGroup.FindGroup(rid, true)))
+            {
+                MessageBox.Show(@"You can not set this to be the Kee Home Group. Choose a group outside of the Recycle Bin instead.");
+                return;
+            }
             var conf = _host.Database.GetKPRPCConfig();
             conf.RootUUID = MemUtil.ByteArrayToHexString(pg.Uuid.UuidBytes);
             _host.Database.SetKPRPCConfig(conf);

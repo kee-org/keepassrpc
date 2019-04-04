@@ -1472,6 +1472,10 @@ namespace KeePassRPC
                 if (matchedGroup == null)
                     throw new Exception("Could not find requested group. Have you deleted your Kee home group? Set a new one and try again.");
 
+                var rid = host.Database.RecycleBinUuid;
+                if (rid != null && rid != PwUuid.Zero && matchedGroup.IsOrIsContainedIn(host.Database.RootGroup.FindGroup(rid, true)))
+                    throw new Exception("Kee home group is in the Recycle Bin. Restore the group or set a new home group and try again.");
+
                 return matchedGroup;
             }
             else
