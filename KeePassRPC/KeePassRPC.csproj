@@ -208,6 +208,7 @@
     <Compile Include="SRP.cs" />
     <Compile Include="URLSummary.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="DPIScaledToolStripMenuItem.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

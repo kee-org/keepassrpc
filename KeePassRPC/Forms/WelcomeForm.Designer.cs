@@ -99,7 +99,7 @@
             // m_bannerImage
             // 
             this.m_bannerImage.Dock = System.Windows.Forms.DockStyle.Left;
-            this.m_bannerImage.Image = global::KeePassRPC.Properties.Resources.Kee64;
+            this.m_bannerImage.Image = global::KeePassRPC.Properties.Resources.KPRPC64;
             this.m_bannerImage.Location = new System.Drawing.Point(0, 0);
             this.m_bannerImage.Name = "m_bannerImage";
             this.m_bannerImage.Padding = new System.Windows.Forms.Padding(10, 0, 0, 10);

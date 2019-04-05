@@ -14,7 +14,7 @@ namespace KeePassRPC.Forms
         public KeeMAMOverrideForm(string domain, MatchAccuracyMethod? mam, List<string> otherKeys)
         {
             InitializeComponent();
-            Icon = global::KeePassRPC.Properties.Resources.kee;
+            Icon = global::KeePassRPC.Properties.Resources.KPRPCico;
             Domain = domain;
             OtherKeys = otherKeys;
             MAM = mam.GetValueOrDefault(MatchAccuracyMethod.Domain);

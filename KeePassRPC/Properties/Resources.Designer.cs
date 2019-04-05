@@ -80,33 +80,24 @@ namespace KeePassRPC.Properties {
             }
         }
         
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
-        /// </summary>
-        public static System.Drawing.Icon kee {
+        public static System.Drawing.Bitmap KPRPC16 {
             get {
-                object obj = ResourceManager.GetObject("kee", resourceCulture);
+                object obj = ResourceManager.GetObject("KPRPC16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        public static System.Drawing.Bitmap KPRPC64 {
+            get {
+                object obj = ResourceManager.GetObject("KPRPC64", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        public static System.Drawing.Icon KPRPCico {
+            get {
+                object obj = ResourceManager.GetObject("KPRPCico", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        public static System.Drawing.Bitmap Kee16 {
-            get {
-                object obj = ResourceManager.GetObject("Kee16", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        public static System.Drawing.Bitmap Kee64 {
-            get {
-                object obj = ResourceManager.GetObject("Kee64", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }

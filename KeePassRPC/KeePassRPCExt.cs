@@ -213,18 +213,15 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 ToolStripItemCollection tsMenu = _host.MainWindow.ToolsMenu.DropDownItems;
 
                 // Add menu item for options
-                _keePassRPCOptions = new ToolStripMenuItem();
-                _keePassRPCOptions.Text = "KeePassRPC (Kee) Options...";
+                _keePassRPCOptions = new DPIScaledToolStripMenuItem("KeePassRPC (Kee) Options...");
                 _keePassRPCOptions.Click += OnToolsOptions;
-                _keePassRPCOptions.Enabled = true;
                 tsMenu.Add(_keePassRPCOptions);
 
                 // Add a seperator and menu item to the group context menu
                 ContextMenuStrip gcm = host.MainWindow.GroupContextMenu;
                 _tsSeparator1 = new ToolStripSeparator();
                 gcm.Items.Add(_tsSeparator1);
-                _keeRootMenu = new ToolStripMenuItem();
-                _keeRootMenu.Text = "Set as Kee home group";
+                _keeRootMenu = new DPIScaledToolStripMenuItem("Set as Kee home group");
                 _keeRootMenu.Click += OnMenuSetRootGroup;
                 gcm.Items.Add(_keeRootMenu);
 
@@ -323,7 +320,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             keeTabPage.Controls.Add(dbSettingsUserControl);
             if (mainTabControl.ImageList == null)
                 mainTabControl.ImageList = new ImageList();
-            int imageIndex = mainTabControl.ImageList.Images.Add(global::KeePassRPC.Properties.Resources.Kee16, Color.Transparent);
+            int imageIndex = mainTabControl.ImageList.Images.Add(global::KeePassRPC.Properties.Resources.KPRPC64, Color.Transparent);
             keeTabPage.ImageIndex = imageIndex;
             mainTabControl.TabPages.Add(keeTabPage);
         }
@@ -638,7 +635,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             {
                 kfpbg = new PwGroup(false, true, "Kee Generated Password Backups", PwIcon.Folder);
                 kfpbg.Uuid = groupUuid;
-                kfpbg.CustomIconUuid = GetKeeIcon();
+                kfpbg.CustomIconUuid = GetKPRPCIcon();
                 keeGroup.AddGroup(kfpbg, true);
             }
             else if (kfpbg.Name == "KeeFox Generated Password Backups")
@@ -671,20 +668,20 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             return kfpg;
         }
 
-        private PwUuid GetKeeIcon()
+        private PwUuid GetKPRPCIcon()
         {
             //return null;
 
-            // {EB9FF2ED-0512-4747-B63E-AFA515A30422}
-            PwUuid keeIconUuid = new PwUuid(new byte[] {
+            // {EB9FF2ED-0512-4747-B83E-AFA515A30422}
+            PwUuid kprpcIconUuid = new PwUuid(new byte[] {
                 0xeb, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
-                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x22});
+                0xb8, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x22});
 
             PwCustomIcon icon = null;
 
             foreach (PwCustomIcon testIcon in _host.Database.CustomIcons)
             {
-                if (testIcon.Uuid == keeIconUuid)
+                if (testIcon.Uuid == kprpcIconUuid)
                 {
                     icon = testIcon;
                     break;
@@ -695,15 +692,15 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             {
                 using (MemoryStream ms = new MemoryStream())
                 {
-                    global::KeePassRPC.Properties.Resources.Kee16.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    global::KeePassRPC.Properties.Resources.KPRPC64.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
 
                     // Create a new custom icon for use with this entry
-                    icon = new PwCustomIcon(keeIconUuid,
+                    icon = new PwCustomIcon(kprpcIconUuid,
                         ms.ToArray());
                     _host.Database.CustomIcons.Add(icon);
                 }
             }
-            return keeIconUuid;
+            return kprpcIconUuid;
 
 
             //string keeFoxIcon = @"iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAFfKj/FAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAABpUExURf///wAAAAAAAFpaWl5eXm5ubnh4eICAgIeHh5GRkaCgoKOjo66urq+vr8jIyMnJycvLy9LS0uDg4Ovr6+zs7O3t7e7u7u/v7/X19fb29vf39/j4+Pn5+fr6+vv7+/z8/P39/f7+/v///5goWdMAAAADdFJOUwAxTTRG/kEAAACRSURBVBjTTY2JEoMgDESDaO0h9m5DUZT9/49sCDLtzpB5eQwLkSTkwb0cOBnJksYxiHqORHZG3gFc88WReTzvBFoOMbUCVkN/ATw3CnwHmwLjpYCfYoF5TQphAUztMfp5zsm5phY6MEsV+LapYRPAoC/ooOLxfL33RXQifJjjsnZFWPBniksCbBU+6F4FmV+IvtrgDOmaq+PeAAAAAElFTkSuQmCC";

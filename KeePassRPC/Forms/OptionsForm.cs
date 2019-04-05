@@ -27,7 +27,7 @@ namespace KeePassRPC.Forms
             _plugin = plugin;
 
             InitializeComponent();
-            Icon = global::KeePassRPC.Properties.Resources.kee;
+            Icon = global::KeePassRPC.Properties.Resources.KPRPCico;
             checkBox1.Text = "Automatically save KeePass database when Kee makes changes";
             if (host.CustomConfig.GetBool("KeePassRPC.KeeFox.autoCommit", true))
                 checkBox1.Checked = true;

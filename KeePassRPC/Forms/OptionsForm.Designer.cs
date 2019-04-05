@@ -91,11 +91,11 @@
             // m_bannerImage
             // 
             this.m_bannerImage.BackColor = System.Drawing.Color.White;
-            this.m_bannerImage.Image = global::KeePassRPC.Properties.Resources.Kee64;
-            this.m_bannerImage.Location = new System.Drawing.Point(0, 0);
+            this.m_bannerImage.Image = global::KeePassRPC.Properties.Resources.KPRPC64;
+            this.m_bannerImage.Location = new System.Drawing.Point(0, 3);
             this.m_bannerImage.Name = "m_bannerImage";
             this.m_bannerImage.Padding = new System.Windows.Forms.Padding(10, 0, 0, 10);
-            this.m_bannerImage.Size = new System.Drawing.Size(78, 60);
+            this.m_bannerImage.Size = new System.Drawing.Size(64, 64);
             this.m_bannerImage.TabIndex = 2;
             this.m_bannerImage.TabStop = false;
             // 
