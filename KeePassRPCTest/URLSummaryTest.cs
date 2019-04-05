@@ -1,6 +1,8 @@
 ﻿using KeePassRPC;
 using DomainPublicSuffix;
 using NUnit.Framework;
+using System;
+using KeePassLib.Utility;
 
 namespace KeePassRPCTest
 {
@@ -10,7 +12,13 @@ namespace KeePassRPCTest
         [OneTimeSetUp]
         public static void OneTimeSetUp()
         {
-            TLDRulesCache.Init(@"C:\temp\publicSuffixDomainCache.txt");
+            var url = "https://publicsuffix.org/list/public_suffix_list.dat";
+            //var url = "https://127.0.0.1/this/does/exist/public_suffix_list.dat";
+            var cacheFile = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            cacheFile = UrlUtil.EnsureTerminatingSeparator(cacheFile, false);
+            cacheFile = cacheFile + "publicSuffixDomainCache.txt";
+            Console.WriteLine("Cache file: " + cacheFile);
+            TLDRulesCache.Init(cacheFile, url);
         }
 
         [Test]
