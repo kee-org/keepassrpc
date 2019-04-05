@@ -134,7 +134,7 @@ namespace KeePassRPC
                 _BackgroundWorker.WorkerReportsProgress = true;
                 _BackgroundWorker.ProgressChanged += _BackgroundWorker_ProgressChanged;
                 _BackgroundWorkerAutoResetEvent = new AutoResetEvent(false);
-                _BackgroundWorker.DoWork += delegate(object sender, DoWorkEventArgs e)
+                _BackgroundWorker.DoWork += delegate (object sender, DoWorkEventArgs e)
                 {
                     _BackgroundWorkerAutoResetEvent.WaitOne();
                 };
@@ -253,8 +253,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
         string GetLocalConfigLocation()
         {
             string strBaseDirName = PwDefs.ShortProductName;
-            if ((KeePass.App.Configuration.AppConfigSerializer.BaseName != null)
-                && (KeePass.App.Configuration.AppConfigSerializer.BaseName.Length > 0))
+            if (!string.IsNullOrEmpty(KeePass.App.Configuration.AppConfigSerializer.BaseName))
                 strBaseDirName = KeePass.App.Configuration.AppConfigSerializer.BaseName;
 
             string strUserDir;
@@ -272,7 +271,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
 
             return strUserDir + strBaseDirName + Path.DirectorySeparatorChar;
         }
-        
+
         void GlobalWindowManager_WindowAdded(object sender, GwmWindowEventArgs e)
         {
             var ef = e.Form as PwEntryForm;
@@ -431,7 +430,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             using (KeePassRPC.Forms.OptionsForm ofDlg = new KeePassRPC.Forms.OptionsForm(_host, this))
                 ofDlg.ShowDialog();
         }
-        
+
         void OnMenuSetRootGroup(object sender, EventArgs e)
         {
             PwGroup pg = _host.MainWindow.GetSelectedGroup();
@@ -671,7 +670,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             }
             return kfpg;
         }
-        
+
         private PwUuid GetKeeIcon()
         {
             //return null;
@@ -779,7 +778,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                     manager.Terminate();
                 _RPCClientManagers.Clear();
             }
-            
+
             // remove event listeners
             _host.MainWindow.FileOpened -= OnKPDBOpen;
             _host.MainWindow.FileClosed -= OnKPDBClose;
@@ -835,19 +834,19 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             EnsureDBIconIsInKPRPCIconCache();
 
             if (GetConfigVersionForLegacyMigration(e.Database) > 0)
-        {
+            {
                 // Version 0 could indicate this DB contains KeeFox data
                 // from many years ago, no config data or post 2016 config data. It's 
                 // usefulness has therefore expired and we delete it to keep the kdbx
                 // file contents tidy
                 e.Database.CustomData.Remove("KeePassRPC.KeeFox.configVersion");
-                        }
+            }
 
             // Database config versions < 3 will be lazily updated when a v2 config
             // is first accessed and the DB next saved. This only affects the RootUUID though.
 
             SignalAllManagedRPCClients(Signal.DATABASE_OPEN);
-                                }
+        }
 
 
         private int GetConfigVersionForLegacyMigration(PwDatabase db)
