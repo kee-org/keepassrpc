@@ -247,7 +247,14 @@ namespace KeePassRPC.Forms
             _host.CustomConfig.SetLong("KeePassRPC.SecurityLevelClientMinimum", secLevelClientMin);
 
             if (port > 0)
+            {
+                ulong originalPort = _host.CustomConfig.GetULong("KeePassRPC.webSocket.port", 12546);
                 _host.CustomConfig.SetULong("KeePassRPC.webSocket.port", port);
+                if (port != originalPort)
+                {
+                    MessageBox.Show("Restart KeePass to start using the new connection port");
+                }
+            }
 
             _host.MainWindow.Invoke((MethodInvoker)delegate { _host.MainWindow.SaveConfig(); });
         }
