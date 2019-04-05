@@ -1873,9 +1873,9 @@ namespace KeePassRPC
                 if (mam == MatchAccuracyMethod.Hostname || entryUrlSummary.Domain == null || urlSummary.Domain == null)
                     continue;
 
-                if (bestMatchSoFar < MatchAccuracy.Hostname
+                if (bestMatchSoFar < MatchAccuracy.HostnameExcludingPort
                     && entryUrlSummary.Domain.Hostname == urlSummary.Domain.Hostname)
-                    bestMatchSoFar = MatchAccuracy.Hostname;
+                    bestMatchSoFar = MatchAccuracy.HostnameExcludingPort;
 
                 if (bestMatchSoFar < MatchAccuracy.Domain
                     && entryUrlSummary.Domain.RegistrableDomain == urlSummary.Domain.RegistrableDomain)

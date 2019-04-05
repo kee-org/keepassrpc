@@ -116,7 +116,7 @@ namespace KeePassRPCTest
         [TestCase("https://1.2.3.4:1234", "https://1.2.3.4:1234", MatchAccuracyMethod.Domain, ExpectedResult = MatchAccuracyEnum.Best)]
         [TestCase("https://1.2.3.4:1234", "https://1.2.3.4:1234", MatchAccuracyMethod.Exact, ExpectedResult = MatchAccuracyEnum.Best)]
         [TestCase("https://1.2.3.4:1234", "https://1.2.3.4", MatchAccuracyMethod.Hostname, ExpectedResult = MatchAccuracyEnum.None)]
-        [TestCase("https://1.2.3.4:1234", "https://1.2.3.4", MatchAccuracyMethod.Domain, ExpectedResult = MatchAccuracyEnum.Hostname)]
+        [TestCase("https://1.2.3.4:1234", "https://1.2.3.4", MatchAccuracyMethod.Domain, ExpectedResult = MatchAccuracyEnum.HostnameExcludingPort)]
         [TestCase("https://1.2.3.4:1234", "https://1.2.3.4", MatchAccuracyMethod.Exact, ExpectedResult = MatchAccuracyEnum.None)]
 
         // IPv6
@@ -131,7 +131,7 @@ namespace KeePassRPCTest
         [TestCase("https://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:1234", "https://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:1234", MatchAccuracyMethod.Domain, ExpectedResult = MatchAccuracyEnum.Best)]
         [TestCase("https://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:1234", "https://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:1234", MatchAccuracyMethod.Exact, ExpectedResult = MatchAccuracyEnum.Best)]
         [TestCase("https://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:1234", "https://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]", MatchAccuracyMethod.Hostname, ExpectedResult = MatchAccuracyEnum.None)]
-        [TestCase("https://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:1234", "https://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]", MatchAccuracyMethod.Domain, ExpectedResult = MatchAccuracyEnum.Hostname)]
+        [TestCase("https://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:1234", "https://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]", MatchAccuracyMethod.Domain, ExpectedResult = MatchAccuracyEnum.HostnameExcludingPort)]
         [TestCase("https://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:1234", "https://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]", MatchAccuracyMethod.Exact, ExpectedResult = MatchAccuracyEnum.None)]
 
 
@@ -146,7 +146,7 @@ namespace KeePassRPCTest
         [TestCase("https://www.kee.pm:1234", "https://www.kee.pm:1234", MatchAccuracyMethod.Domain, ExpectedResult = MatchAccuracyEnum.Best)]
         [TestCase("https://www.kee.pm:1234", "https://www.kee.pm:1234", MatchAccuracyMethod.Exact, ExpectedResult = MatchAccuracyEnum.Best)]
         [TestCase("https://www.kee.pm:1234", "https://www.kee.pm", MatchAccuracyMethod.Hostname, ExpectedResult = MatchAccuracyEnum.None)]
-        [TestCase("https://www.kee.pm:1234", "https://www.kee.pm", MatchAccuracyMethod.Domain, ExpectedResult = MatchAccuracyEnum.Hostname)]
+        [TestCase("https://www.kee.pm:1234", "https://www.kee.pm", MatchAccuracyMethod.Domain, ExpectedResult = MatchAccuracyEnum.HostnameExcludingPort)]
         [TestCase("https://www.kee.pm:1234", "https://www.kee.pm", MatchAccuracyMethod.Exact, ExpectedResult = MatchAccuracyEnum.None)]
 
 

@@ -96,7 +96,7 @@ namespace KeePassRPC.DataExchangeModel
 
         // HostnameAndPort = Same hostname and port
 
-        // Hostname = Same hostname (domain + subdomains)
+        // HostnameExcludingPort = Same hostname (domain + subdomains)
 
         // Domain = Same domain
 
@@ -105,7 +105,7 @@ namespace KeePassRPC.DataExchangeModel
         Best = 50,
         Close = 40,
         HostnameAndPort = 30,
-        Hostname = 20,
+        HostnameExcludingPort = 20,
         Domain = 10,
         None = 0
     } 
@@ -123,7 +123,7 @@ namespace KeePassRPC.DataExchangeModel
 
         // HostnameAndPort = Same hostname and port
 
-        // Hostname = Same hostname (domain + subdomains)
+        // HostnameExcludingPort = Same hostname (domain + subdomains)
 
         // Domain = Same domain
 
@@ -132,7 +132,7 @@ namespace KeePassRPC.DataExchangeModel
         public static readonly int Best = (int)MatchAccuracyEnum.Best;
         public static readonly int Close = (int)MatchAccuracyEnum.Close;
         public static readonly int HostnameAndPort = (int)MatchAccuracyEnum.HostnameAndPort;
-        public static readonly int Hostname = (int)MatchAccuracyEnum.Hostname;
+        public static readonly int HostnameExcludingPort = (int)MatchAccuracyEnum.HostnameExcludingPort;
         public static readonly int Domain = (int)MatchAccuracyEnum.Domain;
         public static readonly int None = (int)MatchAccuracyEnum.None;
     } 
