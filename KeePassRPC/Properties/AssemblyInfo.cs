@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 // General assembly properties
 [assembly: AssemblyTitle("KeePassRPC")]
-[assembly: AssemblyDescription("A Remote Procedure Call (RPC) server for KeePass. Used by the Kee browser add-on.")]
+[assembly: AssemblyDescription("A Remote Procedure Call (RPC) server for KeePass. Used by the Kee browser extension.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Kee Vault Ltd")]
 [assembly: AssemblyProduct("KeePass Plugin")]
@@ -19,4 +19,4 @@ using System.Runtime.InteropServices;
 
 // Assembly version information
 [assembly: AssemblyVersion("2.0.34.*")]
-[assembly: AssemblyFileVersion("1.8.2.0")] // also change PluginVersion in KeePassRPCExt.cs!
+[assembly: AssemblyFileVersion("1.9.0.0")] // also change PluginVersion in KeePassRPCExt.cs!
