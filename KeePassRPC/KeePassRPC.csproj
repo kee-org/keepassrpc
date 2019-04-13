@@ -209,6 +209,7 @@
     <Compile Include="URLSummary.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="DPIScaledToolStripMenuItem.cs" />
+    <Compile Include="IconConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
