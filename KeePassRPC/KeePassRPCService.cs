@@ -469,27 +469,35 @@ namespace KeePassRPC
 
         private Database GetDatabaseFromPwDatabase(PwDatabase pwd, bool fullDetail, bool noDetail)
         {
-            //Debug.Indent();
-            // Stopwatch sw = Stopwatch.StartNew();
-            if (fullDetail && noDetail)
-                throw new ArgumentException("Don't be silly");
+            try {
+                //Debug.Indent();
+                // Stopwatch sw = Stopwatch.StartNew();
+                if (fullDetail && noDetail)
+                    throw new ArgumentException("Don't be silly");
 
-            PwGroup pwg = GetRootPwGroup(pwd);
-            Group rt = GetGroupFromPwGroup(pwg);
-            if (fullDetail)
-                rt.ChildEntries = (Entry[])GetChildEntries(pwd, pwg, fullDetail, true);
-            else if (!noDetail)
-                rt.ChildLightEntries = GetChildEntries(pwd, pwg, fullDetail, true);
+                PwGroup pwg = GetRootPwGroup(pwd);
+                Group rt = GetGroupFromPwGroup(pwg);
+                if (fullDetail)
+                    rt.ChildEntries = (Entry[])GetChildEntries(pwd, pwg, fullDetail, true);
+                else if (!noDetail)
+                    rt.ChildLightEntries = GetChildEntries(pwd, pwg, fullDetail, true);
 
-            if (!noDetail)
-                rt.ChildGroups = GetChildGroups(pwd, pwg, true, fullDetail);
+                if (!noDetail)
+                    rt.ChildGroups = GetChildGroups(pwd, pwg, true, fullDetail);
 
-            Database kpd = new Database(pwd.Name, pwd.IOConnectionInfo.Path, rt, (pwd == host.Database) ? true : false,
-                DataExchangeModel.IconCache<string>.GetIconEncoding(pwd.IOConnectionInfo.Path) ?? "");
-            //  sw.Stop();
-            //  Debug.WriteLine("GetDatabaseFromPwDatabase execution time: " + sw.Elapsed);
-            //  Debug.Unindent();
-            return kpd;
+                Database kpd = new Database(pwd.Name, pwd.IOConnectionInfo.Path, rt, (pwd == host.Database) ? true : false,
+                    IconCache<string>.GetIconEncoding(pwd.IOConnectionInfo.Path) ?? "");
+                //  sw.Stop();
+                //  Debug.WriteLine("GetDatabaseFromPwDatabase execution time: " + sw.Elapsed);
+                //  Debug.Unindent();
+                return kpd;
+            }
+            catch (Exception ex)
+            {
+                if (KeePassRPCPlugin.logger != null)
+                    KeePassRPCPlugin.logger.WriteLine("Failed to parse database. Exception: " + ex);
+                return null;
+            }
         }
 
         private void setPwEntryFromEntry(PwEntry pwe, Entry login)
