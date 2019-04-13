@@ -584,6 +584,8 @@ namespace KeePassRPC
             }
         }
 
+        private static object iconSavingLock = new object();
+
         /// <summary>
         /// extract the current icon information for this entry
         /// </summary>
@@ -660,7 +662,10 @@ namespace KeePassRPC
                 // calculate its base64 encoding and then add it to the cache
                 using (MemoryStream ms = new MemoryStream())
                 {
-                    icon.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    lock (iconSavingLock)
+                    {
+                        icon.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    }
                     imageData = Convert.ToBase64String(ms.ToArray());
                 }
                 DataExchangeModel.IconCache<PwUuid>.AddIcon(uuid, imageData);
@@ -701,6 +706,8 @@ namespace KeePassRPC
                 using (Image imgNew = new Bitmap(img, new Size(16, 16)))
                 using (MemoryStream ms = new MemoryStream())
                 {
+                    // No need to lock here because we've created a new Bitmap 
+                    // (KeePass.UI.UIUtil.LoadImage has no caching or fancy stuff)
                     imgNew.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
 
                     byte[] msByteArray = ms.ToArray();
