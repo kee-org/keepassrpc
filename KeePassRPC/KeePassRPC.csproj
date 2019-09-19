@@ -279,20 +279,12 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Kee64.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\buttonGradient.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="KeePassRPCDiagram.cd" />
+    <None Include="Resources\buttonGradient.png" />
     <None Include="Resources\buttonGradientHover.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Kee16.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Resources\kee.ico" />
+    <None Include="Resources\kprpc.ico" />
+    <None Include="Resources\vkprpckey64.png" />
+    <None Include="Resources\vkprpckey16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
