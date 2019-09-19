@@ -1720,8 +1720,18 @@ namespace KeePassRPC
                 // If we need at least a matching hostname and port (equivelent to
                 // KeeFox <1.5) or we are missing the information needed to match
                 // more loose components of the URL we have to skip these last tests
-                if (mam == MatchAccuracyMethod.Hostname || entryUrlSummary.Domain == null || urlSummary.Domain == null)
+                if (mam == MatchAccuracyMethod.Hostname) continue;
+
+                if (entryUrlSummary.Domain == null || urlSummary.Domain == null)
+                {
+                    if (bestMatchSoFar < MatchAccuracy.HostnameExcludingPort
+                        && !string.IsNullOrWhiteSpace(entryUrlSummary.HostnameOnly)
+                        && entryUrlSummary.HostnameOnly == urlSummary.HostnameOnly)
+                    {
+                        return MatchAccuracy.HostnameExcludingPort;
+                    }
                     continue;
+                }
 
                 if (bestMatchSoFar < MatchAccuracy.HostnameExcludingPort
                     && entryUrlSummary.Domain.Hostname == urlSummary.Domain.Hostname)

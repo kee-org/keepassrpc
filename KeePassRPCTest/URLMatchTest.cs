@@ -177,6 +177,21 @@ namespace KeePassRPCTest
         [TestCase("https://twitter.com", "http://twitter.com", MatchAccuracyMethod.Hostname, ExpectedResult = MatchAccuracyEnum.HostnameAndPort)]
         [TestCase("https://twitter.com", "http://twitter.com", MatchAccuracyMethod.Exact, ExpectedResult = MatchAccuracyEnum.None)]
 
+        [TestCase("http://download:80", "http://docker:9000/#/auth", MatchAccuracyMethod.Domain, ExpectedResult = MatchAccuracyEnum.None)]
+        [TestCase("http://download:80", "http://docker:9000/#/auth", MatchAccuracyMethod.Hostname, ExpectedResult = MatchAccuracyEnum.None)]
+        [TestCase("http://download:80", "http://docker:9000/#/auth", MatchAccuracyMethod.Exact, ExpectedResult = MatchAccuracyEnum.None)]
+        [TestCase("http://docker:9000/#/auth", "http://docker:9000/#/auth", MatchAccuracyMethod.Domain, ExpectedResult = MatchAccuracyEnum.Best)]
+        [TestCase("http://docker:9000/#/auth", "http://docker:9000/#/auth", MatchAccuracyMethod.Hostname, ExpectedResult = MatchAccuracyEnum.Best)]
+        [TestCase("http://docker:9000/#/auth", "http://docker:9000/#/auth", MatchAccuracyMethod.Exact, ExpectedResult = MatchAccuracyEnum.Best)]
+        [TestCase("http://docker:9000", "http://docker:9000/#/auth", MatchAccuracyMethod.Domain, ExpectedResult = MatchAccuracyEnum.HostnameAndPort)]
+        [TestCase("http://docker:9000", "http://docker:9000/#/auth", MatchAccuracyMethod.Hostname, ExpectedResult = MatchAccuracyEnum.HostnameAndPort)]
+        [TestCase("http://docker:9000", "http://docker:9000/#/auth", MatchAccuracyMethod.Exact, ExpectedResult = MatchAccuracyEnum.None)]
+
+        [TestCase("chrome://keefox", "https://blah/account/", MatchAccuracyMethod.Domain, ExpectedResult = MatchAccuracyEnum.None)]
+        [TestCase("http://octopi.local", "https://blah/account/", MatchAccuracyMethod.Domain, ExpectedResult = MatchAccuracyEnum.None)]
+        [TestCase("https:/booking.com", "https://blah/account/", MatchAccuracyMethod.Domain, ExpectedResult = MatchAccuracyEnum.None)]
+        [TestCase("https://.homedepot.com", "https://blah/account/", MatchAccuracyMethod.Domain, ExpectedResult = MatchAccuracyEnum.None)]
+
         public MatchAccuracyEnum CalculatesCorrectMatchAccuracyScore(string urlEntry, string urlSearch, MatchAccuracyMethod entryMam)
         {
             var pwe = new PwEntry(true, true);

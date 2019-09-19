@@ -45,7 +45,7 @@ namespace KeePassRPCTest
             var summary = URLSummary.FromURL(@"c:\any\path\file");
             Assert.AreEqual(@"c:\any\path\file", summary.HostnameAndPort);
             Assert.AreEqual("", summary.Port);
-            Assert.IsNull(summary.Domain.RegistrableDomain);
+            Assert.IsNull(summary.Domain);
         }
 
         [Test]

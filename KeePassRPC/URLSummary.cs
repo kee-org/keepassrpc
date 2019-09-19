@@ -5,12 +5,14 @@ namespace KeePassRPC
     public class URLSummary
     {
         public string HostnameAndPort;
+        public string HostnameOnly;
         public string Port;
         public DomainName Domain;
 
-        private URLSummary(string hostnameAndPort, string port, DomainName domain)
+        private URLSummary(string hostnameAndPort, string hostnameOnly, string port, DomainName domain)
         {
             HostnameAndPort = hostnameAndPort;
+            HostnameOnly = hostnameOnly;
             Port = port;
             Domain = domain;
         }
@@ -19,7 +21,7 @@ namespace KeePassRPC
         {
             if (URL.StartsWith("data:"))
             {
-                return new URLSummary("", "", null);
+                return new URLSummary("", "", "", null);
             }
 
             bool isFile = false;
@@ -66,22 +68,28 @@ namespace KeePassRPC
                     hostAndPort = URLExcludingProt;
                 }
             }
+            string hostnameOnly = hostAndPort;
             int portIndex = -1;
             DomainName domain = null;
 
             if (!isFile)
             {
-                portIndex = hostAndPort.IndexOf(":");
+                int ipv6Bracket = hostAndPort.LastIndexOf("]");
+                if (ipv6Bracket == hostAndPort.Length - 1 && ipv6Bracket > 0)
+                    portIndex = -1;
+                else
+                    portIndex = hostAndPort.LastIndexOf(":");
                 
                 // Protect against common malformed URL (Windows file path without file protocol)
                 if (portIndex <= 1)
                     portIndex = -1;
 
-                DomainName.TryParse(
-                    hostAndPort.Substring(0, portIndex > 0 ? portIndex : hostAndPort.Length),
-                    out domain);
+                hostnameOnly = hostAndPort.Substring(0, portIndex > 0 ? portIndex : hostAndPort.Length);
+                DomainName.TryParse(hostnameOnly, out domain);
+                if (domain == null || domain.RegistrableDomain == null) domain = null;
             }
-            return new URLSummary(hostAndPort, 
+            return new URLSummary(hostAndPort,
+                hostnameOnly,
                 portIndex > 0 && portIndex+1 < hostAndPort.Length ? hostAndPort.Substring(portIndex+1) : "", 
                 domain);
         }
