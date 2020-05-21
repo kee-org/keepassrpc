@@ -50,7 +50,10 @@ namespace KeePassRPC
             "KPRPC_FIELD_DEFAULT_NAME_AND_ID_EMPTY",
 
             // OpenAndFocusDatabase can focus KeePass with a database, opening it first if required
-            "KPRPC_OPEN_AND_FOCUS_DATABASE"
+            "KPRPC_OPEN_AND_FOCUS_DATABASE",
+
+            // Allow replacement of all URLs during entry update
+            "KPRPC_FEATURE_ENTRY_URL_REPLACEMENT"
 
             // in the rare event that we want to check for the absense of a feature
             // we would add a feature flag along the lines of "KPRPC_FEATURE_REMOVED_INCOMPATIBLE_THING_X"

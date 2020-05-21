@@ -1094,7 +1094,8 @@ namespace KeePassRPC
         /// <param name="urlMergeMode">1= Replace the entry's URL (but still fill forms if you visit the old URL)
         ///2= Replace the entry's URL (delete the old URL completely)
         ///3= Keep the old entry's URL (but still fill forms if you visit the new URL)
-        ///4= Keep the old entry's URL (don't add the new URL to the entry)</param>
+        ///4= Keep the old entry's URL (don't add the new URL to the entry)
+        ///5= No merge. Delete all URLs and replace with those supplied in the new entry data</param>
         /// <param name="dbFileName">Database that contains the login to update</param>
         /// <returns>The updated login</returns>
         [JsonRpcMethod]
@@ -1187,6 +1188,11 @@ namespace KeePassRPC
                     }
                     break;
                 case 4:
+                    // No changes to URLs
+                    break;
+                case 5:
+                    destURLs = sourceURLs;
+                    break;
                 default:
                     // No changes to URLs
                     break;
