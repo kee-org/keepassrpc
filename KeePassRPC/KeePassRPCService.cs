@@ -1144,6 +1144,8 @@ namespace KeePassRPC
 
             destination.CreateBackup(db);
 
+            destination.Strings.Set("Title", new ProtectedString(
+                host.Database.MemoryProtection.ProtectTitle, source.Strings.ReadSafe("Title")));
             destConfig.HTTPRealm = sourceConfig.HTTPRealm;
             destination.IconId = source.IconId;
             destination.CustomIconUuid = source.CustomIconUuid;
