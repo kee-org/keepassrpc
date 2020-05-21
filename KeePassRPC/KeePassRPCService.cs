@@ -331,7 +331,7 @@ namespace KeePassRPC
                         continue;
 
                     bool enablePlaceholders = false;
-                    string displayName = ff.Name;
+                    string displayName = !string.IsNullOrEmpty(ff.DisplayName) ? ff.DisplayName : ff.Name;
                     string ffValue = ff.Value;
 
                     if (ff.PlaceholderHandling == PlaceholderHandling.Enabled ||
@@ -523,7 +523,7 @@ namespace KeePassRPC
                 }
                 else
                 {
-                    ffl.Add(new FormField(kpff.Name, kpff.Name, kpff.Value, kpff.Type, kpff.Id, kpff.Page, PlaceholderHandling.Default));
+                    ffl.Add(new FormField(kpff.Name, !string.IsNullOrEmpty(kpff.DisplayName) ? kpff.DisplayName : kpff.Name, kpff.Value, kpff.Type, kpff.Id, kpff.Page, PlaceholderHandling.Default));
                 }
             }
             conf.FormFieldList = ffl.ToArray();
