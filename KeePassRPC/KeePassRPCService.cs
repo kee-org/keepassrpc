@@ -1927,9 +1927,7 @@ namespace KeePassRPC
                                     }
                                 }
 
-                        // Check for matching URLs for the page containing the form
-                        if (!entryIsAMatch && lst != LoginSearchType.LSTnoForms
-                                && (string.IsNullOrEmpty(username) || username == entryUserName))
+                        if (!entryIsAMatch && (string.IsNullOrEmpty(username) || username == entryUserName))
                         {
                             foreach (string URL in URLs)
                             {
@@ -1938,20 +1936,6 @@ namespace KeePassRPC
                                 if (accuracy > bestMatchAccuracy)
                                     bestMatchAccuracy = accuracy;
 
-                            }
-                        }
-
-                        // Check for matching URLs for the HTTP Auth containing the form
-                        if (!entryIsAMatch && lst != LoginSearchType.LSTnoRealms
-                                && (string.IsNullOrEmpty(username) || username == entryUserName))
-
-                        {
-                            foreach (string URL in URLs)
-                            {
-                                var mam = pwe.GetMatchAccuracyMethod(URLHostnameAndPorts[URL], dbConf);
-                                int accuracy = BestMatchAccuracyForAnyURL(pwe, conf, URL, URLHostnameAndPorts[URL], mam);
-                                if (accuracy > bestMatchAccuracy)
-                                    bestMatchAccuracy = accuracy;
                             }
                         }
 

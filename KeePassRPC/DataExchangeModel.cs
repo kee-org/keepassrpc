@@ -77,7 +77,9 @@ namespace KeePassRPC.DataExchangeModel
         }
     }
 
+    // This is no longer used but remains in the DTO spec for backwards compatibility
     public enum LoginSearchType { LSTall, LSTnoForms, LSTnoRealms }
+    
     public enum FormFieldType { FFTradio, FFTusername, FFTtext, FFTpassword, FFTselect, FFTcheckbox } // ..., HTML 5, etc.
     // FFTusername is special type because bultin FF supports with only username and password
 
