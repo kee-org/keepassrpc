@@ -1802,7 +1802,7 @@ namespace KeePassRPC
             string actionHost = actionURL;
 
             // Make sure there is an active database
-            if (!ensureDBisOpen()) { return null; }
+            if (!host.Database.IsOpen) { return null; }
 
             // if uniqueID is supplied, match just that one login. if not found, move on to search the content of the logins...
             if (uniqueID != null && uniqueID.Length > 0)
