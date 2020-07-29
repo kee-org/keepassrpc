@@ -33,7 +33,7 @@ namespace KeePassRPC
     public sealed class KeePassRPCExt : Plugin
     {
         // version information
-        public static readonly Version PluginVersion = new Version(1, 12, 0);
+        public static readonly Version PluginVersion = new Version(1, 12, 1);
 
         public override string UpdateUrl
         {
@@ -255,7 +255,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             string configPermittedOrigins = _host.CustomConfig.GetString("KeePassRPC.webSocket.permittedOrigins", "");
             string[] permittedOrigins = configPermittedOrigins.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries);
             if (permittedOrigins.Length > 0) return permittedOrigins;
-            return new string[] {"ms-browser-extension://","safari-web-extension://","moz-extension://","chrome-extension://"};
+            return new string[] {"resource://gre-resources","ms-browser-extension://","safari-web-extension://","moz-extension://","chrome-extension://"};
         }
 
         string GetLocalConfigLocation()
