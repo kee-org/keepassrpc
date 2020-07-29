@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using KeePassRPC.DataExchangeModel;
 
 namespace KeePassRPC
@@ -69,8 +69,7 @@ namespace KeePassRPC
 
         internal void CalculatePasswordHash(string password)
         {
-            BigInteger sTemp = new BigInteger();
-            sTemp.genRandomBits(256, new Random((int)DateTime.Now.Ticks));
+            BigInteger sTemp = new BigInteger(Utils.GetRandomBytes(32));
             _s = sTemp.ToString();
             _x = new BigInteger(Utils.Hash(_s + password));
             _v = g.modPow(_x, _N);
@@ -78,9 +77,8 @@ namespace KeePassRPC
 
         internal void Setup()
         {
-            _b = new BigInteger();
             do {
-                _b.genRandomBits(256, new Random((int)DateTime.Now.Ticks));
+                _b = new BigInteger(Utils.GetRandomBytes(32));
                 _B = (_k * _v) + (_g.modPow(_b, _N));
             } while (_B % _N == 0);
             _Bstr = _B.ToString(16);
