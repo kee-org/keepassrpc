@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using KeePassRPC.DataExchangeModel;
 
 namespace KeePassRPC
@@ -79,14 +79,10 @@ namespace KeePassRPC
         internal void Setup()
         {
             _b = new BigInteger();
-            _b.genRandomBits(256, new Random((int)DateTime.Now.Ticks));
-
-            _B = (_k * _v) + (_g.modPow(_b, _N));
-            while (_B % _N == 0)
-            {
+            do {
                 _b.genRandomBits(256, new Random((int)DateTime.Now.Ticks));
                 _B = (_k * _v) + (_g.modPow(_b, _N));
-            }
+            } while (_B % _N == 0);
             _Bstr = _B.ToString(16);
         }
 
