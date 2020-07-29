@@ -9,17 +9,39 @@
             "command": "msbuild",
             "args": [
                 // Ask msbuild to generate full paths for file names.
+
                 "/property:GenerateFullPaths=true",
                 "/t:build",
                 // Do not generate summary otherwise it leads to duplicate errors in Problems panel
+
                 "/consoleloggerparameters:NoSummary"
             ],
-            "group": "build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
             "presentation": {
                 // Reveal the output only if unrecognized errors occur.
                 "reveal": "silent"
             },
             // Use the standard MS compiler pattern to detect errors, warnings and infos
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build plgx",
+            "type": "shell",
+            "command": "msbuild",
+            "args": [
+                "KeePassRPC",
+                "/p:Configuration=ReleasePLGX",
+                "/property:GenerateFullPaths=true",
+                "/t:build",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
             "problemMatcher": "$msCompile"
         }
     ]
