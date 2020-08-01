@@ -33,7 +33,7 @@ namespace KeePassRPC
     public sealed class KeePassRPCExt : Plugin
     {
         // version information
-        public static readonly Version PluginVersion = new Version(1, 11, 0);
+        public static readonly Version PluginVersion = new Version(1, 12, 1);
 
         public override string UpdateUrl
         {
@@ -172,8 +172,11 @@ namespace KeePassRPC
 
                 try
                 {
-                    _RPCServer = new KeePassRPCServer(RPCService, this, portNew,
-                        host.CustomConfig.GetBool("KeePassRPC.webSocket.bindOnlyToLoopback", true));
+                    WebSocketServerConfig config = new WebSocketServerConfig();
+                    config.WebSocketPort = portNew;
+                    config.BindOnlyToLoopback = host.CustomConfig.GetBool("KeePassRPC.webSocket.bindOnlyToLoopback", true);
+                    config.PermittedOrigins = DeterminePermittedOrigins();
+                    _RPCServer = new KeePassRPCServer(RPCService, this, config);
                 }
                 catch (System.Net.Sockets.SocketException ex)
                 {
@@ -245,6 +248,14 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             }
             if (logger != null) logger.WriteLine("KPRPC startup succeeded.");
             return true; // Initialization successful
+        }
+
+        private string[] DeterminePermittedOrigins()
+        {
+            string configPermittedOrigins = _host.CustomConfig.GetString("KeePassRPC.webSocket.permittedOrigins", "");
+            string[] permittedOrigins = configPermittedOrigins.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries);
+            if (permittedOrigins.Length > 0) return permittedOrigins;
+            return new string[] {"resource://gre-resources","ms-browser-extension://","safari-web-extension://","moz-extension://","chrome-extension://"};
         }
 
         string GetLocalConfigLocation()

@@ -53,7 +53,10 @@ namespace KeePassRPC
             "KPRPC_OPEN_AND_FOCUS_DATABASE",
 
             // Allow replacement of all URLs during entry update
-            "KPRPC_FEATURE_ENTRY_URL_REPLACEMENT"
+            "KPRPC_FEATURE_ENTRY_URL_REPLACEMENT",
+
+            // Contains critical security fixes
+            "KPRPC_SECURITY_FIX_20200729"
 
             // in the rare event that we want to check for the absense of a feature
             // we would add a feature flag along the lines of "KPRPC_FEATURE_REMOVED_INCOMPATIBLE_THING_X"

@@ -20,8 +20,7 @@ namespace KeePassRPC
 
         public string KeyChallengeResponse1(string userName, int securityLevel)
         {
-            BigInteger scTemp = new BigInteger();
-            scTemp.genRandomBits(256, new Random((int)DateTime.Now.Ticks));
+            BigInteger scTemp = new BigInteger(Utils.GetRandomBytes(32));
             sc = scTemp.ToString().ToLower();
 
             KPRPCMessage data2client = new KPRPCMessage();

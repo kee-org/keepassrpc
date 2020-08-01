@@ -69,8 +69,7 @@ namespace KeePassRPC
 
         internal void CalculatePasswordHash(string password)
         {
-            BigInteger sTemp = new BigInteger();
-            sTemp.genRandomBits(256, new Random((int)DateTime.Now.Ticks));
+            BigInteger sTemp = new BigInteger(Utils.GetRandomBytes(32));
             _s = sTemp.ToString();
             _x = new BigInteger(Utils.Hash(_s + password));
             _v = g.modPow(_x, _N);
@@ -78,15 +77,10 @@ namespace KeePassRPC
 
         internal void Setup()
         {
-            _b = new BigInteger();
-            _b.genRandomBits(256, new Random((int)DateTime.Now.Ticks));
-
-            _B = (_k * _v) + (_g.modPow(_b, _N));
-            while (_B % _N == 0)
-            {
-                _b.genRandomBits(256, new Random((int)DateTime.Now.Ticks));
+            do {
+                _b = new BigInteger(Utils.GetRandomBytes(32));
                 _B = (_k * _v) + (_g.modPow(_b, _N));
-            }
+            } while (_B % _N == 0);
             _Bstr = _B.ToString(16);
         }
 
@@ -103,8 +97,19 @@ namespace KeePassRPC
         {
             BigInteger A = new BigInteger(Astr, 16);
 
+	        if (A % N == 0) {
+                return new Error(ErrorCode.AUTH_INVALID_PARAM);
+            }
+
             // u = H(A,B)
             BigInteger u = new BigInteger(Utils.Hash(Astr + this.Bstr));
+
+            //TODO: I think this is an unnecessary check for the server-side
+            // and was probably erroneously used instead of the correct check
+            // for A % N != 0 above. Since the impact of leaving it here is
+            // going to be a very rare failure to authenticate rather than a
+            // false positive authentication, we can revisit this in detail
+            // when we have more time.
             if (u == 0)
                 return new Error(ErrorCode.AUTH_INVALID_PARAM);
 
