@@ -74,6 +74,7 @@ namespace KeePassRPC.Forms
         private void UpdateAuthorisedConnections()
         {
             KeyContainerClass[] kcs = FindAuthorisedConnections();
+            bool anyConnectionCompromised = false;
 
             if (kcs == null)
             {
@@ -99,7 +100,27 @@ namespace KeePassRPC.Forms
                 string[] row = new string[] { kc.ClientName, kc.Username, kc.AuthExpires.ToString() };
                 int rowid = dataGridView1.Rows.Add(row);
                 dataGridView1.Rows[rowid].Cells[3].Value = connected;
+
+                bool compromised = kc.Key == "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9";
+                if (compromised) {
+                    anyConnectionCompromised = true;
+                    dataGridView1.Rows[rowid].DefaultCellStyle.ForeColor = Color.DarkRed;
+                }
             }
+
+            if (anyConnectionCompromised) {
+                MessageBox.Show(@"Your KeePass instance may have previously been exploited by a malicious attacker.
+
+The passwords contained within any databases that were open before this point may have been exposed so you should change them.
+
+Suspicious clients will be listed in red on the Authorised clients tab.
+
+See https://forum.kee.pm/t/3143/ for more information.",
+                    "WARNING!",
+                    MessageBoxButtons.OK, 
+                    MessageBoxIcon.Warning);
+            }
+
             return;
 
         }
