@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Xml.Serialization;
 using System.Threading;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace KeePassRPC
 {
@@ -186,7 +187,24 @@ namespace KeePassRPC
                                 XmlSerializer mySerializer = new XmlSerializer(typeof(KeyContainerClass));
                                 using (MemoryStream ms = new MemoryStream(serialisedKeyContainer))
                                 {
-                                    _keyContainer = (KeyContainerClass) mySerializer.Deserialize(ms);
+                                    KeyContainerClass keyContainer = (KeyContainerClass) mySerializer.Deserialize(ms);
+                                    
+                                    // A serialised key equal to sha256('0') suggests previous successful exploit of CVE-2020-16271
+                                    if (keyContainer == null || 
+                                        keyContainer.Key == "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9")
+                                    {
+                                        MessageBox.Show(@"Your KeePass instance may have previously been exploited by a malicious attacker.
+
+The passwords contained within any databases that were open before this point may have been exposed so you should change them.
+
+See https://forum.kee.pm/t/3143/ for more information.",
+                                            "WARNING!",
+                                            MessageBoxButtons.OK, 
+                                            MessageBoxIcon.Warning);
+                                        return null;
+                                    }
+
+                                    _keyContainer = keyContainer;
                                 }
                             }
                             catch (Exception)
