@@ -6,6 +6,7 @@ using KeePassLib;
 using KeePassLib.Collections;
 using KeePass.UI;
 using KeePass.Forms;
+using System.Reflection;
 
 namespace KeePassRPC
 {
@@ -118,7 +119,30 @@ namespace KeePassRPC
 
         public override void AttachToEntryDialog(KeePassRPCExt plugin, PwEntry entry, TabControl mainTabControl, PwEntryForm form, CustomListViewEx advancedListView, ProtectedStringDictionary strings)
         {
-            KeeEntryUserControl entryControl = new KeeEntryUserControl(plugin, entry, advancedListView, form, strings);
+            UserControl entryControl;
+
+            try
+            {
+                string qualifiedName = typeof(KeePass.Util.AutoType).AssemblyQualifiedName
+                    .Replace("KeePass.Util.AutoType", "KeePass.Util.MultipleValues.MultipleValuesEx");
+                System.Type mvType = System.Type.GetType(qualifiedName);
+                PropertyInfo prop = mvType.GetProperty("CueString", BindingFlags.Public | BindingFlags.Static);
+                string mvString = (string)prop.GetValue(null, null);
+                string json = strings.ReadSafe("KPRPC JSON");
+                if (!string.IsNullOrEmpty(json) && mvString == json)
+                {
+                    entryControl = new KeeMultiEntryUserControl();
+                } else
+                {
+                    entryControl = new KeeEntryUserControl(plugin, entry, advancedListView, form, strings);
+                }
+            }
+            catch
+            {
+                // Assume we're running in an older version of KeePass that can't edit multiple entries
+                entryControl = new KeeEntryUserControl(plugin, entry, advancedListView, form, strings);
+            }
+
             TabPage keeTabPage = new TabPage("Kee");
             entryControl.Dock = DockStyle.Fill;
             keeTabPage.Controls.Add(entryControl);
