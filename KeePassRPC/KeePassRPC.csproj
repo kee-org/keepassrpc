@@ -111,7 +111,8 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="KeePass">
-      <HintPath>\home\luckyrat\keepass-dev\KeePass.exe</HintPath>
+      <HintPath Condition="'$(OS)' == 'Windows_NT'">$(USERPROFILE)\KeePassDEV\KeePass.exe</HintPath>
+      <HintPath Condition="'$(OS)' != 'Windows_NT'">${home}/keepass-dev/KeePass.exe</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -155,6 +156,12 @@
     </Compile>
     <Compile Include="Forms\KeeMAMOverride.Designer.cs">
       <DependentUpon>KeeMAMOverride.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\KeeMultiEntryUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\KeeMultiEntryUserControl.Designer.cs">
+      <DependentUpon>KeeMultiEntryUserControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\KeeURLForm.cs">
       <SubType>Form</SubType>
@@ -258,6 +265,9 @@
     <EmbeddedResource Include="Forms\KeeMAMOverride.resx">
       <DependentUpon>KeeMAMOverride.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\KeeMultiEntryUserControl.resx">
+      <DependentUpon>KeeMultiEntryUserControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\KeeURLForm.resx">
       <DependentUpon>KeeURLForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -299,7 +309,7 @@
     <PostBuildEvent>
       echo POSTBUILDSTEP for $(ProjectName)
 
-      set KPDir=c:\Program Files (x86)\KeePass Password Safe 2 DEV\
+      set KPDir=$(USERPROFILE)\KeePassDEV\
       set KPPDir=%25KPDir%25plugins\
       set KPPTempDir=%25KPPDir%25$(ProjectName)
 
@@ -397,7 +407,7 @@
       :BuildEventOK
       echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK</PostBuildEvent>
   </PropertyGroup>
-    <PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
+  <PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
     <PostBuildEvent>
       #!/bin/bash
       echo POSTBUILDSTEP for $(ProjectName)
@@ -428,7 +438,7 @@
 
       echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK</PostBuildEvent>
   </PropertyGroup>
-    <PropertyGroup Condition="'$(OS)' != 'Windows_NT' AND '$(ConfigurationName)' == 'ReleasePLGX'">
+  <PropertyGroup Condition="'$(OS)' != 'Windows_NT' AND '$(ConfigurationName)' == 'ReleasePLGX'">
     <PostBuildEvent>
       #!/bin/bash
       echo POSTBUILDSTEP for $(ProjectName)
