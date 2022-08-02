@@ -16,6 +16,8 @@ namespace KeePassRPC.DataExchangeModel
                 type = "Radio";
             else if (fft == FormFieldType.FFTtext)
                 type = "Text";
+            else if (fft == FormFieldType.FFTtel)
+                type = "Tel";
             else if (fft == FormFieldType.FFTusername)
                 type = "Username";
             else if (fft == FormFieldType.FFTcheckbox)
@@ -37,6 +39,8 @@ namespace KeePassRPC.DataExchangeModel
                 fft = FormFieldType.FFTradio;
             else if (type == "text")
                 fft = FormFieldType.FFTtext;
+            else if (type == "tel")
+                fft = FormFieldType.FFTtel;
             else if (type == "username")
                 fft = FormFieldType.FFTusername;
             else if (type == "checkbox")
@@ -80,7 +84,7 @@ namespace KeePassRPC.DataExchangeModel
     // This is no longer used but remains in the DTO spec for backwards compatibility
     public enum LoginSearchType { LSTall, LSTnoForms, LSTnoRealms }
     
-    public enum FormFieldType { FFTradio, FFTusername, FFTtext, FFTpassword, FFTselect, FFTcheckbox } // ..., HTML 5, etc.
+    public enum FormFieldType { FFTradio, FFTusername, FFTtext, FFTtel, FFTpassword, FFTselect, FFTcheckbox } // ..., HTML 5, etc.
     // FFTusername is special type because bultin FF supports with only username and password
 
     public enum PlaceholderHandling { Default, Enabled, Disabled }

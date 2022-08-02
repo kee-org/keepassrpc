@@ -45,11 +45,11 @@
             this.label7 = new System.Windows.Forms.Label();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.radioButton1 = new System.Windows.Forms.RadioButton();
-            this.radioButton2 = new System.Windows.Forms.RadioButton();
-            this.radioButton3 = new System.Windows.Forms.RadioButton();
-            this.label8 = new System.Windows.Forms.Label();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
+            this.label8 = new System.Windows.Forms.Label();
+            this.radioButton3 = new System.Windows.Forms.RadioButton();
+            this.radioButton2 = new System.Windows.Forms.RadioButton();
+            this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -93,6 +93,7 @@
             this.comboBox1.Items.AddRange(new object[] {
             "Text",
             "Password",
+            "Tel",
             "Radio",
             "Checkbox",
             "Select"});
@@ -210,27 +211,24 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "KeePass placeholders";
             // 
-            // radioButton1
+            // linkLabel1
             // 
-            this.radioButton1.AutoSize = true;
-            this.radioButton1.Location = new System.Drawing.Point(6, 19);
-            this.radioButton1.Name = "radioButton1";
-            this.radioButton1.Size = new System.Drawing.Size(106, 17);
-            this.radioButton1.TabIndex = 0;
-            this.radioButton1.TabStop = true;
-            this.radioButton1.Text = "Database default";
-            this.radioButton1.UseVisualStyleBackColor = true;
+            this.linkLabel1.AutoSize = true;
+            this.linkLabel1.Location = new System.Drawing.Point(7, 129);
+            this.linkLabel1.Name = "linkLabel1";
+            this.linkLabel1.Size = new System.Drawing.Size(247, 13);
+            this.linkLabel1.TabIndex = 4;
+            this.linkLabel1.TabStop = true;
+            this.linkLabel1.Text = "https://forum.kee.pm/t/placeholder-handling/1100";
+            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
-            // radioButton2
+            // label8
             // 
-            this.radioButton2.AutoSize = true;
-            this.radioButton2.Location = new System.Drawing.Point(127, 19);
-            this.radioButton2.Name = "radioButton2";
-            this.radioButton2.Size = new System.Drawing.Size(58, 17);
-            this.radioButton2.TabIndex = 1;
-            this.radioButton2.TabStop = true;
-            this.radioButton2.Text = "Enable";
-            this.radioButton2.UseVisualStyleBackColor = true;
+            this.label8.Location = new System.Drawing.Point(7, 43);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(379, 83);
+            this.label8.TabIndex = 3;
+            this.label8.Text = resources.GetString("label8.Text");
             // 
             // radioButton3
             // 
@@ -243,24 +241,27 @@
             this.radioButton3.Text = "Disable";
             this.radioButton3.UseVisualStyleBackColor = true;
             // 
-            // label8
+            // radioButton2
             // 
-            this.label8.Location = new System.Drawing.Point(7, 43);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(379, 83);
-            this.label8.TabIndex = 3;
-            this.label8.Text = resources.GetString("label8.Text");
+            this.radioButton2.AutoSize = true;
+            this.radioButton2.Location = new System.Drawing.Point(127, 19);
+            this.radioButton2.Name = "radioButton2";
+            this.radioButton2.Size = new System.Drawing.Size(58, 17);
+            this.radioButton2.TabIndex = 1;
+            this.radioButton2.TabStop = true;
+            this.radioButton2.Text = "Enable";
+            this.radioButton2.UseVisualStyleBackColor = true;
             // 
-            // linkLabel1
+            // radioButton1
             // 
-            this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Location = new System.Drawing.Point(7, 129);
-            this.linkLabel1.Name = "linkLabel1";
-            this.linkLabel1.Size = new System.Drawing.Size(247, 13);
-            this.linkLabel1.TabIndex = 4;
-            this.linkLabel1.TabStop = true;
-            this.linkLabel1.Text = "https://forum.kee.pm/t/placeholder-handling/1100";
-            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
+            this.radioButton1.AutoSize = true;
+            this.radioButton1.Location = new System.Drawing.Point(6, 19);
+            this.radioButton1.Name = "radioButton1";
+            this.radioButton1.Size = new System.Drawing.Size(106, 17);
+            this.radioButton1.TabIndex = 0;
+            this.radioButton1.TabStop = true;
+            this.radioButton1.Text = "Database default";
+            this.radioButton1.UseVisualStyleBackColor = true;
             // 
             // KeeFieldForm
             // 

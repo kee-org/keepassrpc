@@ -27,7 +27,7 @@
     </SccAuxPath>
     <SccProvider>
     </SccProvider>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -215,7 +215,9 @@
     <Compile Include="SRP.cs" />
     <Compile Include="URLSummary.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="DPIScaledToolStripMenuItem.cs" />
+    <Compile Include="DPIScaledToolStripMenuItem.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="IconConverter.cs" />
     <Compile Include="WebSocketServerConfig.cs" />
   </ItemGroup>

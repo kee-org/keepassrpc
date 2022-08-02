@@ -56,6 +56,8 @@ namespace KeePassRPC.Forms
                     comboBox1.Text = "Radio";
                 else if (type == FormFieldType.FFTtext)
                     comboBox1.Text = "Text";
+                else if (type == FormFieldType.FFTtel)
+                    comboBox1.Text = "Tel";
                 else if (type == FormFieldType.FFTusername)
                     comboBox1.Text = "Username";
                 else if (type == FormFieldType.FFTcheckbox)
@@ -115,6 +117,8 @@ namespace KeePassRPC.Forms
                 Type = FormFieldType.FFTradio;
             else if (comboBox1.Text == "Text")
                 Type = FormFieldType.FFTtext;
+            else if (comboBox1.Text == "Tel")
+                Type = FormFieldType.FFTtel;
             else if (comboBox1.Text == "Username")
                 Type = FormFieldType.FFTusername;
             else if (comboBox1.Text == "Checkbox")
