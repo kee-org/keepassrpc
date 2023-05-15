@@ -305,6 +305,7 @@ namespace KeePassRPC
             ArrayList URLs = new ArrayList();
             bool usernameFound = false;
             bool passwordFound = false;
+            bool notesFound = false;
             bool alwaysAutoFill = false;
             bool neverAutoFill = false;
             bool alwaysAutoSubmit = false;
@@ -356,6 +357,15 @@ namespace KeePassRPC
                         {
                             displayName = "KeePass username";
                             usernameFound = true;
+                        }
+                    }
+                    else if (ff.Type == FormFieldType.FFTtext && ff.Value == "{NOTES}")
+                    {
+                        ffValue = KeePassRPCPlugin.GetPwEntryString(pwe, "Notes", db);
+                        if (!string.IsNullOrEmpty(ffValue))
+                        {
+                            displayName = "KeePass notes";
+                            notesFound = true;
                         }
                     }
 
@@ -410,6 +420,18 @@ namespace KeePassRPC
                 }
             }
 
+            // If we didn't find an explicit notes field, we assume any value
+            // in the KeePass "notes" box is what we are looking for
+            if (!notesFound)
+            {
+                string ffValue = KeePassRPCPlugin.GetPwEntryString(pwe, "Notes", db);
+                string derefValue = dbDefaultPlaceholderHandlingEnabled ? KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ffValue, db) : ffValue;
+                if (!string.IsNullOrEmpty(ffValue) && fullDetails)
+                {
+                    formFieldList.Add(new FormField("", "KeePass notes", derefValue, FormFieldType.FFTtext, "", 1, PlaceholderHandling.Default));
+                }
+            }
+
             string imageData = iconConverter.iconToBase64(pwe.CustomIconUuid, pwe.IconId);
             //Debug.WriteLine("GetEntryFromPwEntry icon converted: " + sw.Elapsed);
 
@@ -421,14 +443,6 @@ namespace KeePassRPC
                 neverAutoSubmit = conf.NeverAutoSubmit;
                 priority = conf.Priority;
 
-            }
-
-            //sw.Stop();
-            //Debug.WriteLine("GetEntryFromPwEntry execution time: " + sw.Elapsed);
-            //Debug.Unindent();
-
-            if (fullDetails)
-            {
                 string realm = "";
                 if (!string.IsNullOrEmpty(conf.HTTPRealm))
                     realm = conf.HTTPRealm;
@@ -459,7 +473,7 @@ namespace KeePassRPC
 
             string imageData = iconConverter.iconToBase64(pwg.CustomIconUuid, pwg.IconId);
 
-            Group kpg = new Group(pwg.Name, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes), imageData, pwg.GetFullPath("/", false));
+            Group kpg = new Group(pwg.Name, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes), imageData, pwg.GetFullPath("/", false), pwg.Notes);
 
             //sw.Stop();
             //Debug.WriteLine("GetGroupFromPwGroup execution time: " + sw.Elapsed);
@@ -510,7 +524,7 @@ namespace KeePassRPC
             // by convention, we'll always have the first text field as the username when both reading and writing from the EntryConfig
             foreach (FormField kpff in login.FormFieldList)
             {
-                if (kpff.Type == FormFieldType.FFTpassword && !firstPasswordFound)
+                if ((kpff.Type == FormFieldType.FFTpassword || (kpff.Name != null && kpff.Name.Equals("password"))) && !firstPasswordFound)
                 {
                     ffl.Add(new FormField(kpff.Name, "KeePass password", "{PASSWORD}", kpff.Type, kpff.Id, kpff.Page, PlaceholderHandling.Default));
                     pwe.Strings.Set("Password", new ProtectedString(host.Database.MemoryProtection.ProtectPassword, kpff.Value));
@@ -520,6 +534,11 @@ namespace KeePassRPC
                 {
                     ffl.Add(new FormField(kpff.Name, "KeePass username", "{USERNAME}", kpff.Type, kpff.Id, kpff.Page, PlaceholderHandling.Default));
                     pwe.Strings.Set("UserName", new ProtectedString(host.Database.MemoryProtection.ProtectUserName, kpff.Value));
+                }
+                else if (kpff.Type == FormFieldType.FFTtext)
+                {
+                    ffl.Add(new FormField(kpff.Name, "KeePass notes", "{NOTES}", kpff.Type, kpff.Id, kpff.Page, PlaceholderHandling.Default));
+                    pwe.Strings.Set("Notes", new ProtectedString(host.Database.MemoryProtection.ProtectNotes, kpff.Value));
                 }
                 else
                 {
@@ -892,9 +911,6 @@ namespace KeePassRPC
 
                 if (host.Database.RecycleBinEnabled == false)
                 {
-                    if (!KeePassLib.Utility.MessageService.AskYesNo(KPRes.DeleteEntriesQuestionSingle, KPRes.DeleteEntriesTitleSingle))
-                        return false;
-
                     PwDeletedObject pdo = new PwDeletedObject();
                     pdo.Uuid = matchedLogin.Uuid;
                     pdo.DeletionTime = DateTime.Now;
@@ -952,9 +968,6 @@ namespace KeePassRPC
 
                 if (host.Database.RecycleBinEnabled == false)
                 {
-                    if (!KeePassLib.Utility.MessageService.AskYesNo(KPRes.DeleteGroupQuestion, KPRes.DeleteGroupTitle))
-                        return false;
-
                     PwDeletedObject pdo = new PwDeletedObject();
                     pdo.Uuid = matchedGroup.Uuid;
                     pdo.DeletionTime = DateTime.Now;
@@ -1059,11 +1072,25 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public Group AddGroup(string name, string parentUUID)
         {
+            return AddGroupWithNotes(name, parentUUID, "");
+        }
+
+        /// <summary>
+        /// Add a new group/folder to the active KeePass database
+        /// </summary>
+        /// <param name="name">The name of the group to be added</param>
+        /// <param name="parentUUID">The UUID of the parent group for the new group. If null, the root group will be used.</param>
+        /// <param name="notes">The notes for the group</param>
+        /// <param name="current__"></param>
+        [JsonRpcMethod]
+        public Group AddGroupWithNotes(string name, string parentUUID, string notes)
+        {
             // Make sure there is an active database
             if (!ensureDBisOpen()) return null;
 
             PwGroup newGroup = new PwGroup(true, true);
             newGroup.Name = name;
+            newGroup.Notes = notes;
 
             PwGroup parentGroup = GetRootPwGroup(host.Database); // if in doubt we'll stick it in the root folder
 
@@ -1082,6 +1109,40 @@ namespace KeePassRPC
             host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), host.Database);
 
             Group output = GetGroupFromPwGroup(newGroup);
+
+            return output;
+        }
+
+        /// <summary>
+        /// Updates an existing group/folder's notes
+        /// </summary>
+        /// <param name="groupUUID">The UUID of the group to update</param>
+        /// <param name="notes">The updated notes for the group</param>
+        /// <param name="current__"></param>
+        [JsonRpcMethod]
+        public Group UpdateGroupNotes(string groupUUID, string newNotes)
+        {
+            // Make sure there is an active database
+            if (!ensureDBisOpen()) return null;
+
+            if (groupUUID == null) {
+                throw new ArgumentException("No group UUID was passed to the updateGroupNotes function");
+            }
+
+            // If the provided groupUUID is '', then we default to the root group
+            PwGroup matchedGroup = GetRootPwGroup(host.Database);
+
+            // If groupUUID exists, find the group
+            if (groupUUID.Length > 0) { 
+                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(groupUUID));
+                matchedGroup = host.Database.RootGroup.FindGroup(pwuuid, true);
+            }
+
+            matchedGroup.Notes = newNotes;
+            
+            host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), host.Database);
+
+            Group output = GetGroupFromPwGroup(matchedGroup);
 
             return output;
         }
@@ -1154,6 +1215,8 @@ namespace KeePassRPC
                 host.Database.MemoryProtection.ProtectUserName, source.Strings.ReadSafe("UserName")));
             destination.Strings.Set("Password", new ProtectedString(
                 host.Database.MemoryProtection.ProtectPassword, source.Strings.ReadSafe("Password")));
+            destination.Strings.Set("Notes", new ProtectedString(
+                host.Database.MemoryProtection.ProtectNotes, source.Strings.ReadSafe("Notes")));
             destConfig.FormFieldList = sourceConfig.FormFieldList;
 
             // This algorithm could probably be made more efficient (lots of O(n) operations
