@@ -132,8 +132,14 @@ See https://forum.kee.pm/t/3143/ for more information.",
             Dictionary<string, string> configValues;
             try
             {
-                FieldInfo fi = typeof(KeePass.App.Configuration.AceCustomConfig)
+                FieldInfo fi = null;
+                fi = typeof(KeePass.App.Configuration.AceCustomConfig)
                                .GetField("m_vItems", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fi == null)
+                {
+                    fi = typeof(KeePass.App.Configuration.AceCustomConfig)
+                               .GetField("m_d", BindingFlags.NonPublic | BindingFlags.Instance);
+                }
                 configValues = (Dictionary<string, string>)fi.GetValue(_host.CustomConfig);
 
                 
