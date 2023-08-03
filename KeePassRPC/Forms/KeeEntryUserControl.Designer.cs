@@ -102,6 +102,7 @@
             this.comboBoxAutoFill.Name = "comboBoxAutoFill";
             this.comboBoxAutoFill.Size = new System.Drawing.Size(121, 21);
             this.comboBoxAutoFill.TabIndex = 7;
+            this.comboBoxAutoFill.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             // 
             // comboBoxAutoSubmit
             // 
@@ -114,6 +115,7 @@
             this.comboBoxAutoSubmit.Name = "comboBoxAutoSubmit";
             this.comboBoxAutoSubmit.Size = new System.Drawing.Size(121, 21);
             this.comboBoxAutoSubmit.TabIndex = 8;
+            this.comboBoxAutoSubmit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             // 
             // label4
             // 
