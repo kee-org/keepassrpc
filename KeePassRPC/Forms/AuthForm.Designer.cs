@@ -53,6 +53,7 @@
             // 
             this.richTextBoxClientID.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.richTextBoxClientID.Font = new System.Drawing.Font("Arial", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.richTextBoxClientID.ForeColor = System.Drawing.SystemColors.ControlText;
             this.richTextBoxClientID.Location = new System.Drawing.Point(12, 12);
             this.richTextBoxClientID.Name = "richTextBoxClientID";
             this.richTextBoxClientID.ReadOnly = true;
@@ -81,6 +82,7 @@
             this.richTextBoxSecurityLevel.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.richTextBoxSecurityLevel.Cursor = System.Windows.Forms.Cursors.Default;
             this.richTextBoxSecurityLevel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.richTextBoxSecurityLevel.ForeColor = System.Drawing.SystemColors.ControlText;
             this.richTextBoxSecurityLevel.Location = new System.Drawing.Point(12, 242);
             this.richTextBoxSecurityLevel.Name = "richTextBoxSecurityLevel";
             this.richTextBoxSecurityLevel.ReadOnly = true;
@@ -94,14 +96,15 @@
             this.richTextBoxConfirmInstruction.BackColor = System.Drawing.SystemColors.Control;
             this.richTextBoxConfirmInstruction.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.richTextBoxConfirmInstruction.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.richTextBoxConfirmInstruction.ForeColor = System.Drawing.SystemColors.ControlText;
             this.richTextBoxConfirmInstruction.Location = new System.Drawing.Point(15, 13);
             this.richTextBoxConfirmInstruction.Name = "richTextBoxConfirmInstruction";
             this.richTextBoxConfirmInstruction.ReadOnly = true;
             this.richTextBoxConfirmInstruction.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
             this.richTextBoxConfirmInstruction.Size = new System.Drawing.Size(379, 58);
             this.richTextBoxConfirmInstruction.TabIndex = 5;
-            this.richTextBoxConfirmInstruction.Text = "To authorise the client to access your passwords please enter this password into the " +
-    "box it has presented to you.";
+            this.richTextBoxConfirmInstruction.Text = "To authorise the client to access your passwords please enter this password into " +
+    "the box it has presented to you.";
             // 
             // label1
             // 
