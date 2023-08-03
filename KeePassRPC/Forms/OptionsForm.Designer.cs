@@ -38,6 +38,8 @@
             this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.label13 = new System.Windows.Forms.Label();
+            this.checkBox3 = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
             this.textBoxPort = new System.Windows.Forms.TextBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
@@ -65,8 +67,6 @@
             this.Expires = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Connected = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.Revoke = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.checkBox3 = new System.Windows.Forms.CheckBox();
-            this.label13 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.m_bannerImage)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -90,12 +90,11 @@
             // 
             // m_bannerImage
             // 
-            this.m_bannerImage.BackColor = System.Drawing.Color.White;
             this.m_bannerImage.Image = global::KeePassRPC.Properties.Resources.KPRPC64;
             this.m_bannerImage.Location = new System.Drawing.Point(0, 3);
             this.m_bannerImage.Name = "m_bannerImage";
             this.m_bannerImage.Padding = new System.Windows.Forms.Padding(10, 0, 0, 10);
-            this.m_bannerImage.Size = new System.Drawing.Size(64, 64);
+            this.m_bannerImage.Size = new System.Drawing.Size(78, 64);
             this.m_bannerImage.TabIndex = 2;
             this.m_bannerImage.TabStop = false;
             // 
@@ -127,7 +126,7 @@
             this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
             this.label1.Location = new System.Drawing.Point(84, 19);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(288, 25);
+            this.label1.Size = new System.Drawing.Size(256, 25);
             this.label1.TabIndex = 5;
             this.label1.Text = "KeePassRPC (Kee) options";
             // 
@@ -136,7 +135,7 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(12, 401);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(238, 13);
+            this.label2.Size = new System.Drawing.Size(279, 13);
             this.label2.TabIndex = 6;
             this.label2.Text = "Tip: Most Kee options can be found in the client (browser)";
             // 
@@ -176,6 +175,24 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "General";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // label13
+            // 
+            this.label13.Location = new System.Drawing.Point(6, 59);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(460, 107);
+            this.label13.TabIndex = 6;
+            this.label13.Text = "label13";
+            // 
+            // checkBox3
+            // 
+            this.checkBox3.AutoSize = true;
+            this.checkBox3.Location = new System.Drawing.Point(6, 169);
+            this.checkBox3.Name = "checkBox3";
+            this.checkBox3.Size = new System.Drawing.Size(80, 17);
+            this.checkBox3.TabIndex = 4;
+            this.checkBox3.Text = "checkBox3";
+            this.checkBox3.UseVisualStyleBackColor = true;
             // 
             // label6
             // 
@@ -234,7 +251,7 @@
             // 
             this.label9.Location = new System.Drawing.Point(8, 42);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(467, 45);
+            this.label9.Size = new System.Drawing.Size(461, 45);
             this.label9.TabIndex = 11;
             this.label9.Text = resources.GetString("label9.Text");
             // 
@@ -282,7 +299,7 @@
             // 
             this.label4.Location = new System.Drawing.Point(3, 50);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(229, 47);
+            this.label4.Size = new System.Drawing.Size(221, 47);
             this.label4.TabIndex = 1;
             this.label4.Text = "This allows you to prevent KeePass from connecting to a client if the client\'s se" +
     "curity level is set too low.";
@@ -316,7 +333,7 @@
             // 
             this.label3.Location = new System.Drawing.Point(3, 50);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(231, 47);
+            this.label3.Size = new System.Drawing.Size(227, 47);
             this.label3.TabIndex = 0;
             this.label3.Text = "This allows you to control how securely KeePass will store the secret communicati" +
     "on key.";
@@ -449,30 +466,11 @@
             this.Revoke.UseColumnTextForButtonValue = true;
             this.Revoke.Width = 70;
             // 
-            // checkBox3
-            // 
-            this.checkBox3.AutoSize = true;
-            this.checkBox3.Location = new System.Drawing.Point(6, 169);
-            this.checkBox3.Name = "checkBox3";
-            this.checkBox3.Size = new System.Drawing.Size(80, 17);
-            this.checkBox3.TabIndex = 4;
-            this.checkBox3.Text = "checkBox3";
-            this.checkBox3.UseVisualStyleBackColor = true;
-            // 
-            // label13
-            // 
-            this.label13.Location = new System.Drawing.Point(6, 59);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(460, 107);
-            this.label13.TabIndex = 6;
-            this.label13.Text = "label13";
-            // 
             // OptionsForm
             // 
             this.AcceptButton = this.m_btnOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.White;
             this.CancelButton = this.m_btnCancel;
             this.ClientSize = new System.Drawing.Size(510, 425);
             this.Controls.Add(this.tabControl1);
