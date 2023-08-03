@@ -113,7 +113,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="KeePass">
       <HintPath Condition="'$(OS)' == 'Windows_NT'">$(USERPROFILE)\KeePassDEV\KeePass.exe</HintPath>
-      <HintPath Condition="'$(OS)' != 'Windows_NT'">${home}/keepass-dev/KeePass.exe</HintPath>
+      <HintPath Condition="'$(OS)' != 'Windows_NT'">$(home)/keepass-dev/KeePass.exe</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
