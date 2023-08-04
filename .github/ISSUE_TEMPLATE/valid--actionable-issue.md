@@ -1,5 +1,5 @@
 ---
-name: Default issue template
+name: Valid, actionable issue
 about: All issues go here after discussion on forum.kee.pm
 title: ''
 labels: ''
