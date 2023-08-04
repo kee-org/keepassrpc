@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -57,6 +57,7 @@ namespace KeePassRPC.Forms
                 _conf.Hide = true;
                 textBoxKeePriority.Enabled = false;
                 label1.Enabled = false;
+                label6.Enabled = false;
                 groupBox1.Enabled = false;
                 groupBox2.Enabled = false;
                 groupBox3.Enabled = false;
@@ -69,6 +70,7 @@ namespace KeePassRPC.Forms
                 _conf.Hide = false;
                 textBoxKeePriority.Enabled = true;
                 label1.Enabled = true;
+                label6.Enabled = true;
                 groupBox1.Enabled = true;
                 groupBox2.Enabled = true;
                 groupBox3.Enabled = true;
