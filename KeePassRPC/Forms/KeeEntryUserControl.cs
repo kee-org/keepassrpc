@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -781,7 +781,8 @@ namespace KeePassRPC.Forms
 
         private void listView2_KeyUp(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Delete)
+            if (e.KeyCode == Keys.Delete && listView2.SelectedItems.Count > 0 && listView2.SelectedItems[0].SubItems[1].Text != "KeePass username"
+                    && listView2.SelectedItems[0].SubItems[1].Text != "KeePass password")
             {
                 buttonFieldDelete_Click(sender, e);
             }
