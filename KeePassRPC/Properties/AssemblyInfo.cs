@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 // General assembly properties
@@ -18,5 +18,5 @@ using System.Runtime.InteropServices;
 [assembly: Guid("89631AAE-8DE6-4593-8DAB-AB28490A490A")]
 
 // Assembly version information
-[assembly: AssemblyVersion("2.0.34.*")]
+[assembly: AssemblyVersion("2.0.48.*")]
 [assembly: AssemblyFileVersion("1.14.0.0")] // also change PluginVersion in KeePassRPCExt.cs!
