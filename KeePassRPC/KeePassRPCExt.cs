@@ -33,7 +33,7 @@ namespace KeePassRPC
     public sealed class KeePassRPCExt : Plugin
     {
         // version information
-        public static readonly Version PluginVersion = new Version(1, 14, 0);
+        public static readonly Version PluginVersion = new Version(1, 15, 0);
 
         public override string UpdateUrl
         {
@@ -67,10 +67,6 @@ namespace KeePassRPC
         }
 
         internal IPluginHost _host;
-
-        private ToolStripMenuItem _keePassRPCOptions = null;
-        private ToolStripSeparator _tsSeparator1 = null;
-        private ToolStripMenuItem _keeRootMenu = null;
 
         private EventHandler<GwmWindowEventArgs> GwmWindowAddedHandler;
 
@@ -212,22 +208,6 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
 
                 _host.MainWindow.DocumentManager.ActiveDocumentSelected += OnKPDBSelected;
 
-                // Get a reference to the 'Tools' menu item container
-                ToolStripItemCollection tsMenu = _host.MainWindow.ToolsMenu.DropDownItems;
-
-                // Add menu item for options
-                _keePassRPCOptions = new DPIScaledToolStripMenuItem("KeePassRPC (Kee) Options...");
-                _keePassRPCOptions.Click += OnToolsOptions;
-                tsMenu.Add(_keePassRPCOptions);
-
-                // Add a seperator and menu item to the group context menu
-                ContextMenuStrip gcm = host.MainWindow.GroupContextMenu;
-                _tsSeparator1 = new ToolStripSeparator();
-                gcm.Items.Add(_tsSeparator1);
-                _keeRootMenu = new DPIScaledToolStripMenuItem("Set as Kee home group");
-                _keeRootMenu.Click += OnMenuSetRootGroup;
-                gcm.Items.Add(_keeRootMenu);
-
                 // not acting on upgrade info just yet but we need to track it for future proofing
                 bool upgrading = refreshVersionInfo(host);
 
@@ -253,9 +233,9 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
         private string[] DeterminePermittedOrigins()
         {
             string configPermittedOrigins = _host.CustomConfig.GetString("KeePassRPC.webSocket.permittedOrigins", "");
-            string[] permittedOrigins = configPermittedOrigins.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries);
+            string[] permittedOrigins = configPermittedOrigins.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             if (permittedOrigins.Length > 0) return permittedOrigins;
-            return new string[] {"resource://gre-resources","ms-browser-extension://","safari-web-extension://","moz-extension://","chrome-extension://"};
+            return new string[] { "resource://gre-resources", "ms-browser-extension://", "safari-web-extension://", "moz-extension://", "chrome-extension://" };
         }
 
         string GetLocalConfigLocation()
@@ -773,6 +753,27 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             PromoteGeneralRPCClient(connection, _RPCClientManagers[managerName]);
         }
 
+        public override ToolStripMenuItem GetMenuItem(PluginMenuType t)
+        {
+            // Provide a menu item for the main location(s)
+            if (t == PluginMenuType.Main)
+            {
+                ToolStripMenuItem tsmi = new DPIScaledToolStripMenuItem("KeePassRPC (Kee) Options...");
+                tsmi.Click += OnToolsOptions;
+                return tsmi;
+            }
+
+            // Provide a menu item for the group location(s)
+            if (t == PluginMenuType.Group)
+            {
+                ToolStripMenuItem tsmi = new DPIScaledToolStripMenuItem("Set as Kee home group");
+                tsmi.Click += OnMenuSetRootGroup;
+                return tsmi;
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Free resources
         /// </summary>
@@ -799,15 +800,6 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
 
             // terminate _BackgroundWorker
             _BackgroundWorkerAutoResetEvent.Set();
-
-            // Remove 'Tools' menu items
-            ToolStripItemCollection tsMenu = _host.MainWindow.ToolsMenu.DropDownItems;
-            tsMenu.Remove(_keePassRPCOptions);
-
-            // Remove group context menu items
-            ContextMenuStrip gcm = _host.MainWindow.GroupContextMenu;
-            gcm.Items.Remove(_tsSeparator1);
-            gcm.Items.Remove(_keeRootMenu);
 
             if (logger != null)
                 logger.Close();
