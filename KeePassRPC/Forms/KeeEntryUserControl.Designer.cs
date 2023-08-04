@@ -68,6 +68,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.toolTipRealm = new System.Windows.Forms.ToolTip(this.components);
+            this.label6 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -93,6 +94,7 @@
             // 
             // comboBoxAutoFill
             // 
+            this.comboBoxAutoFill.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxAutoFill.FormattingEnabled = true;
             this.comboBoxAutoFill.Items.AddRange(new object[] {
             "Use Kee setting",
@@ -102,10 +104,10 @@
             this.comboBoxAutoFill.Name = "comboBoxAutoFill";
             this.comboBoxAutoFill.Size = new System.Drawing.Size(121, 21);
             this.comboBoxAutoFill.TabIndex = 7;
-            this.comboBoxAutoFill.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             // 
             // comboBoxAutoSubmit
             // 
+            this.comboBoxAutoSubmit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxAutoSubmit.FormattingEnabled = true;
             this.comboBoxAutoSubmit.Items.AddRange(new object[] {
             "Use Kee setting",
@@ -115,7 +117,6 @@
             this.comboBoxAutoSubmit.Name = "comboBoxAutoSubmit";
             this.comboBoxAutoSubmit.Size = new System.Drawing.Size(121, 21);
             this.comboBoxAutoSubmit.TabIndex = 8;
-            this.comboBoxAutoSubmit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             // 
             // label4
             // 
@@ -138,7 +139,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 77);
+            this.label1.Location = new System.Drawing.Point(12, 47);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(142, 13);
             this.label1.TabIndex = 0;
@@ -146,7 +147,7 @@
             // 
             // textBoxKeePriority
             // 
-            this.textBoxKeePriority.Location = new System.Drawing.Point(160, 74);
+            this.textBoxKeePriority.Location = new System.Drawing.Point(160, 44);
             this.textBoxKeePriority.Name = "textBoxKeePriority";
             this.textBoxKeePriority.Size = new System.Drawing.Size(39, 20);
             this.textBoxKeePriority.TabIndex = 2;
@@ -348,6 +349,7 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.label6);
             this.tabPage1.Controls.Add(this.textBoxKeeRealm);
             this.tabPage1.Controls.Add(this.labelRealm);
             this.tabPage1.Controls.Add(this.groupBox1);
@@ -365,7 +367,7 @@
             // 
             // textBoxKeeRealm
             // 
-            this.textBoxKeeRealm.Location = new System.Drawing.Point(115, 128);
+            this.textBoxKeeRealm.Location = new System.Drawing.Point(115, 141);
             this.textBoxKeeRealm.Name = "textBoxKeeRealm";
             this.textBoxKeeRealm.Size = new System.Drawing.Size(307, 20);
             this.textBoxKeeRealm.TabIndex = 4;
@@ -374,7 +376,7 @@
             // labelRealm
             // 
             this.labelRealm.AutoSize = true;
-            this.labelRealm.Location = new System.Drawing.Point(12, 131);
+            this.labelRealm.Location = new System.Drawing.Point(12, 144);
             this.labelRealm.Name = "labelRealm";
             this.labelRealm.Size = new System.Drawing.Size(97, 13);
             this.labelRealm.TabIndex = 3;
@@ -474,6 +476,15 @@
             this.tabPage3.ToolTipText = "Define the web page form fields this entry applies to";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
+            // label6
+            // 
+            this.label6.Location = new System.Drawing.Point(11, 67);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(209, 71);
+            this.label6.TabIndex = 5;
+            this.label6.Text = "Since Kee 3.5 (2020) Priority has had no effect. This edit box will be removed in" +
+    " a future KeePassRPC version.";
+            // 
             // KeeEntryUserControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -539,5 +550,6 @@
         private System.Windows.Forms.RadioButton radioButton2;
         private System.Windows.Forms.RadioButton radioButton1;
         private System.Windows.Forms.RadioButton radioButton3;
+        private System.Windows.Forms.Label label6;
     }
 }
