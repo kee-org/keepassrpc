@@ -121,25 +121,13 @@ namespace KeePassRPC
         {
             UserControl entryControl;
 
-            try
+            string mvString = KeePass.Util.MultipleValues.MultipleValuesEx.CueString;
+            string json = strings.ReadSafe("KPRPC JSON");
+            if (!string.IsNullOrEmpty(json) && mvString == json)
             {
-                string qualifiedName = typeof(KeePass.Util.AutoType).AssemblyQualifiedName
-                    .Replace("KeePass.Util.AutoType", "KeePass.Util.MultipleValues.MultipleValuesEx");
-                System.Type mvType = System.Type.GetType(qualifiedName);
-                PropertyInfo prop = mvType.GetProperty("CueString", BindingFlags.Public | BindingFlags.Static);
-                string mvString = (string)prop.GetValue(null, null);
-                string json = strings.ReadSafe("KPRPC JSON");
-                if (!string.IsNullOrEmpty(json) && mvString == json)
-                {
-                    entryControl = new KeeMultiEntryUserControl();
-                } else
-                {
-                    entryControl = new KeeEntryUserControl(plugin, entry, advancedListView, form, strings);
-                }
-            }
-            catch
+                entryControl = new KeeMultiEntryUserControl();
+            } else
             {
-                // Assume we're running in an older version of KeePass that can't edit multiple entries
                 entryControl = new KeeEntryUserControl(plugin, entry, advancedListView, form, strings);
             }
 
