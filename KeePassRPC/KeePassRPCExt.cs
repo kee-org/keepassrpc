@@ -146,7 +146,7 @@ namespace KeePassRPC
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("KeePassRPC debug logger failed to initialise. No logging will be performed until KeePass is restarted with a valid debug log file location. Reason: " + ex.ToString());
+                        Utils.ShowMonoSafeMessageBox("KeePassRPC debug logger failed to initialise. No logging will be performed until KeePass is restarted with a valid debug log file location. Reason: " + ex.ToString());
                     }
                 }
                 if (logger != null) logger.WriteLine("Logger initialised.");
@@ -178,7 +178,7 @@ namespace KeePassRPC
                 {
                     if (ex.SocketErrorCode == System.Net.Sockets.SocketError.AddressAlreadyInUse)
                     {
-                        MessageBox.Show(@"KeePassRPC is already listening for connections. To allow KeePassRPC clients (e.g. Kee in your web browser) to connect to this instance of KeePass, please close all other running instances of KeePass and restart this KeePass. If you want multiple instances of KeePass to be running at the same time, you'll need to configure some of them to connect using a different communication port.
+                        Utils.ShowMonoSafeMessageBox(@"KeePassRPC is already listening for connections. To allow KeePassRPC clients (e.g. Kee in your web browser) to connect to this instance of KeePass, please close all other running instances of KeePass and restart this KeePass. If you want multiple instances of KeePass to be running at the same time, you'll need to configure some of them to connect using a different communication port.
 
 See https://forum.kee.pm/t/connection-security-levels/1075
 
@@ -187,7 +187,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                     }
                     else
                     {
-                        MessageBox.Show(@"KeePassRPC could not start listening for connections. To allow KeePassRPC clients (e.g. Kee in your web browser) to connect to this instance of KeePass, please fix the problem indicated in the technical detail below and restart KeePass.
+                        Utils.ShowMonoSafeMessageBox(@"KeePassRPC could not start listening for connections. To allow KeePassRPC clients (e.g. Kee in your web browser) to connect to this instance of KeePass, please fix the problem indicated in the technical detail below and restart KeePass.
 
 KeePassRPC requires this port to be available: " + portNew + ". Technical detail: " + ex.ToString());
                         if (logger != null) logger.WriteLine("Socket error. KeePassRPC requires this port to be available: " + portNew + ". Maybe check that you have no firewall or other third party security software interfering with your system. Technical detail: " + ex.ToString());
@@ -429,7 +429,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             var rid = _host.Database.RecycleBinUuid;
             if (rid != null && rid != PwUuid.Zero && pg.IsOrIsContainedIn(_host.Database.RootGroup.FindGroup(rid, true)))
             {
-                MessageBox.Show(@"You can not set this to be the Kee Home Group. Choose a group outside of the Recycle Bin instead.");
+                Utils.ShowMonoSafeMessageBox(@"You can not set this to be the Kee Home Group. Choose a group outside of the Recycle Bin instead.");
                 return;
             }
             var conf = _host.Database.GetKPRPCConfig();

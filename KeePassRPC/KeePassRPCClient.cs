@@ -193,7 +193,7 @@ namespace KeePassRPC
                                     if (keyContainer == null || 
                                         keyContainer.Key == "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9")
                                     {
-                                        MessageBox.Show(@"Your KeePass instance may have previously been exploited by a malicious attacker.
+                                        Utils.ShowMonoSafeMessageBox(@"Your KeePass instance may have previously been exploited by a malicious attacker.
 
 The passwords contained within any databases that were open before this point may have been exposed so you should change them.
 
@@ -345,7 +345,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
             }
             catch (Exception ex)
             {
-                System.Windows.Forms.MessageBox.Show("ERROR! Please click on this box, press CTRL-C on your keyboard and paste into a new post on the Kee forum (https://forum.kee.pm). Doing this will help other people to use Kee without any unexpected error messages like this. Please briefly describe what you were doing when the problem occurred, which version of Kee, KeePass and web browser you use and what other security software you run on your machine. Thanks! Technical detail follows: " + ex.ToString());
+                Utils.ShowMonoSafeMessageBox("ERROR! Please click on this box, press CTRL-C on your keyboard and paste into a new post on the Kee forum (https://forum.kee.pm). Doing this will help other people to use Kee without any unexpected error messages like this. Please briefly describe what you were doing when the problem occurred, which version of Kee, KeePass and web browser you use and what other security software you run on your machine. Thanks! Technical detail follows: " + ex.ToString());
             }
         }
 
