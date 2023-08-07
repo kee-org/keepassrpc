@@ -39,7 +39,7 @@ namespace KeePassRPC
                     }
                     else
                     {
-                        MessageBox.Show("There are configuration errors in this entry. To fix the entry and prevent this warning message appearing, please edit the value of the 'KPRPC JSON' advanced string. Please ask for help on https://forum.kee.pm if you're not sure how to fix this. The URL of the entry is: " + url + " and the full configuration data is: " + json, "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        Utils.ShowMonoSafeMessageBox("There are configuration errors in this entry. To fix the entry and prevent this warning message appearing, please edit the value of the 'KPRPC JSON' advanced string. Please ask for help on https://forum.kee.pm if you're not sure how to fix this. The URL of the entry is: " + url + " and the full configuration data is: " + json, "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                     return null;
                 }

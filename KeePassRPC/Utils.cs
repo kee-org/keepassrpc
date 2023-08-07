@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Security.Cryptography;
+using System.Windows.Forms;
 
 namespace KeePassRPC
 {
@@ -54,5 +55,49 @@ namespace KeePassRPC
         {
             return EncodeToBase32(BitConverter.ToUInt32(password, 0));
         }
+
+        private static Form GetTopForm()
+        {
+            FormCollection fc = Application.OpenForms;
+            if (fc == null || fc.Count == 0) return null;
+            return fc[fc.Count - 1];
+        }
+
+        internal static void ShowMonoSafeMessageBox(string description, string title = "KeePassRPC",
+            MessageBoxButtons mb =  MessageBoxButtons.OK, MessageBoxIcon mi = MessageBoxIcon.Information, MessageBoxDefaultButton mdb = MessageBoxDefaultButton.Button1)
+        {
+            IWin32Window win = null;
+            try
+            {
+                Form f = GetTopForm();
+                if (f != null && f.InvokeRequired)
+                {
+                    f.Invoke(new Action(() => MessageBox.Show(description, title, mb, mi, mdb)));
+                    return;
+                } else
+                {
+                    win = f;
+                }
+            } catch (Exception)
+            {
+            }
+
+            if (win == null)
+            {
+                MessageBox.Show(description, title, mb, mi, mdb);
+                return;
+            }
+
+            try
+            {
+                MessageBox.Show(win, description, title, mb, mi, mdb);
+                return;
+            }
+            catch (Exception)
+            {
+            }
+            MessageBox.Show(description, title, mb, mi, mdb);
+        }
+
     }
 }

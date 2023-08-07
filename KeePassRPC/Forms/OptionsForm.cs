@@ -109,7 +109,7 @@ namespace KeePassRPC.Forms
             }
 
             if (anyConnectionCompromised) {
-                MessageBox.Show(@"Your KeePass instance may have previously been exploited by a malicious attacker.
+                Utils.ShowMonoSafeMessageBox(@"Your KeePass instance may have previously been exploited by a malicious attacker.
 
 The passwords contained within any databases that were open before this point may have been exposed so you should change them.
 
@@ -216,13 +216,19 @@ See https://forum.kee.pm/t/3143/ for more information.",
             }
             catch (ArgumentOutOfRangeException)
             {
-                MessageBox.Show("Invalid listening port. Type a number between 1 and 65535 or leave empty to use the default port.");
+                Utils.ShowMonoSafeMessageBox("Invalid listening port. Type a number between 1 and 65535 or leave empty to use the default port.");
+                DialogResult = DialogResult.None;
+                return;
+            }
+            catch (OverflowException)
+            {
+                Utils.ShowMonoSafeMessageBox("Invalid listening port. Type a number between 1 and 65535 or leave empty to use the default port.");
                 DialogResult = DialogResult.None;
                 return;
             }
             catch (ArgumentException ex)
             {
-                MessageBox.Show(ex.Message);
+                Utils.ShowMonoSafeMessageBox(ex.Message);
                 DialogResult = DialogResult.None;
                 return;
             }
@@ -234,7 +240,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
             }
             catch (Exception)
             {
-                MessageBox.Show("Invalid expiry time.");
+                Utils.ShowMonoSafeMessageBox("Invalid expiry time.");
                 DialogResult = DialogResult.None;
                 return;
             }
@@ -242,13 +248,13 @@ See https://forum.kee.pm/t/3143/ for more information.",
             if (expTime < 1)
             {
                 expTime = 1;
-                MessageBox.Show("Expiry time set to 1 hour. This is the minimum allowed.");
+                Utils.ShowMonoSafeMessageBox("Expiry time set to 1 hour. This is the minimum allowed.");
             }
 
             if (expTime > 876000)
             {
                 expTime = 876000;
-                MessageBox.Show("Expiry time set to 100 years. This is the maximum allowed.");
+                Utils.ShowMonoSafeMessageBox("Expiry time set to 100 years. This is the maximum allowed.");
             }
 
             long secLevel = 2;
@@ -279,7 +285,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
                 _host.CustomConfig.SetULong("KeePassRPC.webSocket.port", port);
                 if (port != originalPort)
                 {
-                    MessageBox.Show("Restart KeePass to start using the new connection port");
+                    Utils.ShowMonoSafeMessageBox("Restart KeePass to start using the new connection port");
                 }
             }
 
