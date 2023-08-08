@@ -26,7 +26,13 @@ namespace KeePassRPC
 
         public void RefreshImage()
         {
+            // DpiUtil.ScaleImage ?
             int h = this.Height;
+            //int h = this.ContentRectangle.Height;
+            // Padding p = this.Padding;
+            // Padding m = this.Margin;
+            //Utils.ShowMonoSafeMessageBox("h: " + h);
+
             Image bestImage = null;
             for (int i = 0; i < Images.Count; i++)
             {

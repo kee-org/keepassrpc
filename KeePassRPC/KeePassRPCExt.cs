@@ -33,7 +33,7 @@ namespace KeePassRPC
     public sealed class KeePassRPCExt : Plugin
     {
         // version information
-        public static readonly Version PluginVersion = new Version(1, 15, 0);
+        public static readonly Version PluginVersion = new Version(1, 15, 1);
 
         public override string UpdateUrl
         {
@@ -758,7 +758,10 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             // Provide a menu item for the main location(s)
             if (t == PluginMenuType.Main)
             {
-                ToolStripMenuItem tsmi = new DPIScaledToolStripMenuItem("KeePassRPC (Kee) Options...");
+                //TODO: Remove DPIScaledToolStripMenuItem after 2023 if no DPI regressions found 
+                //ToolStripMenuItem tsmi = new DPIScaledToolStripMenuItem("KeePassRPC (Kee) Options...");
+                ToolStripMenuItem tsmi = new ToolStripMenuItem("KeePassRPC (Kee) Options...");
+                tsmi.Image = Properties.Resources.KPRPC64;
                 tsmi.Click += OnToolsOptions;
                 return tsmi;
             }
@@ -766,7 +769,8 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             // Provide a menu item for the group location(s)
             if (t == PluginMenuType.Group)
             {
-                ToolStripMenuItem tsmi = new DPIScaledToolStripMenuItem("Set as Kee home group");
+                ToolStripMenuItem tsmi = new ToolStripMenuItem("Set as Kee home group");
+                tsmi.Image = Properties.Resources.KPRPC64;
                 tsmi.Click += OnMenuSetRootGroup;
                 return tsmi;
             }
