@@ -1,6 +1,7 @@
 *.user
 *.userprefs
 *.suo
+.idea
 /Jayrock/bin
 /Jayrock/src/Jayrock.Json/obj
 /Jayrock/src/Jayrock/obj

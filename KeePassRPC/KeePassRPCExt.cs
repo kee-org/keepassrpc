@@ -419,26 +419,6 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 ofDlg.ShowDialog();
         }
 
-        void OnMenuSetRootGroup(object sender, EventArgs e)
-        {
-            PwGroup pg = _host.MainWindow.GetSelectedGroup();
-            Debug.Assert(pg != null);
-            if (pg == null || pg.Uuid == null || pg.Uuid == PwUuid.Zero)
-                return;
-
-            var rid = _host.Database.RecycleBinUuid;
-            if (rid != null && rid != PwUuid.Zero && pg.IsOrIsContainedIn(_host.Database.RootGroup.FindGroup(rid, true)))
-            {
-                Utils.ShowMonoSafeMessageBox(@"You can not set this to be the Kee Home Group. Choose a group outside of the Recycle Bin instead.");
-                return;
-            }
-            var conf = _host.Database.GetKPRPCConfig();
-            conf.RootUUID = MemUtil.ByteArrayToHexString(pg.Uuid.UuidBytes);
-            _host.Database.SetKPRPCConfig(conf);
-
-            _host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
-        }
-
         private string[] getStandardIconsBase64(ImageList il)
         {
             string[] icons = new string[il.Images.Count];
@@ -763,15 +743,6 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 ToolStripMenuItem tsmi = new ToolStripMenuItem("KeePassRPC (Kee) Options...");
                 tsmi.Image = Properties.Resources.KPRPC64;
                 tsmi.Click += OnToolsOptions;
-                return tsmi;
-            }
-
-            // Provide a menu item for the group location(s)
-            if (t == PluginMenuType.Group)
-            {
-                ToolStripMenuItem tsmi = new ToolStripMenuItem("Set as Kee home group");
-                tsmi.Image = Properties.Resources.KPRPC64;
-                tsmi.Click += OnMenuSetRootGroup;
                 return tsmi;
             }
 
