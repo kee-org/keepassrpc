@@ -35,18 +35,17 @@ namespace KeePassRPC.Forms
             if (value == "{USERNAME}")
             {
                 textBox2.Text = Value = value;
-                comboBox1.Text = "Username";
+                comboBox1.Text = "Text";
+                comboBox1.Tag = "username";
                 comboBox1.Enabled = false;
                 label6.Visible = true;
-            } else
-            if (value == "{PASSWORD}")
+            } else if (value == "{PASSWORD}")
             {
                 textBox2.Text = Value = value;
                 comboBox1.Text = "Password";
                 comboBox1.Enabled = false;
                 label7.Visible = true;
-            }
-            else
+            } else
             {
                 if (type == FormFieldType.FFTpassword)
                     comboBox1.Text = "Password";
@@ -57,7 +56,11 @@ namespace KeePassRPC.Forms
                 else if (type == FormFieldType.FFTtext)
                     comboBox1.Text = "Text";
                 else if (type == FormFieldType.FFTusername)
-                    comboBox1.Text = "Username";
+                {
+                    // Shouldn't happen but gives a way out if old bad data is present
+                    comboBox1.Text = "Text";
+                    comboBox1.Tag = "username";
+                }
                 else if (type == FormFieldType.FFTcheckbox)
                     comboBox1.Text = "Checkbox";
 
@@ -114,7 +117,9 @@ namespace KeePassRPC.Forms
             else if (comboBox1.Text == "Radio")
                 Type = FormFieldType.FFTradio;
             else if (comboBox1.Text == "Text")
-                Type = FormFieldType.FFTtext;
+            {
+                Type = (string)comboBox1.Tag == "username" ? FormFieldType.FFTusername : FormFieldType.FFTtext;
+            }
             else if (comboBox1.Text == "Username")
                 Type = FormFieldType.FFTusername;
             else if (comboBox1.Text == "Checkbox")
