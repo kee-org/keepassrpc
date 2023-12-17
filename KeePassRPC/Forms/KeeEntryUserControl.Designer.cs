@@ -34,8 +34,6 @@
             this.comboBoxAutoSubmit = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.textBoxKeePriority = new System.Windows.Forms.TextBox();
             this.checkBoxHideFromKee = new System.Windows.Forms.CheckBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.buttonFieldEdit = new System.Windows.Forms.Button();
@@ -135,22 +133,6 @@
             this.label3.Size = new System.Drawing.Size(44, 13);
             this.label3.TabIndex = 0;
             this.label3.Text = "Auto-fill:";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 47);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(142, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Priority override (e.g. 1 - 100)";
-            // 
-            // textBoxKeePriority
-            // 
-            this.textBoxKeePriority.Location = new System.Drawing.Point(160, 44);
-            this.textBoxKeePriority.Name = "textBoxKeePriority";
-            this.textBoxKeePriority.Size = new System.Drawing.Size(39, 20);
-            this.textBoxKeePriority.TabIndex = 2;
             // 
             // checkBoxHideFromKee
             // 
@@ -354,8 +336,6 @@
             this.tabPage1.Controls.Add(this.labelRealm);
             this.tabPage1.Controls.Add(this.groupBox1);
             this.tabPage1.Controls.Add(this.checkBoxHideFromKee);
-            this.tabPage1.Controls.Add(this.label1);
-            this.tabPage1.Controls.Add(this.textBoxKeePriority);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
@@ -482,8 +462,7 @@
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(209, 71);
             this.label6.TabIndex = 5;
-            this.label6.Text = "Since Kee 3.5 (2020) Priority has had no effect. This edit box will be removed in" +
-    " a future KeePassRPC version.";
+            this.label6.Text = "You previously set the priority of this entry to x. Since Kee 3.5 (2020) this has had no effect. You don't need to do anything. This message will be removed in a future KeePassRPC version.";
             // 
             // KeeEntryUserControl
             // 
@@ -513,8 +492,6 @@
 
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.CheckBox checkBoxHideFromKee;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBoxKeePriority;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.ComboBox comboBoxAutoSubmit;

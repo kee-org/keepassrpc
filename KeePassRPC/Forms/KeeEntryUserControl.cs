@@ -55,8 +55,6 @@ namespace KeePassRPC.Forms
             if (checkBoxHideFromKee.Checked)
             {
                 _conf.Hide = true;
-                textBoxKeePriority.Enabled = false;
-                label1.Enabled = false;
                 label6.Enabled = false;
                 groupBox1.Enabled = false;
                 groupBox2.Enabled = false;
@@ -68,8 +66,6 @@ namespace KeePassRPC.Forms
             else
             {
                 _conf.Hide = false;
-                textBoxKeePriority.Enabled = true;
-                label1.Enabled = true;
                 label6.Enabled = true;
                 groupBox1.Enabled = true;
                 groupBox2.Enabled = true;
@@ -120,7 +116,10 @@ namespace KeePassRPC.Forms
             if (_conf.NeverAutoSubmit) { kfNeverAutoSubmit = true; }
             if (_conf.AlwaysAutoSubmit) { kfAlwaysAutoSubmit = true; }
             if (_conf.Priority != 0)
-                textBoxKeePriority.Text = _conf.Priority.ToString();
+                label6.Text = "You previously set the priority of this entry to " + _conf.Priority +
+                              ". Since Kee 3.5 (2020) this has had no effect. You don't need to do anything. This message will be removed in a future KeePassRPC version.";
+            else
+                label6.Text = "";
                 
             listNormalURLs = new List<string>();
             listNormalBlockedURLs = new List<string>();
@@ -206,33 +205,11 @@ namespace KeePassRPC.Forms
             changeBehaviourState(currentBehaviour);
 
             this.comboBoxAutoSubmit.SelectedIndexChanged += new System.EventHandler(this.comboBoxAutoSubmit_SelectedIndexChanged);
-            this.comboBoxAutoFill.SelectedIndexChanged += new System.EventHandler(this.comboBoxAutoFill_SelectedIndexChanged);            
-            this.textBoxKeePriority.TextChanged += new System.EventHandler(this.textBoxKeePriority_TextChanged);
+            this.comboBoxAutoFill.SelectedIndexChanged += new System.EventHandler(this.comboBoxAutoFill_SelectedIndexChanged);
 
             string realmTooltip = "Set this to the realm (what the \"site says\") in the HTTP authentication popup dialog box for a more accurate match";
             toolTipRealm.SetToolTip(this.textBoxKeeRealm, realmTooltip);
             toolTipRealm.SetToolTip(this.labelRealm, realmTooltip);
-        }
-
-        private void textBoxKeePriority_TextChanged(object sender, EventArgs e)
-        {
-            string priority = ((System.Windows.Forms.TextBoxBase)sender).Text;
-
-            if (!string.IsNullOrEmpty(priority))
-            {
-                try
-                {
-                    _conf.Priority = int.Parse(priority);
-                    UpdateKPRPCJSON(_conf);
-                    return;
-                }
-                catch (Exception)
-                {
-                }
-            }
-            _conf.Priority = 0;
-            UpdateKPRPCJSON(_conf);
-            return;
         }
 
         private void textBoxKeeRealm_TextChanged(object sender, EventArgs e)
