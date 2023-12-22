@@ -1,3 +1,4 @@
 {
-    "omnisharp.useModernNet": false
+    "omnisharp.useModernNet": false,
+    "dotnet.preferCSharpExtension": true
 }

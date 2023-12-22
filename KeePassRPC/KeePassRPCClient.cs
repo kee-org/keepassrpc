@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using Fleck2.Interfaces;
-using KeePassRPC.DataExchangeModel;
 using Jayrock.JsonRpc;
 using System.Security.Cryptography;
 using System.Xml.Serialization;
 using System.Threading;
 using System.Linq;
 using System.Windows.Forms;
+using KeePassRPC.Models.DataExchange;
 
 namespace KeePassRPC
 {
@@ -286,7 +286,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
         /// Sends the specified signal to the client.
         /// </summary>
         /// <param name="signal">The signal.</param>
-        public void Signal(KeePassRPC.DataExchangeModel.Signal signal, string methodName)
+        public void Signal(Signal signal, string methodName)
         {
             // User may not have authorised the connection we are trying to signal
             if (KeyContainer == null) return;

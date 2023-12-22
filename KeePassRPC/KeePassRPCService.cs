@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Jayrock.JsonRpc;
-using KeePassRPC.DataExchangeModel;
 using System.Windows.Forms;
 using KeePass.Forms;
 using KeePassLib;
@@ -12,8 +11,12 @@ using KeePassLib.Security;
 using KeePass.Plugins;
 using KeePassLib.Cryptography.PasswordGenerator;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using KeePass.UI;
+using KeePassRPC.Models.DataExchange;
+using KeePassRPC.Models.Persistent;
+using KeePassRPC.Models.Shared;
 
 namespace KeePassRPC
 {
@@ -29,8 +32,6 @@ namespace KeePassRPC
         IPluginHost host;
         IconConverter iconConverter;
 
-        private bool _restartWarningShown = false;
-
         public KeePassRPCService(IPluginHost host, string[] standardIconsBase64, KeePassRPCExt plugin)
         {
             KeePassRPCPlugin = plugin;
@@ -38,6 +39,7 @@ namespace KeePassRPC
             this.host = host;
             this.iconConverter = new IconConverter(host, KeePassRPCPlugin, standardIconsBase64);
         }
+
         #endregion
 
         #region KeePass GUI routines
@@ -48,7 +50,6 @@ namespace KeePassRPC
         /// <remarks>This simple thread sync may not work if more than one RPC client gets involved.</remarks>
         private bool ensureDBisOpen()
         {
-
             if (!host.Database.IsOpen)
             {
                 //ensureDBisOpenEWH.Reset(); // ensures we will wait even if DB has been opened previously.
@@ -60,6 +61,7 @@ namespace KeePassRPC
                 if (!host.Database.IsOpen)
                     return false;
             }
+
             return true;
         }
 
@@ -92,8 +94,8 @@ namespace KeePassRPC
                 {
                     showOpenDB(ioci);
                 }
-
             }
+
             KeePass.Program.MainForm.Activate();
 
             // refresh the UI in case user cancelled the dialog box and/or KeePass 
@@ -123,7 +125,10 @@ namespace KeePassRPC
         bool showOpenDB(IOConnectionInfo ioci)
         {
             // KeePass does this on "show window" keypress. Not sure what it does but most likely does no harm to check here too
-            if (KeePass.Program.MainForm.UIIsInteractionBlocked()) { return false; }
+            if (KeePass.Program.MainForm.UIIsInteractionBlocked())
+            {
+                return false;
+            }
 
             // Make sure the login dialog (or options and other windows) are not already visible. Same behaviour as KP.
             if (GlobalWindowManager.WindowCount != 0) return false;
@@ -162,6 +167,7 @@ namespace KeePassRPC
                 // update ui with "changed" flag                
                 host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
             }
+
             // change tab back
             host.MainWindow.DocumentManager.ActiveDocument = currentActiveDoc;
         }
@@ -210,7 +216,6 @@ namespace KeePassRPC
 
                 host.MainWindow.BeginInvoke(new dlgOpenGroupEditorWindow(openGroupEditorWindow), matchedGroup, db);
             }
-
         }
 
         void OpenLoginEditorWindow(PwEntry pe, PwDatabase db)
@@ -258,7 +263,6 @@ namespace KeePassRPC
 
                 host.MainWindow.BeginInvoke(new dlgOpenLoginEditorWindow(OpenLoginEditorWindow), matchedLogin, db);
             }
-
         }
 
         // A similar function is defined in KeePass MainForm_functions.cs but it's internal
@@ -269,7 +273,10 @@ namespace KeePassRPC
                 for (uint u = 0; u < host.MainWindow.FileMruList.ItemCount; ++u)
                 {
                     IOConnectionInfo iocMru = (host.MainWindow.FileMruList.GetItem(u).Value as IOConnectionInfo);
-                    if (iocMru == null) { continue; }
+                    if (iocMru == null)
+                    {
+                        continue;
+                    }
 
                     if (iocMru.Path.Equals(ioc.Path, KeePassLib.Utility.StrUtil.CaseIgnoreCmp))
                     {
@@ -291,26 +298,25 @@ namespace KeePassRPC
             return GetEntryFromPwEntry(pwe, matchAccuracy, fullDetails, db, false);
         }
 
-        private LightEntry GetEntryFromPwEntry(PwEntry pwe, int matchAccuracy, bool fullDetails, PwDatabase db, bool abortIfHidden)
+        private LightEntry GetEntryFromPwEntry(PwEntry pwe, int matchAccuracy, bool fullDetails, PwDatabase db,
+            bool abortIfHidden)
         {
-            EntryConfig conf = pwe.GetKPRPCConfig(db.GetKPRPCConfig().DefaultMatchAccuracy);
+            EntryConfigv2 conf = pwe.GetKPRPCConfigNormalised(db.GetKPRPCConfig().DefaultMatchAccuracy);
             if (conf == null)
                 return null;
             return GetEntryFromPwEntry(pwe, conf, matchAccuracy, fullDetails, db, abortIfHidden);
         }
 
-        private LightEntry GetEntryFromPwEntry(PwEntry pwe, EntryConfig conf, int matchAccuracy, bool fullDetails, PwDatabase db, bool abortIfHidden)
+        private LightEntry GetEntryFromPwEntry(PwEntry pwe, EntryConfigv2 conf, int matchAccuracy, bool fullDetails,
+            PwDatabase db, bool abortIfHidden)
         {
             ArrayList formFieldList = new ArrayList();
             ArrayList URLs = new ArrayList();
-            bool usernameFound = false;
-            bool passwordFound = false;
             bool alwaysAutoFill = false;
             bool neverAutoFill = false;
             bool alwaysAutoSubmit = false;
             bool neverAutoSubmit = false;
             int priority = 0;
-            string usernameName = "";
             string usernameValue = "";
 
             if (!string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
@@ -318,95 +324,84 @@ namespace KeePassRPC
                 URLs.Add(pwe.Strings.ReadSafe("URL"));
             }
 
-            if (abortIfHidden && conf.Hide)
+            // Hide always blocks if matcher is even present
+            if (abortIfHidden && conf.MatcherConfigs.Any(mc => mc.MatcherType == EntryMatcherType.Hide))
                 return null;
 
-            bool dbDefaultPlaceholderHandlingEnabled = db.GetKPRPCConfig().DefaultPlaceholderHandling == PlaceholderHandling.Enabled;
+            if (conf.AltUrls != null)
+                URLs.AddRange(conf.AltUrls);
+            
+            bool dbDefaultPlaceholderHandlingEnabled =
+                db.GetKPRPCConfig().DefaultPlaceholderHandling == PlaceholderHandling.Enabled;
 
-            if (conf.FormFieldList != null)
+            foreach (Field ff in conf.Fields)
             {
-                foreach (FormField ff in conf.FormFieldList)
+                if (!fullDetails && ff.ValuePath != PwDefs.UserNameField)
+                    continue;
+
+                bool enablePlaceholders = false;
+                string displayName = ff.Name;
+                string ffValue = ff.Value;
+                string htmlName = "";
+                string htmlId = "";
+                FormFieldType htmlType = Utilities.FieldTypeToFormFieldType(ff.Type);
+
+                // Currently we can only have one custommatcher. If that changes and someone tries to use this old version with a newer DB things will break so they will have to upgrade again to fix it.
+                var customMatcherConfig = ff.MatcherConfigs.FirstOrDefault(mc => mc.CustomMatcher != null);
+                if (customMatcherConfig != null)
                 {
-                    if (!fullDetails && ff.Type != FormFieldType.FFTusername)
-                        continue;
-
-                    bool enablePlaceholders = false;
-                    string displayName = !string.IsNullOrEmpty(ff.DisplayName) ? ff.DisplayName : ff.Name;
-                    string ffValue = ff.Value;
-
-                    if (ff.PlaceholderHandling == PlaceholderHandling.Enabled ||
-                        (ff.PlaceholderHandling == PlaceholderHandling.Default && dbDefaultPlaceholderHandlingEnabled))
+                    if (customMatcherConfig.CustomMatcher.Names != null)
                     {
-                        enablePlaceholders = true;
+                        htmlName = customMatcherConfig.CustomMatcher.Names.FirstOrDefault() ?? "";
                     }
 
-                    if (ff.Type == FormFieldType.FFTpassword && ff.Value == "{PASSWORD}")
+                    if (customMatcherConfig.CustomMatcher.Ids != null)
                     {
-                        ffValue = KeePassRPCPlugin.GetPwEntryString(pwe, "Password", db);
-                        if (!string.IsNullOrEmpty(ffValue))
-                        {
-                            displayName = "KeePass password";
-                            passwordFound = true;
-                        }
-                    }
-                    else if (ff.Type == FormFieldType.FFTusername && ff.Value == "{USERNAME}")
-                    {
-                        ffValue = KeePassRPCPlugin.GetPwEntryString(pwe, "UserName", db);
-                        if (!string.IsNullOrEmpty(ffValue))
-                        {
-                            displayName = "KeePass username";
-                            usernameFound = true;
-                        }
+                        htmlId = customMatcherConfig.CustomMatcher.Ids.FirstOrDefault() ?? "";
                     }
 
-                    string derefValue = enablePlaceholders ? KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ffValue, db) : ffValue;
-
-                    if (fullDetails)
+                    if (customMatcherConfig.CustomMatcher.Types != null)
                     {
-                        formFieldList.Add(new FormField(ff.Name, displayName, derefValue, ff.Type, ff.Id, ff.Page, ff.PlaceholderHandling));
-                    }
-                    else
-                    {
-                        usernameName = "username";
-                        usernameValue = derefValue;
+                        htmlType = FormField.FormFieldTypeFromHtmlTypeOrFieldType(
+                            customMatcherConfig.CustomMatcher.Types.FirstOrDefault() ?? "", ff.Type);
                     }
                 }
-            }
-
-            if (conf.AltURLs != null)
-                URLs.AddRange(conf.AltURLs);
-
-            // If we didn't find an explicit password field, we assume any value
-            // in the KeePass "password" box is what we are looking for
-            if (fullDetails && !passwordFound)
-            {
-                string ffValue = KeePassRPCPlugin.GetPwEntryString(pwe, "Password", db);
-                string derefValue = dbDefaultPlaceholderHandlingEnabled ? KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ffValue, db) : ffValue;
-                if (!string.IsNullOrEmpty(ffValue))
+                
+                if (ff.PlaceholderHandling == PlaceholderHandling.Enabled ||
+                    (ff.PlaceholderHandling == PlaceholderHandling.Default &&
+                     dbDefaultPlaceholderHandlingEnabled))
                 {
-                    formFieldList.Add(new FormField("",
-                        "KeePass password", derefValue, FormFieldType.FFTpassword, "", 1, PlaceholderHandling.Default));
+                    enablePlaceholders = true;
                 }
-            }
 
-            // If we didn't find an explicit username field, we assume any value
-            // in the KeePass "username" box is what we are looking for
-            if (!usernameFound)
-            {
-                string ffValue = KeePassRPCPlugin.GetPwEntryString(pwe, "UserName", db);
-                string derefValue = dbDefaultPlaceholderHandlingEnabled ? KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ffValue, db) : ffValue;
-                if (!string.IsNullOrEmpty(ffValue))
+                if (ff.Type == FieldType.Password && ff.ValuePath == PwDefs.PasswordField)
                 {
-                    if (fullDetails)
+                        displayName = "KeePass password";
+                        htmlType = FormFieldType.FFTpassword;
+                }
+                else if (ff.Type == FieldType.Text && ff.ValuePath == PwDefs.UserNameField)
+                {
+                        displayName = "KeePass username";
+                        htmlType = FormFieldType.FFTusername;
+                }
+                
+                ffValue = ff.ValuePath == "." ? ff.Value : KeePassRPCPlugin.GetPwEntryString(pwe, ff.ValuePath, db);
+
+                string derefValue = enablePlaceholders
+                    ? KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ffValue, db)
+                    : ffValue;
+
+                if (fullDetails)
+                {
+                    if (!string.IsNullOrEmpty(ffValue))
                     {
-                        formFieldList.Add(new FormField("",
-                            "KeePass username", derefValue, FormFieldType.FFTusername, "", 1, PlaceholderHandling.Default));
+                        formFieldList.Add(new FormField(htmlName, displayName, derefValue, htmlType, htmlId, ff.Page,
+                            ff.PlaceholderHandling.GetValueOrDefault(PlaceholderHandling.Default)));
                     }
-                    else
-                    {
-                        usernameName = "username";
-                        usernameValue = ffValue;
-                    }
+                }
+                else
+                {
+                    usernameValue = derefValue;
                 }
             }
 
@@ -415,12 +410,46 @@ namespace KeePassRPC
 
             if (fullDetails)
             {
-                alwaysAutoFill = conf.AlwaysAutoFill;
-                alwaysAutoSubmit = conf.AlwaysAutoSubmit;
-                neverAutoFill = conf.NeverAutoFill;
-                neverAutoSubmit = conf.NeverAutoSubmit;
-                priority = conf.Priority;
-
+                switch (conf.Behaviour)
+                {
+                    case EntryAutomationBehaviour.AlwaysAutoFill:
+                        alwaysAutoFill = true;
+                        alwaysAutoSubmit = false;
+                        neverAutoFill = false;
+                        neverAutoSubmit = false;
+                        break;
+                    case EntryAutomationBehaviour.NeverAutoSubmit:
+                        alwaysAutoFill = false;
+                        alwaysAutoSubmit = false;
+                        neverAutoFill = false;
+                        neverAutoSubmit = true;
+                        break;
+                    case EntryAutomationBehaviour.AlwaysAutoFillAlwaysAutoSubmit:
+                        alwaysAutoFill = true;
+                        alwaysAutoSubmit = true;
+                        neverAutoFill = false;
+                        neverAutoSubmit = false;
+                        break;
+                    case EntryAutomationBehaviour.NeverAutoFillNeverAutoSubmit:
+                        alwaysAutoFill = false;
+                        alwaysAutoSubmit = false;
+                        neverAutoFill = true;
+                        neverAutoSubmit = true;
+                        break;
+                    case EntryAutomationBehaviour.AlwaysAutoFillNeverAutoSubmit:
+                        alwaysAutoFill = true;
+                        alwaysAutoSubmit = false;
+                        neverAutoFill = false;
+                        neverAutoSubmit = true;
+                        break;
+                    case EntryAutomationBehaviour.Default:
+                        alwaysAutoFill = false;
+                        alwaysAutoSubmit = false;
+                        neverAutoFill = false;
+                        neverAutoSubmit = false;
+                        break;
+                }
+                priority = 0;
             }
 
             //sw.Stop();
@@ -430,17 +459,17 @@ namespace KeePassRPC
             if (fullDetails)
             {
                 string realm = "";
-                if (!string.IsNullOrEmpty(conf.HTTPRealm))
-                    realm = conf.HTTPRealm;
+                if (!string.IsNullOrEmpty(conf.HttpRealm))
+                    realm = conf.HttpRealm;
 
                 FormField[] temp = (FormField[])formFieldList.ToArray(typeof(FormField));
                 Entry kpe = new Entry(
-                (string[])URLs.ToArray(typeof(string)), realm,
-                pwe.Strings.ReadSafe(PwDefs.TitleField), temp,
-                KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
-                alwaysAutoFill, neverAutoFill, alwaysAutoSubmit, neverAutoSubmit, priority,
-                GetGroupFromPwGroup(pwe.ParentGroup), imageData,
-                GetDatabaseFromPwDatabase(db, false, true), matchAccuracy);
+                    (string[])URLs.ToArray(typeof(string)), realm,
+                    pwe.Strings.ReadSafe(PwDefs.TitleField), temp,
+                    KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
+                    alwaysAutoFill, neverAutoFill, alwaysAutoSubmit, neverAutoSubmit, priority,
+                    GetGroupFromPwGroup(pwe.ParentGroup), imageData,
+                    GetDatabaseFromPwDatabase(db, false, true), matchAccuracy);
                 return kpe;
             }
             else
@@ -448,7 +477,7 @@ namespace KeePassRPC
                 return new LightEntry((string[])URLs.ToArray(typeof(string)),
                     pwe.Strings.ReadSafe(PwDefs.TitleField),
                     KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
-                    imageData, usernameName, usernameValue);
+                    imageData, "username", usernameValue);
             }
         }
 
@@ -459,7 +488,8 @@ namespace KeePassRPC
 
             string imageData = iconConverter.iconToBase64(pwg.CustomIconUuid, pwg.IconId);
 
-            Group kpg = new Group(pwg.Name, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes), imageData, pwg.GetFullPath("/", false));
+            Group kpg = new Group(pwg.Name, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes),
+                imageData, pwg.GetFullPath("/", false));
 
             //sw.Stop();
             //Debug.WriteLine("GetGroupFromPwGroup execution time: " + sw.Elapsed);
@@ -469,7 +499,8 @@ namespace KeePassRPC
 
         private Database GetDatabaseFromPwDatabase(PwDatabase pwd, bool fullDetail, bool noDetail)
         {
-            try {
+            try
+            {
                 //Debug.Indent();
                 // Stopwatch sw = Stopwatch.StartNew();
                 if (fullDetail && noDetail)
@@ -485,7 +516,8 @@ namespace KeePassRPC
                 if (!noDetail)
                     rt.ChildGroups = GetChildGroups(pwd, pwg, true, fullDetail);
 
-                Database kpd = new Database(pwd.Name, pwd.IOConnectionInfo.Path, rt, (pwd == host.Database) ? true : false,
+                Database kpd = new Database(pwd.Name, pwd.IOConnectionInfo.Path, rt,
+                    (pwd == host.Database) ? true : false,
                     IconCache<string>.GetIconEncoding(pwd.IOConnectionInfo.Path) ?? "");
                 //  sw.Stop();
                 //  Debug.WriteLine("GetDatabaseFromPwDatabase execution time: " + sw.Elapsed);
@@ -502,9 +534,10 @@ namespace KeePassRPC
 
         private void setPwEntryFromEntry(PwEntry pwe, Entry login)
         {
+            IGuidService guidService = new GuidService();
             bool firstPasswordFound = false;
-            EntryConfig conf = new EntryConfig(host.Database.GetKPRPCConfig().DefaultMatchAccuracy);
-            List<FormField> ffl = new List<FormField>();
+            EntryConfigv2 conf = (new EntryConfigv1(host.Database.GetKPRPCConfig().DefaultMatchAccuracy)).ConvertToV2(new GuidService());
+            List<Field> fields = new List<Field>();
 
             // Go through each form field, mostly just making a copy but with occasional tweaks such as default username and password selection
             // by convention, we'll always have the first text field as the username when both reading and writing from the EntryConfig
@@ -512,21 +545,52 @@ namespace KeePassRPC
             {
                 if (kpff.Type == FormFieldType.FFTpassword && !firstPasswordFound)
                 {
-                    ffl.Add(new FormField(kpff.Name, "KeePass password", "{PASSWORD}", kpff.Type, kpff.Id, kpff.Page, PlaceholderHandling.Default));
-                    pwe.Strings.Set("Password", new ProtectedString(host.Database.MemoryProtection.ProtectPassword, kpff.Value));
+                    var mc = string.IsNullOrEmpty(kpff.Id) && string.IsNullOrEmpty(kpff.Name)
+                        ? new FieldMatcherConfig() { MatcherType = FieldMatcherType.PasswordDefaultHeuristic }
+                        : FieldMatcherConfig.ForSingleClientMatch(kpff.Id, kpff.Name, kpff.Type);
+                    fields.Add(new Field() {
+                        Page = Math.Max(kpff.Page, 1),
+                        ValuePath = PwDefs.PasswordField,
+                        Uuid = guidService.NewGuid(),
+                        Type = FieldType.Password,
+                        MatcherConfigs = new[] { mc }
+                    });
+                    pwe.Strings.Set(PwDefs.PasswordField,
+                        new ProtectedString(host.Database.MemoryProtection.ProtectPassword, kpff.Value));
                     firstPasswordFound = true;
                 }
                 else if (kpff.Type == FormFieldType.FFTusername)
                 {
-                    ffl.Add(new FormField(kpff.Name, "KeePass username", "{USERNAME}", kpff.Type, kpff.Id, kpff.Page, PlaceholderHandling.Default));
-                    pwe.Strings.Set("UserName", new ProtectedString(host.Database.MemoryProtection.ProtectUserName, kpff.Value));
+                    var mc = string.IsNullOrEmpty(kpff.Id) && string.IsNullOrEmpty(kpff.Name)
+                        ? new FieldMatcherConfig() { MatcherType = FieldMatcherType.UsernameDefaultHeuristic }
+                        : FieldMatcherConfig.ForSingleClientMatch(kpff.Id, kpff.Name, kpff.Type);
+                    fields.Add(new Field() {
+                        Page = Math.Max(kpff.Page, 1),
+                        ValuePath = PwDefs.UserNameField,
+                        Uuid = guidService.NewGuid(),
+                        Type = FieldType.Text,
+                        MatcherConfigs = new[] { mc }
+                    });
+                    pwe.Strings.Set(PwDefs.UserNameField,
+                        new ProtectedString(host.Database.MemoryProtection.ProtectUserName, kpff.Value));
                 }
                 else
                 {
-                    ffl.Add(new FormField(kpff.Name, !string.IsNullOrEmpty(kpff.DisplayName) ? kpff.DisplayName : kpff.Name, kpff.Value, kpff.Type, kpff.Id, kpff.Page, PlaceholderHandling.Default));
+                    var mc = FieldMatcherConfig.ForSingleClientMatch(kpff.Id, kpff.Name, kpff.Type);
+                    fields.Add(new Field()
+                    {
+                        Name = !string.IsNullOrEmpty(kpff.DisplayName) ? kpff.DisplayName : kpff.Name,
+                        Page = Math.Max(kpff.Page, 1),
+                        ValuePath = ".",
+                        Uuid = guidService.NewGuid(),
+                        Type = Utilities.FormFieldTypeToFieldType(kpff.Type),
+                        MatcherConfigs = new[] { mc },
+                        Value = kpff.Value
+                    });
                 }
             }
-            conf.FormFieldList = ffl.ToArray();
+
+            conf.Fields = fields.ToArray();
 
             List<string> altURLs = new List<string>();
 
@@ -545,19 +609,24 @@ namespace KeePassRPC
                     // with a port configured (user can override in the rare case
                     // that they want the loose domain-level matching)
                     if (!string.IsNullOrEmpty(urlsum.Port))
-                        conf.SetMatchAccuracyMethod(MatchAccuracyMethod.Hostname);
+                    {
+                        var mc = conf.MatcherConfigs.First(emc => emc.MatcherType == EntryMatcherType.Url);
+                        mc.UrlMatchMethod = MatchAccuracyMethod.Hostname;
+                    }
 
                     pwe.Strings.Set("URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, url ?? ""));
                 }
                 else
                     altURLs.Add(url);
             }
-            conf.AltURLs = altURLs.ToArray();
-            conf.HTTPRealm = login.HTTPRealm;
-            conf.Version = 1;
+
+            conf.AltUrls = altURLs.ToArray();
+            conf.HttpRealm = string.IsNullOrEmpty(login.HTTPRealm) ? null : login.HTTPRealm;
+            conf.Version = 2;
 
             // Set some of the string fields
-            pwe.Strings.Set(PwDefs.TitleField, new ProtectedString(host.Database.MemoryProtection.ProtectTitle, login.Title ?? ""));
+            pwe.Strings.Set(PwDefs.TitleField,
+                new ProtectedString(host.Database.MemoryProtection.ProtectTitle, login.Title ?? ""));
 
             // update the icon for this entry (in most cases we'll 
             // just detect that it is the same standard icon as before)
@@ -575,7 +644,6 @@ namespace KeePassRPC
 
             pwe.SetKPRPCConfig(conf);
         }
-
 
         #endregion
 
@@ -642,7 +710,8 @@ namespace KeePassRPC
                     "unknown";
             }
 
-            ApplicationMetadata appMetadata = new ApplicationMetadata(KeePassVersion, IsMono, NETCLR, NETversion, MonoVersion);
+            ApplicationMetadata appMetadata =
+                new ApplicationMetadata(KeePassVersion, IsMono, NETCLR, NETversion, MonoVersion);
             return appMetadata;
         }
 
@@ -701,7 +770,8 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public void ChangeDatabase(string fileName, bool closeCurrent)
         {
-            if (closeCurrent && host.MainWindow.DocumentManager.ActiveDatabase != null && host.MainWindow.DocumentManager.ActiveDatabase.IsOpen)
+            if (closeCurrent && host.MainWindow.DocumentManager.ActiveDatabase != null &&
+                host.MainWindow.DocumentManager.ActiveDatabase.IsOpen)
             {
                 host.MainWindow.DocumentManager.CloseDatabase(host.MainWindow.DocumentManager.ActiveDatabase);
             }
@@ -742,8 +812,10 @@ namespace KeePassRPC
             // in the hope that the minimise/restore trick will get KeePass to prompt the user on our behalf
             // (regardless of state of existing documents and newly requested document)
             if (ioci != null
-                && !(host.MainWindow.DocumentManager.ActiveDocument.Database.IsOpen && host.MainWindow.DocumentManager.ActiveDocument.Database.IOConnectionInfo.Path == fileName)
-                && !(!host.MainWindow.DocumentManager.ActiveDocument.Database.IsOpen && host.MainWindow.DocumentManager.ActiveDocument.LockedIoc.Path == fileName))
+                && !(host.MainWindow.DocumentManager.ActiveDocument.Database.IsOpen &&
+                     host.MainWindow.DocumentManager.ActiveDocument.Database.IOConnectionInfo.Path == fileName)
+                && !(!host.MainWindow.DocumentManager.ActiveDocument.Database.IsOpen &&
+                     host.MainWindow.DocumentManager.ActiveDocument.LockedIoc.Path == fileName))
             {
                 PwDocument doc = host.MainWindow.DocumentManager.CreateNewDocument(true);
                 doc.LockedIoc = ioci;
@@ -835,10 +907,10 @@ namespace KeePassRPC
             var parentGroup = KeePassRPCPlugin.GetAndInstallKeePasswordBackupGroup(chosenDB);
 
             string explanatoryNote = "This entry is a backup of a password generated by Kee. " +
-                "It is not visible to Kee. You can edit it to make it visible but we recommend " +
-                "instead saving a new entry after you next sign in to the website. You can " +
-                "delete this backup when you are sure that you can sign-in to the website " +
-                "correctly using your new password.";
+                                     "It is not visible to Kee. You can edit it to make it visible but we recommend " +
+                                     "instead saving a new entry after you next sign in to the website. You can " +
+                                     "delete this backup when you are sure that you can sign-in to the website " +
+                                     "correctly using your new password.";
             PwEntry newLogin = new PwEntry(true, true);
             newLogin.Strings.Set(PwDefs.TitleField, new ProtectedString(
                 chosenDB.MemoryProtection.ProtectTitle, "Kee generated password at: " + DateTime.Now));
@@ -846,9 +918,12 @@ namespace KeePassRPC
                 chosenDB.MemoryProtection.ProtectUrl, url));
             newLogin.Strings.Set(PwDefs.PasswordField, new ProtectedString(
                 chosenDB.MemoryProtection.ProtectPassword, password));
-            newLogin.Strings.Set(PwDefs.NotesField, new ProtectedString(chosenDB.MemoryProtection.ProtectNotes, explanatoryNote));
-            EntryConfig conf = new EntryConfig(MatchAccuracyMethod.Hostname);
-            conf.Hide = true;
+            newLogin.Strings.Set(PwDefs.NotesField,
+                new ProtectedString(chosenDB.MemoryProtection.ProtectNotes, explanatoryNote));
+            EntryConfigv2 conf = (new EntryConfigv1(MatchAccuracyMethod.Hostname)).ConvertToV2(new GuidService());
+            var list = conf.MatcherConfigs.ToList();
+            list.Add(new EntryMatcherConfig() { MatcherType = EntryMatcherType.Hide });
+            conf.MatcherConfigs = list.ToArray();
             newLogin.SetKPRPCConfig(conf);
             parentGroup.AddEntry(newLogin, true);
 
@@ -892,7 +967,8 @@ namespace KeePassRPC
 
                 if (host.Database.RecycleBinEnabled == false)
                 {
-                    if (!KeePassLib.Utility.MessageService.AskYesNo(KPRes.DeleteEntriesQuestionSingle, KPRes.DeleteEntriesTitleSingle))
+                    if (!KeePassLib.Utility.MessageService.AskYesNo(KPRes.DeleteEntriesQuestionSingle,
+                            KPRes.DeleteEntriesTitleSingle))
                         return false;
 
                     PwDeletedObject pdo = new PwDeletedObject();
@@ -920,6 +996,7 @@ namespace KeePassRPC
                 host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), host.Database);
                 return true;
             }
+
             return false;
         }
 
@@ -980,6 +1057,7 @@ namespace KeePassRPC
 
                 return true;
             }
+
             return false;
         }
 
@@ -1003,6 +1081,7 @@ namespace KeePassRPC
                     // If we fail to find a suitable DB for any reason we'll just continue as if no restriction had been requested
                 }
             }
+
             return chosenDB;
         }
 
@@ -1071,7 +1150,9 @@ namespace KeePassRPC
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(parentUUID));
 
-                PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
+                PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid
+                    ? host.Database.RootGroup
+                    : host.Database.RootGroup.FindGroup(pwuuid, true);
 
                 if (matchedGroup != null)
                     parentGroup = matchedGroup;
@@ -1135,11 +1216,12 @@ namespace KeePassRPC
 
         private void MergeEntries(PwEntry destination, PwEntry source, int urlMergeMode, PwDatabase db)
         {
-            EntryConfig destConfig = destination.GetKPRPCConfig(db.GetKPRPCConfig().DefaultMatchAccuracy);
+            // We're updating the entry so can always convert the entry to v2 config format
+            EntryConfigv2 destConfig = destination.GetKPRPCConfigNormalised(db.GetKPRPCConfig().DefaultMatchAccuracy);
             if (destConfig == null)
                 return;
 
-            EntryConfig sourceConfig = source.GetKPRPCConfig(db.GetKPRPCConfig().DefaultMatchAccuracy);
+            EntryConfigv2 sourceConfig = source.GetKPRPCConfigNormalised(db.GetKPRPCConfig().DefaultMatchAccuracy);
             if (sourceConfig == null)
                 return;
 
@@ -1147,14 +1229,14 @@ namespace KeePassRPC
 
             destination.Strings.Set("Title", new ProtectedString(
                 host.Database.MemoryProtection.ProtectTitle, source.Strings.ReadSafe("Title")));
-            destConfig.HTTPRealm = sourceConfig.HTTPRealm;
+            destConfig.HttpRealm = sourceConfig.HttpRealm;
             destination.IconId = source.IconId;
             destination.CustomIconUuid = source.CustomIconUuid;
             destination.Strings.Set("UserName", new ProtectedString(
                 host.Database.MemoryProtection.ProtectUserName, source.Strings.ReadSafe("UserName")));
             destination.Strings.Set("Password", new ProtectedString(
                 host.Database.MemoryProtection.ProtectPassword, source.Strings.ReadSafe("Password")));
-            destConfig.FormFieldList = sourceConfig.FormFieldList;
+            destConfig.Fields = sourceConfig.Fields;
 
             // This algorithm could probably be made more efficient (lots of O(n) operations
             // but we're dealing with pretty small n so I've gone with the conceptually
@@ -1162,13 +1244,13 @@ namespace KeePassRPC
 
             List<string> destURLs = new List<string>();
             destURLs.Add(destination.Strings.ReadSafe("URL"));
-            if (destConfig.AltURLs != null)
-                destURLs.AddRange(destConfig.AltURLs);
+            if (destConfig.AltUrls != null)
+                destURLs.AddRange(destConfig.AltUrls);
 
             List<string> sourceURLs = new List<string>();
             sourceURLs.Add(source.Strings.ReadSafe("URL"));
-            if (sourceConfig.AltURLs != null)
-                sourceURLs.AddRange(sourceConfig.AltURLs);
+            if (sourceConfig.AltUrls != null)
+                sourceURLs.AddRange(sourceConfig.AltUrls);
 
             switch (urlMergeMode)
             {
@@ -1186,6 +1268,7 @@ namespace KeePassRPC
                             if (!destURLs.Contains(sourceUrl))
                                 destURLs.Add(sourceUrl);
                     }
+
                     break;
                 case 4:
                     // No changes to URLs
@@ -1200,9 +1283,9 @@ namespace KeePassRPC
 
             // These might not have changed but meh
             destination.Strings.Set("URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, destURLs[0]));
-            destConfig.AltURLs = new string[0];
+            destConfig.AltUrls = new string[0];
             if (destURLs.Count > 1)
-                destConfig.AltURLs = destURLs.GetRange(1, destURLs.Count - 1).ToArray();
+                destConfig.AltUrls = destURLs.GetRange(1, destURLs.Count - 1).ToArray();
 
             destination.SetKPRPCConfig(destConfig);
             destination.Touch(true);
@@ -1249,7 +1332,6 @@ namespace KeePassRPC
 
             try
             {
-
                 PwEntry thisEntry = rootGroup.FindEntry(pwuuid, true);
                 if (thisEntry != null && thisEntry.ParentGroup != null)
                 {
@@ -1268,6 +1350,7 @@ namespace KeePassRPC
             {
                 return null;
             }
+
             output = GetGroupFromPwGroup(rootGroup);
             return output;
         }
@@ -1306,7 +1389,9 @@ namespace KeePassRPC
                     foreach (string rootGroupId in rootGroups)
                     {
                         PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(rootGroupId));
-                        PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
+                        PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid
+                            ? host.Database.RootGroup
+                            : host.Database.RootGroup.FindGroup(pwuuid, true);
 
                         if (matchedGroup == null)
                             continue;
@@ -1325,14 +1410,18 @@ namespace KeePassRPC
 
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                PwGroup matchedGroup = pwd.RootGroup.Uuid == pwuuid ? pwd.RootGroup : pwd.RootGroup.FindGroup(pwuuid, true);
+                PwGroup matchedGroup =
+                    pwd.RootGroup.Uuid == pwuuid ? pwd.RootGroup : pwd.RootGroup.FindGroup(pwuuid, true);
 
                 if (matchedGroup == null)
-                    throw new Exception("Could not find requested group. Have you deleted your Kee home group? Set a new one and try again.");
+                    throw new Exception(
+                        "Could not find requested group. Have you deleted your Kee home group? Set a new one and try again.");
 
                 var rid = host.Database.RecycleBinUuid;
-                if (rid != null && rid != PwUuid.Zero && matchedGroup.IsOrIsContainedIn(host.Database.RootGroup.FindGroup(rid, true)))
-                    throw new Exception("Kee home group is in the Recycle Bin. Restore the group or set a new home group and try again.");
+                if (rid != null && rid != PwUuid.Zero &&
+                    matchedGroup.IsOrIsContainedIn(host.Database.RootGroup.FindGroup(rid, true)))
+                    throw new Exception(
+                        "Kee home group is in the Recycle Bin. Restore the group or set a new home group and try again.");
 
                 return matchedGroup;
             }
@@ -1350,7 +1439,7 @@ namespace KeePassRPC
         public PwGroup GetRootPwGroup(PwDatabase pwd)
         {
             string locationId = host.CustomConfig
-               .GetString("KeePassRPC.currentLocation", "");
+                .GetString("KeePassRPC.currentLocation", "");
             return GetRootPwGroup(pwd, locationId);
         }
 
@@ -1369,6 +1458,7 @@ namespace KeePassRPC
             {
                 output.Add(GetDatabaseFromPwDatabase(db, fullDetails, false));
             }
+
             Database[] dbarray = output.ToArray();
             sw.Stop();
             Debug.WriteLine("GetAllDatabases execution time: " + sw.Elapsed);
@@ -1431,7 +1521,10 @@ namespace KeePassRPC
             List<Entry> allEntries = new List<Entry>();
 
             // Make sure there is an active database
-            if (!ensureDBisOpen()) { return null; }
+            if (!ensureDBisOpen())
+            {
+                return null;
+            }
 
             KeePassLib.Collections.PwObjectList<PwEntry> output;
             output = GetRootPwGroup(host.Database).GetEntries(true);
@@ -1452,10 +1545,7 @@ namespace KeePassRPC
                 }
             }
 
-            allEntries.Sort(delegate (Entry e1, Entry e2)
-            {
-                return e1.Title.CompareTo(e2.Title);
-            });
+            allEntries.Sort(delegate(Entry e1, Entry e2) { return e1.Title.CompareTo(e2.Title); });
 
             return allEntries.ToArray();
         }
@@ -1469,6 +1559,7 @@ namespace KeePassRPC
                     return true;
                 parent = parent.ParentGroup;
             }
+
             return false;
         }
 
@@ -1514,7 +1605,9 @@ namespace KeePassRPC
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
+                matchedGroup = host.Database.RootGroup.Uuid == pwuuid
+                    ? host.Database.RootGroup
+                    : host.Database.RootGroup.FindGroup(pwuuid, true);
             }
             else
             {
@@ -1522,7 +1615,8 @@ namespace KeePassRPC
             }
 
             if (matchedGroup == null)
-                throw new Exception("Could not find requested group. Have you deleted your Kee home group? Set a new one and try again.");
+                throw new Exception(
+                    "Could not find requested group. Have you deleted your Kee home group? Set a new one and try again.");
 
             return matchedGroup;
         }
@@ -1543,7 +1637,6 @@ namespace KeePassRPC
 
             if (group != null)
             {
-
                 KeePassLib.Collections.PwObjectList<PwEntry> output;
                 output = group.GetEntries(false);
 
@@ -1570,22 +1663,17 @@ namespace KeePassRPC
 
                 if (fullDetails)
                 {
-                    allEntries.Sort(delegate (Entry e1, Entry e2)
-                    {
-                        return e1.Title.CompareTo(e2.Title);
-                    });
+                    allEntries.Sort(delegate(Entry e1, Entry e2) { return e1.Title.CompareTo(e2.Title); });
                     return allEntries.ToArray();
                 }
                 else
                 {
-                    allLightEntries.Sort(delegate (LightEntry e1, LightEntry e2)
+                    allLightEntries.Sort(delegate(LightEntry e1, LightEntry e2)
                     {
                         return e1.Title.CompareTo(e2.Title);
                     });
                     return allLightEntries.ToArray();
                 }
-
-
             }
 
             return null;
@@ -1617,7 +1705,10 @@ namespace KeePassRPC
         {
             List<Group> allGroups = new List<Group>();
 
-            if (pwd == null || group == null) { return null; }
+            if (pwd == null || group == null)
+            {
+                return null;
+            }
 
             KeePassLib.Collections.PwObjectList<PwGroup> output;
             output = group.Groups;
@@ -1637,13 +1728,11 @@ namespace KeePassRPC
                     else
                         kpg.ChildLightEntries = GetChildEntries(pwd, pwg, fullDetails, true);
                 }
+
                 allGroups.Add(kpg);
             }
 
-            allGroups.Sort(delegate (Group g1, Group g2)
-            {
-                return g1.Title.CompareTo(g2.Title);
-            });
+            allGroups.Sort(delegate(Group g1, Group g2) { return g1.Title.CompareTo(g2.Title); });
 
             return allGroups.ToArray();
         }
@@ -1663,14 +1752,21 @@ namespace KeePassRPC
             if (uuid != null && uuid.Length > 0)
             {
                 // Make sure there is an active database
-                if (!ensureDBisOpen()) { groups = null; return -1; }
+                if (!ensureDBisOpen())
+                {
+                    groups = null;
+                    return -1;
+                }
 
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
+                PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid
+                    ? host.Database.RootGroup
+                    : host.Database.RootGroup.FindGroup(pwuuid, true);
 
                 if (matchedGroup == null)
-                    throw new Exception("Could not find requested group. Have you deleted your Kee home group? Set a new one and try again.");
+                    throw new Exception(
+                        "Could not find requested group. Have you deleted your Kee home group? Set a new one and try again.");
 
                 groups = new Group[1];
                 groups[0] = GetGroupFromPwGroup(matchedGroup);
@@ -1688,14 +1784,15 @@ namespace KeePassRPC
         // because the actual MAM to apply may have been modified based upon the specific URL(s) that
         // we're being asked to match against (the URLs shown in the browser rather than those 
         // contained within the entry)
-        public static int BestMatchAccuracyForAnyURL(PwEntry pwe, EntryConfig conf, string url, URLSummary urlSummary, MatchAccuracyMethod mam)
+        public static int BestMatchAccuracyForAnyURL(PwEntry pwe, EntryConfigv2 conf, string url, URLSummary urlSummary,
+            MatchAccuracyMethod mam)
         {
             int bestMatchSoFar = MatchAccuracy.None;
 
             List<string> URLs = new List<string>(3);
             URLs.Add(pwe.Strings.ReadSafe("URL"));
-            if (conf.AltURLs != null)
-                URLs.AddRange(conf.AltURLs);
+            if (conf.AltUrls != null)
+                URLs.AddRange(conf.AltUrls);
 
             foreach (string entryURL in URLs)
             {
@@ -1738,6 +1835,7 @@ namespace KeePassRPC
                     {
                         return MatchAccuracy.HostnameExcludingPort;
                     }
+
                     continue;
                 }
 
@@ -1749,13 +1847,16 @@ namespace KeePassRPC
                     && entryUrlSummary.Domain.RegistrableDomain == urlSummary.Domain.RegistrableDomain)
                     bestMatchSoFar = MatchAccuracy.Domain;
             }
+
             return bestMatchSoFar;
         }
 
-        private bool matchesAnyBlockedURL(PwEntry pwe, EntryConfig conf, string url) // hostname-wide blocks are not natively supported but can be emulated using an appropriate regex
+        private bool
+            matchesAnyBlockedURL(PwEntry pwe, EntryConfigv2 conf,
+                string url) // hostname-wide blocks are not natively supported but can be emulated using an appropriate regex
         {
-            if (conf.BlockedURLs != null)
-                foreach (string altURL in conf.BlockedURLs)
+            if (conf.BlockedUrls != null)
+                foreach (string altURL in conf.BlockedUrls)
                     if (altURL.Contains(url))
                         return true;
             return false;
@@ -1802,7 +1903,10 @@ namespace KeePassRPC
             string actionHost = actionURL;
 
             // Make sure there is an active database
-            if (!ensureDBisOpen()) { return null; }
+            if (!ensureDBisOpen())
+            {
+                return null;
+            }
 
             // if uniqueID is supplied, match just that one login. if not found, move on to search the content of the logins...
             if (uniqueID != null && uniqueID.Length > 0)
@@ -1829,7 +1933,8 @@ namespace KeePassRPC
                 //foreach DB...
                 foreach (PwDatabase db in dbs)
                 {
-                    KeePassLib.Collections.PwObjectList<PwEntry> output = new KeePassLib.Collections.PwObjectList<PwEntry>();
+                    KeePassLib.Collections.PwObjectList<PwEntry> output =
+                        new KeePassLib.Collections.PwObjectList<PwEntry>();
 
                     PwGroup searchGroup = GetRootPwGroup(db);
                     //output = searchGroup.GetEntries(true);
@@ -1852,9 +1957,6 @@ namespace KeePassRPC
                         }
                     }
                 }
-
-
-
             }
             // else we search for the URLs
 
@@ -1884,7 +1986,8 @@ namespace KeePassRPC
                 {
                     var dbConf = db.GetKPRPCConfig();
 
-                    KeePassLib.Collections.PwObjectList<PwEntry> output = new KeePassLib.Collections.PwObjectList<PwEntry>();
+                    KeePassLib.Collections.PwObjectList<PwEntry> output =
+                        new KeePassLib.Collections.PwObjectList<PwEntry>();
 
                     PwGroup searchGroup = GetRootPwGroup(db);
                     output = searchGroup.GetEntries(true);
@@ -1894,48 +1997,62 @@ namespace KeePassRPC
                     foreach (PwEntry pwe in output)
                     {
                         string entryUserName = pwe.Strings.ReadSafe(PwDefs.UserNameField);
-                        entryUserName = KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, entryUserName, db);
+                        entryUserName =
+                            KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, entryUserName, db);
                         if (EntryIsInRecycleBin(pwe, db))
                             continue; // ignore if it's in the recycle bin
 
-                        EntryConfig conf = pwe.GetKPRPCConfig(null, ref configErrors, dbConf.DefaultMatchAccuracy);
+                        EntryConfigv2 conf = pwe.GetKPRPCConfigNormalised(null, ref configErrors, dbConf.DefaultMatchAccuracy);
 
-                        if (conf == null || conf.Hide)
+                        if (conf == null || conf.MatcherConfigs.Any(mc => mc.MatcherType == EntryMatcherType.Hide))
                             continue;
 
+                        var urlMatcher = conf.MatcherConfigs.FirstOrDefault(mc => mc.MatcherType == EntryMatcherType.Url);
+                        if (urlMatcher == null)
+                        {
+                            // Ignore entries with no Url matcher type. Shouldn't ever happen but maybe loading a newer DB into an old version will cause it so this just protects us against unexpected matches in case of that user error.
+                            continue;
+                        }
                         bool entryIsAMatch = false;
                         int bestMatchAccuracy = MatchAccuracy.None;
 
 
-                        if (conf.RegExURLs != null)
+                        if (conf.RegExUrls != null)
                             foreach (string URL in URLs)
-                                foreach (string regexPattern in conf.RegExURLs)
+                            foreach (string regexPattern in conf.RegExUrls)
+                            {
+                                try
                                 {
-                                    try
+                                    if (!string.IsNullOrEmpty(regexPattern) &&
+                                        System.Text.RegularExpressions.Regex.IsMatch(URL, regexPattern))
                                     {
-                                        if (!string.IsNullOrEmpty(regexPattern) && System.Text.RegularExpressions.Regex.IsMatch(URL, regexPattern))
-                                        {
-                                            entryIsAMatch = true;
-                                            bestMatchAccuracy = MatchAccuracy.Best;
-                                            break;
-                                        }
-                                    }
-                                    catch (ArgumentException)
-                                    {
-                                        Utils.ShowMonoSafeMessageBox("'" + regexPattern + "' is not a valid regular expression. This error was found in an entry in your database called '" + pwe.Strings.ReadSafe(PwDefs.TitleField) + "'. You need to fix or delete this regular expression to prevent this warning message appearing.", "Warning: Broken regular expression", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                        entryIsAMatch = true;
+                                        bestMatchAccuracy = MatchAccuracy.Best;
                                         break;
                                     }
                                 }
+                                catch (ArgumentException)
+                                {
+                                    Utils.ShowMonoSafeMessageBox(
+                                        "'" + regexPattern +
+                                        "' is not a valid regular expression. This error was found in an entry in your database called '" +
+                                        pwe.Strings.ReadSafe(PwDefs.TitleField) +
+                                        "'. You need to fix or delete this regular expression to prevent this warning message appearing.",
+                                        "Warning: Broken regular expression", MessageBoxButtons.OK,
+                                        MessageBoxIcon.Warning);
+                                    break;
+                                }
+                            }
 
                         if (!entryIsAMatch && (string.IsNullOrEmpty(username) || username == entryUserName))
                         {
                             foreach (string URL in URLs)
                             {
                                 var mam = pwe.GetMatchAccuracyMethod(URLHostnameAndPorts[URL], dbConf);
-                                int accuracy = BestMatchAccuracyForAnyURL(pwe, conf, URL, URLHostnameAndPorts[URL], mam);
+                                int accuracy =
+                                    BestMatchAccuracyForAnyURL(pwe, conf, URL, URLHostnameAndPorts[URL], mam);
                                 if (accuracy > bestMatchAccuracy)
                                     bestMatchAccuracy = accuracy;
-
                             }
                         }
 
@@ -1951,12 +2068,14 @@ namespace KeePassRPC
                                 entryIsAMatch = false;
                                 break;
                             }
-                            if (conf.RegExBlockedURLs != null)
-                                foreach (string pattern in conf.RegExBlockedURLs)
+
+                            if (conf.RegExBlockedUrls != null)
+                                foreach (string pattern in conf.RegExBlockedUrls)
                                 {
                                     try
                                     {
-                                        if (!string.IsNullOrEmpty(pattern) && System.Text.RegularExpressions.Regex.IsMatch(URL, pattern))
+                                        if (!string.IsNullOrEmpty(pattern) &&
+                                            System.Text.RegularExpressions.Regex.IsMatch(URL, pattern))
                                         {
                                             entryIsAMatch = false;
                                             break;
@@ -1964,7 +2083,13 @@ namespace KeePassRPC
                                     }
                                     catch (ArgumentException)
                                     {
-                                        Utils.ShowMonoSafeMessageBox("'" + pattern + "' is not a valid regular expression. This error was found in an entry in your database called '" + pwe.Strings.ReadSafe(PwDefs.TitleField) + "'. You need to fix or delete this regular expression to prevent this warning message appearing.", "Warning: Broken regular expression", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                        Utils.ShowMonoSafeMessageBox(
+                                            "'" + pattern +
+                                            "' is not a valid regular expression. This error was found in an entry in your database called '" +
+                                            pwe.Strings.ReadSafe(PwDefs.TitleField) +
+                                            "'. You need to fix or delete this regular expression to prevent this warning message appearing.",
+                                            "Warning: Broken regular expression", MessageBoxButtons.OK,
+                                            MessageBoxIcon.Warning);
                                         break;
                                     }
                                 }
@@ -1979,27 +2104,29 @@ namespace KeePassRPC
                                 count++;
                             }
                         }
-
                     }
+
                     if (configErrors.Count > 0)
-                        Utils.ShowMonoSafeMessageBox("There are configuration errors in your database called '" + db.Name + "'. To fix the entries listed below and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON config' advanced string. Please ask for help on https://forum.kee.pm if you're not sure how to fix this. These entries are affected:" + Environment.NewLine + string.Join(Environment.NewLine, configErrors.ToArray()), "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        Utils.ShowMonoSafeMessageBox(
+                            "There are configuration errors in your database called '" + db.Name +
+                            "'. To fix the entries listed below and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON' custom data. Please ask for help on https://forum.kee.pm if you're not sure how to fix this. These entries are affected:" +
+                            Environment.NewLine + string.Join(Environment.NewLine, configErrors.ToArray()),
+                            "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
-            allEntries.Sort(delegate (Entry e1, Entry e2)
-            {
-                return e1.Title.CompareTo(e2.Title);
-            });
+
+            allEntries.Sort(delegate(Entry e1, Entry e2) { return e1.Title.CompareTo(e2.Title); });
 
             return allEntries.ToArray();
         }
 
         [JsonRpcMethod]
-        public int CountLogins(string URL, string actionURL, string httpRealm, LoginSearchType lst, bool requireFullURLMatches)
+        public int CountLogins(string URL, string actionURL, string httpRealm, LoginSearchType lst,
+            bool requireFullURLMatches)
         {
             throw new NotImplementedException();
         }
 
         #endregion
-
     }
 }

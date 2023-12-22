@@ -2,11 +2,12 @@
 using System.Text;
 using System.Collections.Generic;
 using KeePassLib;
-using KeePassRPC.DataExchangeModel;
 using KeePassRPC;
 using KeePassLib.Security;
 using NUnit.Framework;
 using DomainPublicSuffix;
+using KeePassRPC.Models.DataExchange;
+using KeePassRPC.Models.Persistent;
 
 namespace KeePassRPCTest
 {
@@ -62,7 +63,7 @@ namespace KeePassRPCTest
             MatchAccuracyMethod[] overrideMethods = null)
         {
             var pwe = new PwEntry(true, true);
-            var conf = new EntryConfig(entryMam);
+            var conf = pwe.GetKPRPCConfigNormalised(entryMam);
             pwe.SetKPRPCConfig(conf);
             var urlSummary = URLSummary.FromURL(urlSearch);
             var dbConf = new DatabaseConfig() { DefaultMatchAccuracy = defaultMam };
@@ -196,7 +197,7 @@ namespace KeePassRPCTest
         {
             var pwe = new PwEntry(true, true);
             pwe.Strings.Set("URL", new ProtectedString(false, urlEntry));
-            var conf = new EntryConfig(entryMam);
+            var conf = pwe.GetKPRPCConfigNormalised(entryMam);
             pwe.SetKPRPCConfig(conf);
             var urlSummary = URLSummary.FromURL(urlSearch);
 

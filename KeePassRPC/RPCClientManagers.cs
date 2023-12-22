@@ -7,6 +7,7 @@ using KeePassLib.Collections;
 using KeePass.UI;
 using KeePass.Forms;
 using System.Reflection;
+using KeePassRPC.Models.DataExchange;
 
 namespace KeePassRPC
 {
@@ -36,7 +37,7 @@ namespace KeePassRPC
         /// Signals all clients.
         /// </summary>
         /// <param name="signal">The signal.</param>
-        public virtual void SignalAll(KeePassRPC.DataExchangeModel.Signal signal)
+        public virtual void SignalAll(Signal signal)
         {
             foreach (KeePassRPCClientConnection client in _RPCClientConnections)
                 client.Signal(signal, CallbackMethodName);
@@ -91,12 +92,12 @@ namespace KeePassRPC
         {
             lock (_lockRPCClients)
             {
-                SignalAll(KeePassRPC.DataExchangeModel.Signal.EXITING);
+                SignalAll(Signal.EXITING);
                 _RPCClientConnections.Clear();
             }
         }
 
-        public virtual void AttachToEntryDialog(KeePassRPCExt plugin, PwEntry entry, TabControl mainTabControl, PwEntryForm form, CustomListViewEx advancedListView, ProtectedStringDictionary strings)
+        public virtual void AttachToEntryDialog(KeePassRPCExt plugin, PwEntry entry, TabControl mainTabControl, PwEntryForm form, CustomListViewEx advancedListView, ProtectedStringDictionary strings, StringDictionaryEx customData)
         {
             return;
         }
@@ -117,18 +118,19 @@ namespace KeePassRPC
 
         }
 
-        public override void AttachToEntryDialog(KeePassRPCExt plugin, PwEntry entry, TabControl mainTabControl, PwEntryForm form, CustomListViewEx advancedListView, ProtectedStringDictionary strings)
+        public override void AttachToEntryDialog(KeePassRPCExt plugin, PwEntry entry, TabControl mainTabControl, PwEntryForm form, CustomListViewEx advancedListView, ProtectedStringDictionary strings, StringDictionaryEx customData)
         {
             UserControl entryControl;
 
             string mvString = KeePass.Util.MultipleValues.MultipleValuesEx.CueString;
-            string json = strings.ReadSafe("KPRPC JSON");
-            if (!string.IsNullOrEmpty(json) && mvString == json)
+            string json1 = strings.ReadSafe("KPRPC JSON");
+            string json2 = customData.Get("KPRPC JSON");
+            if ((!string.IsNullOrEmpty(json1) && mvString == json1) || (!string.IsNullOrEmpty(json2) && mvString == json2))
             {
                 entryControl = new KeeMultiEntryUserControl();
             } else
             {
-                entryControl = new KeeEntryUserControl(plugin, entry, advancedListView, form, strings);
+                entryControl = new KeeEntryUserControl(plugin, entry, advancedListView, form, strings, customData);
             }
 
             TabPage keeTabPage = new TabPage("Kee");
@@ -164,9 +166,9 @@ namespace KeePassRPC
 
         }
 
-        public override void AttachToEntryDialog(KeePassRPCExt plugin, PwEntry entry, TabControl mainTabControl, PwEntryForm form, CustomListViewEx advancedListView, ProtectedStringDictionary strings)
+        public override void AttachToEntryDialog(KeePassRPCExt plugin, PwEntry entry, TabControl mainTabControl, PwEntryForm form, CustomListViewEx advancedListView, ProtectedStringDictionary strings, StringDictionaryEx customData)
         {
-            KeeEntryUserControl entryControl = new KeeEntryUserControl(plugin, entry, advancedListView, form, strings);
+            KeeEntryUserControl entryControl = new KeeEntryUserControl(plugin, entry, advancedListView, form, strings, customData);
             TabPage keefoxTabPage = new TabPage("KeeFox");
             entryControl.Dock = DockStyle.Fill;
             keefoxTabPage.Controls.Add(entryControl);

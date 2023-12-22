@@ -3,6 +3,7 @@ using System.Drawing;
 using System.IO;
 using KeePass.Plugins;
 using KeePassLib;
+using KeePassRPC.Models.DataExchange;
 
 namespace KeePassRPC
 {
@@ -21,7 +22,7 @@ namespace KeePassRPC
 
         private string dbIconToBase64(PwDatabase db)
         {
-            string cachedBase64 = DataExchangeModel.IconCache<string>.GetIconEncoding(db.IOConnectionInfo.Path);
+            string cachedBase64 = IconCache<string>.GetIconEncoding(db.IOConnectionInfo.Path);
             if (string.IsNullOrEmpty(cachedBase64))
             {
                 // Don't think this should ever happen but we'll return a null icon if we have to
@@ -49,7 +50,7 @@ namespace KeePassRPC
             string imageData = "";
             if (customIconUUID != PwUuid.Zero)
             {
-                string cachedBase64 = DataExchangeModel.IconCache<PwUuid>.GetIconEncoding(customIconUUID);
+                string cachedBase64 = IconCache<PwUuid>.GetIconEncoding(customIconUUID);
                 if (string.IsNullOrEmpty(cachedBase64))
                 {
                     object[] delParams = { customIconUUID };
@@ -86,7 +87,7 @@ namespace KeePassRPC
                     (byte)(iconIdInt >> 24 & 0xFF), (byte)(iconIdInt >> 24 & 0xFF)
                 });
 
-                string cachedBase64 = DataExchangeModel.IconCache<PwUuid>.GetIconEncoding(uuid);
+                string cachedBase64 = IconCache<PwUuid>.GetIconEncoding(uuid);
                 if (string.IsNullOrEmpty(cachedBase64))
                 {
                     object[] delParams = { (int)iconId };
@@ -117,7 +118,7 @@ namespace KeePassRPC
                     }
                     imageData = Convert.ToBase64String(ms.ToArray());
                 }
-                DataExchangeModel.IconCache<PwUuid>.AddIcon(uuid, imageData);
+                IconCache<PwUuid>.AddIcon(uuid, imageData);
             }
 
             return imageData;

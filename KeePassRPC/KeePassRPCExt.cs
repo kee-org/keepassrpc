@@ -19,11 +19,11 @@ using KeePass.UI;
 using KeePassRPC.Forms;
 using System.Reflection;
 using KeePassLib.Collections;
-using KeePassRPC.DataExchangeModel;
 using Fleck2.Interfaces;
 using DomainPublicSuffix;
 using KeePassLib.Utility;
 using KeePass.Util.Spr;
+using KeePassRPC.Models.DataExchange;
 
 namespace KeePassRPC
 {
@@ -356,19 +356,22 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             TabControl mainTabControl = null;
             CustomListViewEx advancedListView = null;
             ProtectedStringDictionary strings = null;
+            StringDictionaryEx customData = null;
 
             //This might not work, but might as well use the feature if possible.
             try
             {
-                // reflection doesn't seem to be needed for 2.10 and above
                 entry = form.EntryRef;
                 strings = form.EntryStrings;
+                FieldInfo fi = typeof(PwEntryForm).GetField("m_sdCustomData", BindingFlags.NonPublic | BindingFlags.Instance);
+                customData = (StringDictionaryEx)fi.GetValue(form);
 
                 Control[] cs = form.Controls.Find("m_tabMain", true);
                 if (cs.Length == 0)
                     return;
                 mainTabControl = cs[0] as TabControl;
 
+                //TODO: After migration to config v2 we won't need to rely on this form item being available for our tab to work correctly.
                 Control[] cs2 = form.Controls.Find("m_lvStrings", true);
                 if (cs2.Length == 0)
                     return;
@@ -386,7 +389,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             lock (_lockRPCClientManagers)
             {
                 _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
-                _RPCClientManagers["general"].AttachToEntryDialog(this, entry, mainTabControl, form, advancedListView, strings);
+                _RPCClientManagers["general"].AttachToEntryDialog(this, entry, mainTabControl, form, advancedListView, strings, customData);
             }
         }
 
@@ -852,7 +855,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             SignalAllManagedRPCClients(Signal.DATABASE_SAVED);
         }
 
-        internal void SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal signal)
+        internal void SignalAllManagedRPCClients(Signal signal)
         {
             lock (_lockRPCClientManagers)
             {

@@ -1,9 +1,10 @@
 ﻿using KeePassLib;
-using KeePassRPC.DataExchangeModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Forms;
+using KeePassRPC.Models.DataExchange;
+using KeePassRPC.Models.Shared;
 
 namespace KeePassRPC.Forms
 {

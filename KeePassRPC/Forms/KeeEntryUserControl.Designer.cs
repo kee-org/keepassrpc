@@ -66,7 +66,6 @@
             this.label5 = new System.Windows.Forms.Label();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.toolTipRealm = new System.Windows.Forms.ToolTip(this.components);
-            this.label6 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -331,7 +330,6 @@
             // 
             // tabPage1
             // 
-            this.tabPage1.Controls.Add(this.label6);
             this.tabPage1.Controls.Add(this.textBoxKeeRealm);
             this.tabPage1.Controls.Add(this.labelRealm);
             this.tabPage1.Controls.Add(this.groupBox1);
@@ -456,14 +454,6 @@
             this.tabPage3.ToolTipText = "Define the web page form fields this entry applies to";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
-            // label6
-            // 
-            this.label6.Location = new System.Drawing.Point(11, 67);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(209, 71);
-            this.label6.TabIndex = 5;
-            this.label6.Text = "You previously set the priority of this entry to x. Since Kee 3.5 (2020) this has had no effect. You don't need to do anything. This message will be removed in a future KeePassRPC version.";
-            // 
             // KeeEntryUserControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -527,6 +517,5 @@
         private System.Windows.Forms.RadioButton radioButton2;
         private System.Windows.Forms.RadioButton radioButton1;
         private System.Windows.Forms.RadioButton radioButton3;
-        private System.Windows.Forms.Label label6;
     }
 }
