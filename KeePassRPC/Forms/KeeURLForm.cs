@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using KeePass.UI;
 
 namespace KeePassRPC.Forms
 {
@@ -17,6 +18,17 @@ namespace KeePassRPC.Forms
         public List<string> OtherKeys;
 
         private bool _editing = false;
+        protected override void OnLoad(EventArgs e)
+        {
+            GlobalWindowManager.AddWindow(this);
+            base.OnLoad(e);
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            GlobalWindowManager.RemoveWindow(this);
+            base.OnClosed(e);
+        }
 
         public KeeURLForm(bool match, bool block, string regExURL, string url, List<string> otherKeys)
         {

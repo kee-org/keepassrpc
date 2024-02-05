@@ -203,7 +203,7 @@ namespace KeePassRPC.Models.Persistent
                         usernameFound = true;
                         var mc = string.IsNullOrEmpty(ff.Id) && string.IsNullOrEmpty(ff.Name)
                             ? new FieldMatcherConfig() { MatcherType = FieldMatcherType.UsernameDefaultHeuristic }
-                            : FieldMatcherConfig.ForSingleClientMatch(ff.Id, ff.Name, ff.Type);
+                            : FieldMatcherConfig.ForSingleClientMatch(ff.Id, ff.Name, FormFieldType.FFTusername);
                         var f = new Field()
                         {
                             Page = Math.Max(ff.Page, 1),
@@ -227,7 +227,7 @@ namespace KeePassRPC.Models.Persistent
                         passwordFound = true;
                         var mc = string.IsNullOrEmpty(ff.Id) && string.IsNullOrEmpty(ff.Name)
                             ? new FieldMatcherConfig() { MatcherType = FieldMatcherType.PasswordDefaultHeuristic }
-                            : FieldMatcherConfig.ForSingleClientMatch(ff.Id, ff.Name, ff.Type);
+                            : FieldMatcherConfig.ForSingleClientMatch(ff.Id, ff.Name, FormFieldType.FFTpassword);
                         var f = new Field()
                         {
                             Page = Math.Max(ff.Page, 1),
