@@ -18,7 +18,7 @@ namespace KeePassRPC
     /// </summary>
     public class KeePassRPCClientConnection
     {
-        // wanted to use uint really but that seems to break Jayrock JSON-RPC - presumably becuase there is no such concept in JavaScript
+        // wanted to use uint really but that seems to break Jayrock JSON-RPC - presumably because there is no such concept in JavaScript
         static private int _protocolVersion = 0;
         static int ProtocolVersion { get {
             if (_protocolVersion == 0)
@@ -57,7 +57,10 @@ namespace KeePassRPC
             "KPRPC_FEATURE_ENTRY_URL_REPLACEMENT",
 
             // Contains critical security fixes
-            "KPRPC_SECURITY_FIX_20200729"
+            "KPRPC_SECURITY_FIX_20200729",
+
+            // Can send new DTO format
+            "KPRPC_DTO_V2"
 
             // in the rare event that we want to check for the absense of a feature
             // we would add a feature flag along the lines of "KPRPC_FEATURE_REMOVED_INCOMPATIBLE_THING_X"
@@ -85,7 +88,7 @@ namespace KeePassRPC
         private int securityLevel;
         private int securityLevelClientMinimum;
         private string userName;
-        private string[] clientFeatures;
+        private string[] _clientFeatures;
 
         // Read-only username is accessible to anyone but only once the connection has been confirmed
         public string UserName { get { if (Authorised) return userName; else return ""; } }
@@ -117,6 +120,15 @@ namespace KeePassRPC
             get { return _authorised; }
             set { _authorised = value; }
         }
+        
+        /// <summary>
+        /// The features this client claims to support
+        /// </summary>
+        public string[] ClientFeatures
+        {
+            get { return _clientFeatures; }
+        }
+
 
         private long KeyExpirySeconds
         {
@@ -408,9 +420,9 @@ See https://forum.kee.pm/t/3143/ for more information.",
             // them into every stage of the handshake but can still cleanly handle old 
             // versions of clients that don't send a list of features at any time.
             if (features != null)
-                clientFeatures = features;
+                _clientFeatures = features;
 
-            return clientFeatures != null && featuresRequired.Except(clientFeatures).Count() == 0;
+            return _clientFeatures != null && featuresRequired.Except(_clientFeatures).Count() == 0;
         }
 
         private void RejectClientVersion(KPRPCMessage kprpcm)
@@ -429,7 +441,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
         private void AbortWithMessageToClient(KPRPCMessage data2client)
         {
             Authorised = false;
-            clientFeatures = null;
+            _clientFeatures = null;
             string response = Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client);
             WebSocketConnection.Send(response);
         }

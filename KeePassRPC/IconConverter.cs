@@ -4,6 +4,7 @@ using System.IO;
 using KeePass.Plugins;
 using KeePassLib;
 using KeePassRPC.Models.DataExchange;
+using Icon = KeePassRPC.Models.DataExchange.V2.Icon;
 
 namespace KeePassRPC
 {
@@ -35,6 +36,31 @@ namespace KeePassRPC
         }
 
         private static object iconSavingLock = new object();
+
+        /// <summary>
+        /// extract the current icon information for this entry
+        /// </summary>
+        /// <param name="customIconUUID"></param>
+        /// <param name="iconId"></param>
+        /// <returns></returns>
+        public Icon iconToDto(PwUuid customIconUUID, PwIcon iconId)
+        {
+            return new Icon()
+            {
+                Base64 = iconToBase64(customIconUUID, iconId)
+            };
+            // if (customIconUUID != PwUuid.Zero)
+            // {
+            //     //TODO: CUSTOM_ICON_REFERENCES feature flag
+            //     return new Icon()
+            //     {
+            //         Base64 = iconToBase64(customIconUUID, iconId)
+            //     };
+            // }
+            //if (KeePassRPCPlugin.)
+            //TODO: find current client somehow... ClientFeatures
+        }
+        
 
         /// <summary>
         /// extract the current icon information for this entry
@@ -91,7 +117,7 @@ namespace KeePassRPC
                 if (string.IsNullOrEmpty(cachedBase64))
                 {
                     object[] delParams = { (int)iconId };
-                    object invokeResult = host.MainWindow.Invoke(
+                    object invokeResult = host.MainWindow.Invoke( //TODO: Contender for Mono icon bug cause?
                         new KeePassRPCExt.GetIconDelegate(
                             KeePassRPCPlugin.GetIcon), delParams);
                     if (invokeResult != null)
@@ -122,6 +148,20 @@ namespace KeePassRPC
             }
 
             return imageData;
+        }
+
+        /// <summary>
+        /// converts a DTO Icon to the relevant icon for this entry
+        /// </summary>
+        /// <param name="icon">DTO representation of the icon</param>
+        /// <param name="customIconUUID">UUID of the generated custom icon; may be Zero</param>
+        /// <param name="iconId">PwIcon of the matched standard icon; ignore if customIconUUID != Zero</param>
+        /// <returns>true if the supplied Icon was converted into a customIcon 
+        /// or matched with a standard icon.</returns>
+        public bool dtoToIcon(Icon icon, ref PwUuid customIconUUID, ref PwIcon iconId)
+        {
+            //TODO: handle Index and Ref properties if client feature flags permit
+            return base64ToIcon(icon.Base64, ref customIconUUID, ref iconId);
         }
 
         /// <summary>

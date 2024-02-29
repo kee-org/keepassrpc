@@ -2,57 +2,44 @@ using KeePassRPC.Models.Shared;
 
 namespace KeePassRPC.Models.DataExchange.V2
 {
-    public class Entry2 : LightEntry
+    public class Entry2 : LightEntry2
     {
-        public string HTTPRealm;
-        public FormField[] FormFieldList;
+        public string Realm;
+        public ResolvedField[] Fields;
+        public EntryAutomationBehaviour? Behaviour;
 
         // How accurately do the URLs in this entry match the URL we are looking for?
         // Higher = better match.
         // We don't consider protocol
         public int MatchAccuracy;
 
-        public bool AlwaysAutoFill;
-        public bool NeverAutoFill;
-        public bool AlwaysAutoSubmit;
-        public bool NeverAutoSubmit;
-        public int Priority; // "Kee priority" = 0 (no longer used)
-
-        public Group Parent;
-        public Database Db;
+        public Group2 Parent;
+        public Database2 Db;
 
         public Entry2() { }
 
         public Entry2(
             string[] urls,
-            string hTTPRealm,
+            string realm,
             string title,
-            FormField[] formFieldList,
-            string uniqueID,
-            bool alwaysAutoFill,
-            bool neverAutoFill,
-            bool alwaysAutoSubmit,
-            bool neverAutoSubmit,
-            int priority,
-            Group parent,
-            string iconImageData,
-            Database db,
+            ResolvedField[] fields,
+            EntryAutomationBehaviour? behaviour,
+            string uuid,
+            Group2 parent,
+            Icon icon,
+            Database2 db,
             int matchAccuracy)
         {
-            URLs = urls;
-            HTTPRealm = hTTPRealm;
+            Urls = urls;
+            Realm = realm;
             Title = title;
-            FormFieldList = formFieldList;
-            UniqueID = uniqueID;
-            AlwaysAutoFill = alwaysAutoFill;
-            NeverAutoFill = neverAutoFill;
-            AlwaysAutoSubmit = alwaysAutoSubmit;
-            NeverAutoSubmit = neverAutoSubmit;
-            Priority = priority;
+            Fields = fields;
+            Uuid = uuid;
             Parent = parent;
-            IconImageData = iconImageData;
+            Icon = icon;
             Db = db;
             MatchAccuracy = matchAccuracy;
+            Behaviour = behaviour;
         }
     }
 }

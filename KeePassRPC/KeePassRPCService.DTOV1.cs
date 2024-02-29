@@ -371,5 +371,151 @@ namespace KeePassRPC
         }
 
         #endregion
+
+
+/// <summary>
+/// Returns a list of every entry in the database
+/// </summary>
+/// <param name="urlRequired">true = URL field must exist for a child entry to be returned, false = all entries are returned</param>
+/// <param name="current__"></param>
+/// <returns>all logins in the database subject to the urlRequired setting</returns>
+public Entry[] getAllLogins(bool urlRequired)
+{
+    int count = 0;
+    List<Entry> allEntries = new List<Entry>();
+
+    // Make sure there is an active database
+    if (!ensureDBisOpen())
+    {
+        return null;
+    }
+
+    KeePassLib.Collections.PwObjectList<PwEntry> output;
+    output = GetRootPwGroup(host.Database).GetEntries(true);
+
+    foreach (PwEntry pwe in output)
+    {
+        if (EntryIsInRecycleBin(pwe, host.Database))
+            continue; // ignore if it's in the recycle bin
+
+        if (urlRequired && string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
+            continue; // ignore if it has no URL
+
+        Entry kpe = (Entry)GetEntryFromPwEntry(pwe, MatchAccuracy.None, true, host.Database, true);
+        if (kpe != null) // is null if entry is marked as hidden from KPRPC
+        {
+            allEntries.Add(kpe);
+            count++;
+        }
+    }
+
+    allEntries.Sort(delegate(Entry e1, Entry e2) { return e1.Title.CompareTo(e2.Title); });
+
+    return allEntries.ToArray();
+}
+
+
+        /// <summary>
+        /// Returns a list of every entry contained within a group (not recursive)
+        /// </summary>
+        /// <param name="pwd">the database to search in</param>
+        /// <param name="group">the group to search in</param>
+        /// <param name="fullDetails">true = all details; false = some details ommitted (e.g. password)</param>
+        /// <param name="urlRequired">true = URL field must exist for a child entry to be returned, false = all entries are returned</param>
+        /// <param name="current__"></param>
+        /// <returns>the list of every entry directly inside the group.</returns>
+        private LightEntry[] GetChildEntries(PwDatabase pwd, PwGroup group, bool fullDetails, bool urlRequired)
+        {
+            List<Entry> allEntries = new List<Entry>();
+            List<LightEntry> allLightEntries = new List<LightEntry>();
+
+            if (group != null)
+            {
+                KeePassLib.Collections.PwObjectList<PwEntry> output;
+                output = group.GetEntries(false);
+
+                foreach (PwEntry pwe in output)
+                {
+                    if (EntryIsInRecycleBin(pwe, pwd))
+                        continue; // ignore if it's in the recycle bin
+
+                    if (urlRequired && string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
+                        continue;
+                    if (fullDetails)
+                    {
+                        Entry kpe = (Entry)GetEntryFromPwEntry(pwe, MatchAccuracy.None, true, pwd, true);
+                        if (kpe != null) // is null if entry is marked as hidden from KPRPC
+                            allEntries.Add(kpe);
+                    }
+                    else
+                    {
+                        LightEntry kpe = GetEntryFromPwEntry(pwe, MatchAccuracy.None, false, pwd, true);
+                        if (kpe != null) // is null if entry is marked as hidden from KPRPC
+                            allLightEntries.Add(kpe);
+                    }
+                }
+
+                if (fullDetails)
+                {
+                    allEntries.Sort(delegate(Entry e1, Entry e2) { return e1.Title.CompareTo(e2.Title); });
+                    return allEntries.ToArray();
+                }
+                else
+                {
+                    allLightEntries.Sort(delegate(LightEntry e1, LightEntry e2)
+                    {
+                        return e1.Title.CompareTo(e2.Title);
+                    });
+                    return allLightEntries.ToArray();
+                }
+            }
+
+            return null;
+        }
+
+
+        /// <summary>
+        /// Returns a list of every group contained within a group
+        /// </summary>
+        /// <param name="group">the unique ID of the group we're interested in.</param>
+        /// <param name="complete">true = recursive, including Entries too (direct child entries are not included)</param>
+        /// <param name="fullDetails">true = all details; false = some details ommitted (e.g. password)</param>
+        /// <returns>the list of every group directly inside the group.</returns>
+        private Group[] GetChildGroups(PwDatabase pwd, PwGroup group, bool complete, bool fullDetails)
+        {
+            List<Group> allGroups = new List<Group>();
+
+            if (pwd == null || group == null)
+            {
+                return null;
+            }
+
+            KeePassLib.Collections.PwObjectList<PwGroup> output;
+            output = group.Groups;
+
+            foreach (PwGroup pwg in output)
+            {
+                if (pwd.RecycleBinUuid.Equals(pwg.Uuid))
+                    continue; // ignore if it's the recycle bin
+
+                Group kpg = GetGroupFromPwGroup(pwg);
+
+                if (complete)
+                {
+                    kpg.ChildGroups = GetChildGroups(pwd, pwg, true, fullDetails);
+                    if (fullDetails)
+                        kpg.ChildEntries = (Entry[])GetChildEntries(pwd, pwg, fullDetails, true);
+                    else
+                        kpg.ChildLightEntries = GetChildEntries(pwd, pwg, fullDetails, true);
+                }
+
+                allGroups.Add(kpg);
+            }
+
+            allGroups.Sort(delegate(Group g1, Group g2) { return g1.Title.CompareTo(g2.Title); });
+
+            return allGroups.ToArray();
+        }
+
     }
 }

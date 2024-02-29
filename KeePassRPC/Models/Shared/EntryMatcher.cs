@@ -4,7 +4,8 @@ namespace KeePassRPC.Models.Shared
 {
     // How we can determine if an entry matches a given search context. At least one property must be set.
     // An array property matches if any of its items match.
-    // Some matchers are applied in the KPRPC server when we know we could save transferring unnecessary entries to the client, others are matched according to the client's implementation of the match configuration
+    // Some matchers are applied in the KPRPC server when we know we could save transferring unnecessary entries
+    // to the client, others are matched according to the client's implementation of the match configuration
     public class EntryMatcher : IEquatable<EntryMatcher>
     {
         public MatcherLogic? MatchLogic; // default to Client initially
