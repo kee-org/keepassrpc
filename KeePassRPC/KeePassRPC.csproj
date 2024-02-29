@@ -200,6 +200,8 @@
     <Compile Include="Forms\OptionsForm.Designer.cs">
       <DependentUpon>OptionsForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="KeePassRPCService.DTOV1.cs" />
+    <Compile Include="KeePassRPCService.DTOV2.cs" />
     <Compile Include="KeyChallengeResponse.cs" />
     <Compile Include="KeyContainerClass.cs" />
     <Compile Include="MatchAccuracyMethod.cs" />
@@ -225,16 +227,17 @@
     <Compile Include="Models\DataExchange\V2\Database2.cs" />
     <Compile Include="Models\DataExchange\V2\Entry2.cs" />
     <Compile Include="Models\DataExchange\V2\Group2.cs" />
+    <Compile Include="Models\DataExchange\V2\Icon.cs" />
     <Compile Include="Models\DataExchange\V2\LightEntry2.cs" />
     <Compile Include="Models\Persistent\EntryConfigv1.cs" />
     <Compile Include="Models\Persistent\EntryConfigv2.cs" />
-    <Compile Include="Models\Persistent\Field.cs" />
     <Compile Include="Models\Persistent\GuidService.cs" />
     <Compile Include="Models\Persistent\IGuidService.cs" />
     <Compile Include="Models\Shared\EntryAutomationBehaviour.cs" />
     <Compile Include="Models\Shared\EntryMatcher.cs" />
     <Compile Include="Models\Shared\EntryMatcherConfig.cs" />
     <Compile Include="Models\Shared\EntryMatcherType.cs" />
+    <Compile Include="Models\Shared\Field.cs" />
     <Compile Include="Models\Shared\FieldMatcherConfig.cs" />
     <Compile Include="Models\Shared\FieldMatcherType.cs" />
     <Compile Include="Models\Shared\FormField.cs" />

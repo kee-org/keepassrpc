@@ -1,8 +1,6 @@
 using System;
-using KeePassLib;
-using KeePassRPC.Models.Shared;
 
-namespace KeePassRPC.Models.Persistent
+namespace KeePassRPC.Models.Shared
 {
     public class Field : IEquatable<Field>
     {

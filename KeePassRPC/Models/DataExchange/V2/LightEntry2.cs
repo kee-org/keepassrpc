@@ -1,30 +1,33 @@
-namespace KeePassRPC.Models.DataExchange
+namespace KeePassRPC.Models.DataExchange.V2
 {
     public class LightEntry2
     {
-        public string[] URLs;
+        public string[] Urls;
         public string Title;
-        public string UniqueID;
+        public string Uuid;
         public string UsernameValue;
         public string UsernameName;
-        public string IconImageData;
+        public Icon Icon;
+        public string[] AuthenticationMethods;
 
         public LightEntry2() { }
 
         public LightEntry2(
             string[] urls,
             string title,
-            string uniqueID,
-            string iconImageData,
+            string uuid,
+            Icon icon,
             string usernameName,
-            string usernameValue)
+            string usernameValue,
+            string[] authenticationMethods)
         {
-            URLs = urls;
+            Urls = urls;
             Title = title;
-            UniqueID = uniqueID;
-            IconImageData = iconImageData;
+            Uuid = uuid;
+            Icon = icon;
             UsernameName = usernameName;
             UsernameValue = usernameValue;
+            AuthenticationMethods = authenticationMethods;
         }
     }
 }

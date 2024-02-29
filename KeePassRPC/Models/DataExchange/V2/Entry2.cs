@@ -1,6 +1,6 @@
 using KeePassRPC.Models.Shared;
 
-namespace KeePassRPC.Models.DataExchange
+namespace KeePassRPC.Models.DataExchange.V2
 {
     public class Entry2 : LightEntry
     {
