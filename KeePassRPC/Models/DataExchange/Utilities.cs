@@ -67,16 +67,16 @@ namespace KeePassRPC.Models.DataExchange
             }
         }
         
-        public static FormFieldType FieldTypeToFormFieldType(FieldType ft)
+        public static FormFieldType FieldTypeToFormFieldType(FieldType ft, string htmlType = null)
         {
-            //Note loss of precision converting from Existing to Radio/Select. Thus, this method should only
+            //Note potential loss of precision converting from Existing to Radio/Select. Thus, this method should only
             //be used as long as is necessary for the transition from config v1 to v2.
             switch (ft)
             {
                 case FieldType.Password:
                     return FormFieldType.FFTpassword;
                 case FieldType.Existing:
-                    return FormFieldType.FFTradio;
+                    return htmlType == "select-one" ? FormFieldType.FFTselect : FormFieldType.FFTradio;
                 case FieldType.Toggle:
                     return FormFieldType.FFTcheckbox;
                 default:

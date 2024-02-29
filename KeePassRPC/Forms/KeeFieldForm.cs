@@ -91,9 +91,9 @@ namespace KeePassRPC.Forms
             textBox1.Text = Name = name;
             textBox3.Text = Id = id;
             Page = page;
-            HtmlType = htmlType;
-            QuerySelector = querySelector;
             textBox4.Text = Page.ToString();
+            textBox5.Text = QuerySelector = querySelector;
+            textBox6.Text = HtmlType = htmlType;
 
             switch (phh)
             {
@@ -131,6 +131,8 @@ namespace KeePassRPC.Forms
 
             Name = textBox1.Text;
             Id = textBox3.Text;
+            QuerySelector = textBox5.Text;
+            HtmlType = textBox6.Text;
             if (!int.TryParse(textBox4.Text, out Page)) Page = 1;
             if (comboBox1.Text == "Password")
                 Type = FieldType.Password;

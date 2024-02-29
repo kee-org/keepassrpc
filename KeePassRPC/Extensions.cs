@@ -84,7 +84,7 @@ namespace KeePassRPC
                 {
                     conf = (EntryConfigv2)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfigv2), json);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     var url = entry.Strings.ReadSafe("URL");
                     if (string.IsNullOrEmpty(url))

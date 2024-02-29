@@ -222,6 +222,10 @@
     <Compile Include="Models\DataExchange\MatchAccuracyEnum.cs" />
     <Compile Include="Models\DataExchange\Signal.cs" />
     <Compile Include="Models\DataExchange\SRPParams.cs" />
+    <Compile Include="Models\DataExchange\V2\Database2.cs" />
+    <Compile Include="Models\DataExchange\V2\Entry2.cs" />
+    <Compile Include="Models\DataExchange\V2\Group2.cs" />
+    <Compile Include="Models\DataExchange\V2\LightEntry2.cs" />
     <Compile Include="Models\Persistent\EntryConfigv1.cs" />
     <Compile Include="Models\Persistent\EntryConfigv2.cs" />
     <Compile Include="Models\Persistent\Field.cs" />
