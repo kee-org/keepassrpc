@@ -33,7 +33,7 @@ namespace KeePassRPC
     public sealed class KeePassRPCExt : Plugin
     {
         // version information
-        public static readonly Version PluginVersion = new Version(1, 16, 0);
+        public static readonly Version PluginVersion = new Version(2, 0, 0);
 
         public override string UpdateUrl
         {

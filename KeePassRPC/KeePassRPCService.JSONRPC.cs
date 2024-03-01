@@ -992,10 +992,11 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public Entry2 AddEntry(Entry2 entry, string parentUuid, string dbFileName)
         {
-            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
-            // {
-            //     throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
-            // }
+            if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
+            {
+                throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
+            }
+            
             // Make sure there is an active database
             if (!ensureDBisOpen()) return null;
 
@@ -1043,11 +1044,11 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public Entry2 UpdateEntry(Entry2 entry, string oldLoginUuid, int urlMergeMode, string dbFileName)
         {
-            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
-            // {
-            //     throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
-            // }
-            //
+            if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
+            {
+                throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
+            }
+            
             if (entry == null)
                 throw new ArgumentException("(new) entry was not passed to the updateEntry function");
             if (string.IsNullOrEmpty(oldLoginUuid))
@@ -1081,14 +1082,14 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public DatabaseAndIcons[] AllDatabasesAndIcons(bool fullDetails)
         {
-            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
-            // {
-            //     throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
-            // }
-            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_ICON_REFERENCES"))
-            // {
-            //     throw new Exception("Client feature missing: KPRPC_FEATURE_ICON_REFERENCES");
-            // }
+            if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
+            {
+                throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
+            }
+            if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_ICON_REFERENCES"))
+            {
+                throw new Exception("Client feature missing: KPRPC_FEATURE_ICON_REFERENCES");
+            }
             var dis = new List<DatabaseAndIcons>();
             var dbs = AllDatabases(fullDetails);
             foreach (var db in dbs)
@@ -1107,14 +1108,14 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public IconCollection AllIcons(string dbFileName)
         {
-            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
-            // {
-            //     throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
-            // }
-            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_ICON_REFERENCES"))
-            // {
-            //     throw new Exception("Client feature missing: KPRPC_FEATURE_ICON_REFERENCES");
-            // }
+            if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
+            {
+                throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
+            }
+            if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_ICON_REFERENCES"))
+            {
+                throw new Exception("Client feature missing: KPRPC_FEATURE_ICON_REFERENCES");
+            }
             var database = host.MainWindow.DocumentManager.GetOpenDatabases().Single(db => db.IOConnectionInfo.Path == dbFileName);
             var customIcons = new List<IconData>(database.CustomIcons.Count);
             foreach (var ci in database.CustomIcons)
@@ -1141,10 +1142,11 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public Database2[] AllDatabases(bool fullDetails)
         {
-            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
-            // {
-            //     throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
-            // }
+            if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
+            {
+                throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
+            }
+            
             Debug.Indent();
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -1180,11 +1182,10 @@ namespace KeePassRPC
         public Entry2[] FindEntries(string[] unsanitisedUrls, bool requireFullUrlMatches,
             string uuid, string dbFileName, string freeTextSearch, string username)
         {
-            //TODO: renenable checks in all methods
-            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
-            // {
-            //     throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
-            // }
+            if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
+            {
+                throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
+            }
 
             List<PwDatabase> dbs = null;
             int count = 0;
