@@ -359,7 +359,7 @@ namespace KeePassRPC
             PwIcon iconId = PwIcon.Key;
             if (login.IconImageData != null
                 && login.IconImageData.Length > 0
-                && iconConverter.base64ToIcon(login.IconImageData, ref customIconUUID, ref iconId))
+                && iconConverter.base64ToIcon(ClientMetadata, login.IconImageData, ref customIconUUID, ref iconId))
             {
                 if (customIconUUID == PwUuid.Zero)
                     pwe.IconId = iconId;

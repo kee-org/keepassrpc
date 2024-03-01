@@ -673,13 +673,11 @@ namespace KeePassRPC
         /// Return the root group of the active database for the current location
         /// </summary>
         /// <returns>the root group</returns>
-        //TODO: Probably should not have been a public [JsonRpcMethod] but verify no backwards compat issues
         private PwGroup GetRootPwGroup(PwDatabase pwd)
         {
             string locationId = host.CustomConfig
                 .GetString("KeePassRPC.currentLocation", "");
             return GetRootPwGroup(pwd, locationId);
         }
-
     }
 }

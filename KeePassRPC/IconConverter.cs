@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using KeePass.Plugins;
 using KeePassLib;
+using KeePassLib.Utility;
 using KeePassRPC.JsonRpc;
 using KeePassRPC.Models.DataExchange;
 using Icon = KeePassRPC.Models.DataExchange.V2.Icon;
@@ -46,22 +48,27 @@ namespace KeePassRPC
         /// <returns></returns>
         public Icon iconToDto(ClientMetadata clientMetadata, PwUuid customIconUUID, PwIcon iconId)
         {
-
-            //TODO: if feature flag: ICON_SET_1 or CUSTOM_ICON_REFERENCES skip return of full data, etc.
+            if ((clientMetadata != null && clientMetadata.Features != null &&
+                 clientMetadata.Features.Contains("ICON_REFERENCES")))
+            {
+                if (customIconUUID != PwUuid.Zero)
+                {
+                    return new Icon()
+                    {
+                        RefId = customIconUUID.ToHexString()
+                    };
+                }
+                return new Icon()
+                {
+                    Index = ((int)iconId).ToString()
+                };
+            }
             return new Icon()
             {
                 Base64 = iconToBase64(customIconUUID, iconId)
             };
-            // if (customIconUUID != PwUuid.Zero)
-            // {
-            //     //TODO: CUSTOM_ICON_REFERENCES feature flag
-            //     return new Icon()
-            //     {
-            //         Base64 = iconToBase64(customIconUUID, iconId)
-            //     };
-            // }
         }
-        
+
 
         /// <summary>
         /// extract the current icon information for this entry
@@ -88,6 +95,7 @@ namespace KeePassRPC
                     {
                         icon = (Image)invokeResult;
                     }
+
                     if (icon != null)
                     {
                         uuid = customIconUUID;
@@ -103,7 +111,8 @@ namespace KeePassRPC
             if (icon == null)
             {
                 int iconIdInt = (int)iconId;
-                uuid = new PwUuid(new byte[]{
+                uuid = new PwUuid(new byte[]
+                {
                     (byte)(iconIdInt & 0xFF), (byte)(iconIdInt & 0xFF),
                     (byte)(iconIdInt & 0xFF), (byte)(iconIdInt & 0xFF),
                     (byte)(iconIdInt >> 8 & 0xFF), (byte)(iconIdInt >> 8 & 0xFF),
@@ -118,7 +127,7 @@ namespace KeePassRPC
                 if (string.IsNullOrEmpty(cachedBase64))
                 {
                     object[] delParams = { (int)iconId };
-                    object invokeResult = host.MainWindow.Invoke( //TODO: Contender for Mono icon bug cause?
+                    object invokeResult = host.MainWindow.Invoke(
                         new KeePassRPCExt.GetIconDelegate(
                             KeePassRPCPlugin.GetIcon), delParams);
                     if (invokeResult != null)
@@ -143,8 +152,10 @@ namespace KeePassRPC
                     {
                         icon.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                     }
+
                     imageData = Convert.ToBase64String(ms.ToArray());
                 }
+
                 IconCache<PwUuid>.AddIcon(uuid, imageData);
             }
 
@@ -161,8 +172,33 @@ namespace KeePassRPC
         /// or matched with a standard icon.</returns>
         public bool dtoToIcon(ClientMetadata clientMetadata, Icon icon, ref PwUuid customIconUUID, ref PwIcon iconId)
         {
-            //TODO: handle Index and Ref properties if client feature flags permit
-            return base64ToIcon(icon.Base64, ref customIconUUID, ref iconId);
+            iconId = PwIcon.Key;
+            customIconUUID = PwUuid.Zero;
+            if (!String.IsNullOrEmpty(icon.Index))
+            {
+                try
+                {
+                    iconId = (PwIcon)int.Parse(icon.Index);
+                    return true;
+                }
+                catch
+                {
+                    // ignore
+                }
+            }
+            if (!String.IsNullOrEmpty(icon.RefId))
+            {
+                try
+                {
+                    customIconUUID = new PwUuid(MemUtil.HexStringToByteArray(icon.RefId));
+                    return true;
+                }
+                catch
+                {
+                    // ignore
+                }
+            }
+            return base64ToIcon(clientMetadata, icon.Base64, ref customIconUUID, ref iconId);
         }
 
         /// <summary>
@@ -173,7 +209,8 @@ namespace KeePassRPC
         /// <param name="iconId">PwIcon of the matched standard icon; ignore if customIconUUID != Zero</param>
         /// <returns>true if the supplied imageData was converted into a customIcon 
         /// or matched with a standard icon.</returns>
-        public bool base64ToIcon(string imageData, ref PwUuid customIconUUID, ref PwIcon iconId)
+        public bool base64ToIcon(ClientMetadata clientMetadata, string imageData, ref PwUuid customIconUUID,
+            ref PwIcon iconId)
         {
             iconId = PwIcon.Key;
             customIconUUID = PwUuid.Zero;
@@ -188,13 +225,25 @@ namespace KeePassRPC
                 }
             }
 
+            // Although other clients could connect and suffer performance issues due to the larger image
+            // sizes being potentially sent more than once, it's not a critical backwards incompatible
+            // change so we use the current client's capabilities as a rough indicator of whether we can
+            // safely store and deliver higher quality icons to all clients in future, at least for the
+            // object we are currently handling.
+            var maxImageSize = (clientMetadata != null && clientMetadata.Features != null &&
+                                clientMetadata.Features.Contains("ICON_REFERENCES"))
+                ? 64
+                : 16;
+
             try
             {
                 //MemoryStream id = new MemoryStream();
                 //icon.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
 
-                using (Image img = KeePass.UI.UIUtil.LoadImage(Convert.FromBase64String(imageData)))
-                using (Image imgNew = new Bitmap(img, new Size(16, 16)))
+                using (Image img = GfxUtil.LoadImage(Convert.FromBase64String(imageData)))
+                    // Should already be a Bitmap but we clone it anyway
+                using (Image imgNew = new Bitmap(img,
+                           new Size(Math.Min(maxImageSize, img.Width), Math.Min(maxImageSize, img.Height))))
                 using (MemoryStream ms = new MemoryStream())
                 {
                     // No need to lock here because we've created a new Bitmap 
@@ -215,12 +264,12 @@ namespace KeePassRPC
                             return true;
                         }
                     }
+
                     PwCustomIcon pwci = new PwCustomIcon(new PwUuid(true), msByteArray);
                     host.Database.CustomIcons.Add(pwci);
 
                     customIconUUID = pwci.Uuid;
                     host.Database.UINeedsIconUpdate = true;
-
                 }
 
                 return true;

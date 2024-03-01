@@ -957,8 +957,6 @@ namespace KeePassRPC
 
                         if (entryIsAMatch)
                         {
-                            //TODO: Update dozens of JSONRPC method signatures to accept either Entry or Entry2, etc.? Or duplicate them all? Thousands of lines of code though!!!! Also have previously used and deprecated some useful method names...
-                            // Maybe first step is to find out exactly which methods work with the entities that will be upgraded and identify suitable names for the new methods to replace them.
                             Entry kpe = (Entry)GetEntryFromPwEntry(pwe, bestMatchAccuracy, true, db);
                             if (kpe != null)
                             {
@@ -1086,32 +1084,66 @@ namespace KeePassRPC
         }
 
         [JsonRpcMethod]
-        public Database2[] AllDatabases(bool fullDetails)
+        public DatabaseAndIcons[] AllDatabasesAndIcons(bool fullDetails)
         {
             // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("DTO_V2"))
             // {
             //     throw new Exception("Client feature missing: DTO_V2");
             // }
-            
-            Debug.Indent();
-            Stopwatch sw = Stopwatch.StartNew();
-
-            List<PwDatabase> dbs = host.MainWindow.DocumentManager.GetOpenDatabases();
-            // unless the DB is the wrong version
-            dbs = dbs.FindAll(ConfigIsCorrectVersion);
-            List<Database2> output = new List<Database2>(1);
-
-            foreach (PwDatabase db in dbs)
+            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("ICON_REFERENCES"))
+            // {
+            //     throw new Exception("Client feature missing: ICON_REFERENCES");
+            // }
+            var dbs = AllDatabases(fullDetails);
+            foreach (var db in dbs)
             {
-                output.Add(GetDatabase2FromPwDatabase(db, fullDetails, false, true));
+                var iconCollection = AllIcons(db.FileName);
             }
-
-            Database2[] dbarray = output.ToArray();
-            sw.Stop();
-            Debug.WriteLine("GetAllDatabases execution time: " + sw.Elapsed);
-            Debug.Unindent();
+            return new DatabaseAndIcons[]; // TODO: do we want to have to pull out each individual DB in the client or not.........
+        }
+        
+        [JsonRpcMethod]
+        public IconCollection AllIcons(string dbFileName)
+        {
+            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("DTO_V2"))
+            // {
+            //     throw new Exception("Client feature missing: DTO_V2");
+            // }
+            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("ICON_REFERENCES"))
+            // {
+            //     throw new Exception("Client feature missing: ICON_REFERENCES");
+            // }
+            
             return dbarray;
         }
+            
+            
+            [JsonRpcMethod]
+            public Database2[] AllDatabases(bool fullDetails)
+            {
+                // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("DTO_V2"))
+                // {
+                //     throw new Exception("Client feature missing: DTO_V2");
+                // }
+                    Debug.Indent();
+                    Stopwatch sw = Stopwatch.StartNew();
+
+                    List<PwDatabase> dbs = host.MainWindow.DocumentManager.GetOpenDatabases();
+                    // unless the DB is the wrong version
+                    dbs = dbs.FindAll(ConfigIsCorrectVersion);
+                    List<Database2> output = new List<Database2>(1);
+
+                    foreach (PwDatabase db in dbs)
+                    {
+                        output.Add(GetDatabase2FromPwDatabase(db, fullDetails, false, true));
+                    }
+
+                    Database2[] dbarray = output.ToArray();
+                    sw.Stop();
+                    Debug.WriteLine("GetAllDatabases execution time: " + sw.Elapsed);
+                    Debug.Unindent();
+                    return dbarray;
+                }
 
 
         /// <summary>

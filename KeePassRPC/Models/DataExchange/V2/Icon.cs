@@ -2,8 +2,8 @@ namespace KeePassRPC.Models.DataExchange.V2
 {
     public class Icon
     {
-        public string Index; // Requires feature ICON_SET_1, etc.
-        public string RefId; // Requires feature CUSTOM_ICON_REFERENCES
+        public string Index; // Requires feature ICON_REFERENCES
+        public string RefId; // Requires feature ICON_REFERENCES
         public string Base64; // format assumed to be PNG
         
         public Icon() { }
