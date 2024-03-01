@@ -7,6 +7,7 @@ using KeePassLib;
 using KeePassLib.Utility;
 using KeePassRPC.JsonRpc;
 using KeePassRPC.Models.DataExchange;
+using KeePassRPC.Models.DataExchange.V2;
 using Icon = KeePassRPC.Models.DataExchange.V2.Icon;
 
 namespace KeePassRPC
@@ -24,21 +25,32 @@ namespace KeePassRPC
             this._standardIconsBase64 = _standardIconsBase64;
         }
 
-        private string dbIconToBase64(PwDatabase db)
-        {
-            string cachedBase64 = IconCache<string>.GetIconEncoding(db.IOConnectionInfo.Path);
-            if (string.IsNullOrEmpty(cachedBase64))
-            {
-                // Don't think this should ever happen but we'll return a null icon if we have to
-                return "";
-            }
-            else
-            {
-                return cachedBase64;
-            }
-        }
 
         private static object iconSavingLock = new object();
+
+        public IconData[] Base64StandardIconsUnknownToClient(ClientMetadata clientMetadata)
+        {
+            var highestIndex = HighestKnownStandardIconIndex(clientMetadata);
+
+            return _standardIconsBase64.Skip(highestIndex).Select((data, index) => new IconData()
+            {
+                Id = index.ToString(),
+                Icon = data
+            }).ToArray();
+        }
+
+        private int HighestKnownStandardIconIndex(ClientMetadata clientMetadata)
+        {
+            if (clientMetadata != null && clientMetadata.Features != null)
+            {
+                if (clientMetadata.Features.Contains("KPRPC_FEATURE_ICON_SET_1"))
+                {
+                    return 68;
+                }
+            }
+
+            return 0;
+        }
 
         /// <summary>
         /// extract the current icon information for this entry
@@ -49,7 +61,7 @@ namespace KeePassRPC
         public Icon iconToDto(ClientMetadata clientMetadata, PwUuid customIconUUID, PwIcon iconId)
         {
             if ((clientMetadata != null && clientMetadata.Features != null &&
-                 clientMetadata.Features.Contains("ICON_REFERENCES")))
+                 clientMetadata.Features.Contains("KPRPC_FEATURE_ICON_REFERENCES")))
             {
                 if (customIconUUID != PwUuid.Zero)
                 {
@@ -231,7 +243,7 @@ namespace KeePassRPC
             // safely store and deliver higher quality icons to all clients in future, at least for the
             // object we are currently handling.
             var maxImageSize = (clientMetadata != null && clientMetadata.Features != null &&
-                                clientMetadata.Features.Contains("ICON_REFERENCES"))
+                                clientMetadata.Features.Contains("KPRPC_FEATURE_ICON_REFERENCES"))
                 ? 64
                 : 16;
 

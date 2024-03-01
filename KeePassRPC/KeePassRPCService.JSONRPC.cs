@@ -20,7 +20,6 @@ namespace KeePassRPC
 {
     public partial class KeePassRPCService
     {
-        
         /// <summary>
         /// Launches the group editor.
         /// </summary>
@@ -142,7 +141,7 @@ namespace KeePassRPC
         }
 
         #endregion
-        
+
         #region Retrival and manipulation of databases and the KeePass app
 
         [JsonRpcMethod]
@@ -387,13 +386,11 @@ namespace KeePassRPC
             return false;
         }
 
-
         #endregion
-        
-        
+
+
         #region V1 Retrival and manipulation of entries and groups
 
-        
         /// <summary>
         /// Add a new password/login to the active KeePass database
         /// </summary>
@@ -979,12 +976,11 @@ namespace KeePassRPC
 
             return allEntries.ToArray();
         }
-        
+
         #endregion
 
         #region V2 Retrival and manipulation of entries and groups
 
-        
         /// <summary>
         /// Add a new entry to the active KeePass database
         /// </summary>
@@ -996,9 +992,9 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public Entry2 AddEntry(Entry2 entry, string parentUuid, string dbFileName)
         {
-            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("DTO_V2"))
+            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
             // {
-            //     throw new Exception("Client feature missing: DTO_V2");
+            //     throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
             // }
             // Make sure there is an active database
             if (!ensureDBisOpen()) return null;
@@ -1030,7 +1026,6 @@ namespace KeePassRPC
                 host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), chosenDb);
 
             return (Entry2)GetEntry2FromPwEntry(newLogin, MatchAccuracy.Best, true, chosenDb, true);
-
         }
 
         /// <summary>
@@ -1048,9 +1043,9 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public Entry2 UpdateEntry(Entry2 entry, string oldLoginUuid, int urlMergeMode, string dbFileName)
         {
-            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("DTO_V2"))
+            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
             // {
-            //     throw new Exception("Client feature missing: DTO_V2");
+            //     throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
             // }
             //
             if (entry == null)
@@ -1086,64 +1081,89 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public DatabaseAndIcons[] AllDatabasesAndIcons(bool fullDetails)
         {
-            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("DTO_V2"))
+            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
             // {
-            //     throw new Exception("Client feature missing: DTO_V2");
+            //     throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
             // }
-            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("ICON_REFERENCES"))
+            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_ICON_REFERENCES"))
             // {
-            //     throw new Exception("Client feature missing: ICON_REFERENCES");
+            //     throw new Exception("Client feature missing: KPRPC_FEATURE_ICON_REFERENCES");
             // }
+            var dis = new List<DatabaseAndIcons>();
             var dbs = AllDatabases(fullDetails);
             foreach (var db in dbs)
             {
                 var iconCollection = AllIcons(db.FileName);
+                dis.Add(new DatabaseAndIcons()
+                {
+                    Database = db,
+                    Icons = iconCollection
+                });
             }
-            return new DatabaseAndIcons[]; // TODO: do we want to have to pull out each individual DB in the client or not.........
+
+            return dis.ToArray();
         }
-        
+
         [JsonRpcMethod]
         public IconCollection AllIcons(string dbFileName)
         {
-            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("DTO_V2"))
+            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
             // {
-            //     throw new Exception("Client feature missing: DTO_V2");
+            //     throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
             // }
-            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("ICON_REFERENCES"))
+            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_ICON_REFERENCES"))
             // {
-            //     throw new Exception("Client feature missing: ICON_REFERENCES");
+            //     throw new Exception("Client feature missing: KPRPC_FEATURE_ICON_REFERENCES");
             // }
-            
+            var database = host.MainWindow.DocumentManager.GetOpenDatabases().Single(db => db.IOConnectionInfo.Path == dbFileName);
+            var customIcons = new List<IconData>(database.CustomIcons.Count);
+            foreach (var ci in database.CustomIcons)
+            {
+                customIcons.Add(new IconData()
+                {
+                    Id = ci.Uuid.ToHexString(),
+                    Icon = iconConverter.iconToBase64(ci.Uuid, PwIcon.Key)
+                });
+            }
+
+            var standardIcons = iconConverter.Base64StandardIconsUnknownToClient(ClientMetadata);
+
+            return new IconCollection()
+            {
+                DatabaseIcon = IconCache<string>.GetIconEncoding(database.IOConnectionInfo.Path) ?? "",
+                DatabaseFilename = database.IOConnectionInfo.Path,
+                CustomIcons = customIcons.ToArray(),
+                StandardIcons = standardIcons
+            };
+        }
+
+
+        [JsonRpcMethod]
+        public Database2[] AllDatabases(bool fullDetails)
+        {
+            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
+            // {
+            //     throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
+            // }
+            Debug.Indent();
+            Stopwatch sw = Stopwatch.StartNew();
+
+            List<PwDatabase> dbs = host.MainWindow.DocumentManager.GetOpenDatabases();
+            // unless the DB is the wrong version
+            dbs = dbs.FindAll(ConfigIsCorrectVersion);
+            List<Database2> output = new List<Database2>(1);
+
+            foreach (PwDatabase db in dbs)
+            {
+                output.Add(GetDatabase2FromPwDatabase(db, fullDetails, false, true));
+            }
+
+            Database2[] dbarray = output.ToArray();
+            sw.Stop();
+            Debug.WriteLine("GetAllDatabases execution time: " + sw.Elapsed);
+            Debug.Unindent();
             return dbarray;
         }
-            
-            
-            [JsonRpcMethod]
-            public Database2[] AllDatabases(bool fullDetails)
-            {
-                // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("DTO_V2"))
-                // {
-                //     throw new Exception("Client feature missing: DTO_V2");
-                // }
-                    Debug.Indent();
-                    Stopwatch sw = Stopwatch.StartNew();
-
-                    List<PwDatabase> dbs = host.MainWindow.DocumentManager.GetOpenDatabases();
-                    // unless the DB is the wrong version
-                    dbs = dbs.FindAll(ConfigIsCorrectVersion);
-                    List<Database2> output = new List<Database2>(1);
-
-                    foreach (PwDatabase db in dbs)
-                    {
-                        output.Add(GetDatabase2FromPwDatabase(db, fullDetails, false, true));
-                    }
-
-                    Database2[] dbarray = output.ToArray();
-                    sw.Stop();
-                    Debug.WriteLine("GetAllDatabases execution time: " + sw.Elapsed);
-                    Debug.Unindent();
-                    return dbarray;
-                }
 
 
         /// <summary>
@@ -1161,11 +1181,11 @@ namespace KeePassRPC
             string uuid, string dbFileName, string freeTextSearch, string username)
         {
             //TODO: renenable checks in all methods
-            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("DTO_V2"))
+            // if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
             // {
-            //     throw new Exception("Client feature missing: DTO_V2");
+            //     throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
             // }
-            
+
             List<PwDatabase> dbs = null;
             int count = 0;
             List<Entry2> allEntries = new List<Entry2>();
@@ -1405,8 +1425,7 @@ namespace KeePassRPC
 
             return allEntries.ToArray();
         }
-        
-        #endregion
 
+        #endregion
     }
 }

@@ -16,7 +16,8 @@ namespace KeePassRPC
     {
         #region Utility functions to convert between KeePassRPC object schema and KeePass schema
 
-        private LightEntry2 GetEntry2FromPwEntry(PwEntry pwe, int matchAccuracy, bool fullDetails, PwDatabase db, bool urlRequired)
+        private LightEntry2 GetEntry2FromPwEntry(PwEntry pwe, int matchAccuracy, bool fullDetails, PwDatabase db,
+            bool urlRequired)
         {
             return GetEntry2FromPwEntry(pwe, matchAccuracy, fullDetails, db, false, urlRequired);
         }
@@ -62,7 +63,9 @@ namespace KeePassRPC
                                           (field.PlaceholderHandling == PlaceholderHandling.Default &&
                                            dbDefaultPlaceholderHandlingEnabled);
 
-                string ffValue = field.ValuePath == "." ? field.Value : KeePassRPCPlugin.GetPwEntryString(pwe, field.ValuePath, db);
+                string ffValue = field.ValuePath == "."
+                    ? field.Value
+                    : KeePassRPCPlugin.GetPwEntryString(pwe, field.ValuePath, db);
 
                 string derefValue = enablePlaceholders
                     ? KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ffValue, db)
@@ -92,7 +95,7 @@ namespace KeePassRPC
                     usernameValue = derefValue;
                 }
             }
-            
+
             Icon icon = iconConverter.iconToDto(ClientMetadata, pwe.CustomIconUuid, pwe.IconId);
 
             if (fullDetails)
@@ -112,8 +115,9 @@ namespace KeePassRPC
                     conf.Behaviour,
                     KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
                     GetGroup2FromPwGroup(pwe.ParentGroup), icon,
-                    GetDatabase2FromPwDatabase(db, false, true, urlRequired), matchAccuracy, mc, conf.AuthenticationMethods);
-                
+                    GetDatabase2FromPwDatabase(db, false, true, urlRequired), matchAccuracy, mc,
+                    conf.AuthenticationMethods);
+
                 return kpe;
             }
             else
@@ -154,10 +158,14 @@ namespace KeePassRPC
                 if (!noDetail)
                     rt.ChildGroups = GetChildGroups2(pwd, pwg, true, fullDetail);
 
-                var icon = new Icon()
-                {
-                    Base64 = IconCache<string>.GetIconEncoding(pwd.IOConnectionInfo.Path) ?? ""
-                };
+                // Can just send a null icon if we know the client can get it elsewhere
+                var icon = (ClientMetadata != null && ClientMetadata.Features != null &&
+                            ClientMetadata.Features.Contains("KPRPC_FEATURE_ICON_REFERENCES"))
+                    ? null
+                    : new Icon()
+                    {
+                        Base64 = IconCache<string>.GetIconEncoding(pwd.IOConnectionInfo.Path) ?? ""
+                    };
 
                 Database2 kpd = new Database2(pwd.Name, pwd.IOConnectionInfo.Path, rt,
                     (pwd == host.Database) ? true : false, icon);
@@ -192,6 +200,7 @@ namespace KeePassRPC
                     pwe.Strings.Set(PwDefs.UserNameField,
                         new ProtectedString(host.Database.MemoryProtection.ProtectUserName, incomingField.Value));
                 }
+
                 fields.Add(new Field()
                 {
                     Name = incomingField.Name,
@@ -202,7 +211,6 @@ namespace KeePassRPC
                     MatcherConfigs = incomingField.MatcherConfigs,
                     Value = incomingField.ValuePath == "." ? incomingField.Value : null
                 });
-                
             }
 
             conf.Fields = fields.ToArray();
@@ -260,8 +268,8 @@ namespace KeePassRPC
         }
 
         #endregion
-        
-        
+
+
         /// <summary>
         /// Returns a list of every entry contained within a group (not recursive)
         /// </summary>
@@ -363,6 +371,5 @@ namespace KeePassRPC
 
             return allGroups.ToArray();
         }
-
     }
 }
