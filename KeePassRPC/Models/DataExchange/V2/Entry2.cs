@@ -16,6 +16,8 @@ namespace KeePassRPC.Models.DataExchange.V2
         public Group2 Parent;
         public Database2 Db;
 
+        public EntryMatcherConfig[] MatcherConfigs;
+
         public Entry2() { }
 
         public Entry2(
@@ -28,7 +30,8 @@ namespace KeePassRPC.Models.DataExchange.V2
             Group2 parent,
             Icon icon,
             Database2 db,
-            int matchAccuracy)
+            int matchAccuracy,
+            EntryMatcherConfig[] matcherConfigs)
         {
             Urls = urls;
             Realm = realm;
@@ -40,6 +43,7 @@ namespace KeePassRPC.Models.DataExchange.V2
             Db = db;
             MatchAccuracy = matchAccuracy;
             Behaviour = behaviour;
+            MatcherConfigs = matcherConfigs;
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Drawing;
 using System.IO;
 using KeePass.Plugins;
 using KeePassLib;
+using KeePassRPC.JsonRpc;
 using KeePassRPC.Models.DataExchange;
 using Icon = KeePassRPC.Models.DataExchange.V2.Icon;
 
@@ -43,8 +44,10 @@ namespace KeePassRPC
         /// <param name="customIconUUID"></param>
         /// <param name="iconId"></param>
         /// <returns></returns>
-        public Icon iconToDto(PwUuid customIconUUID, PwIcon iconId)
+        public Icon iconToDto(ClientMetadata clientMetadata, PwUuid customIconUUID, PwIcon iconId)
         {
+
+            //TODO: if feature flag: ICON_SET_1 or CUSTOM_ICON_REFERENCES do diufferent stuff ...
             return new Icon()
             {
                 Base64 = iconToBase64(customIconUUID, iconId)

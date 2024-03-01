@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using KeePassLib;
 using KeePassLib.Security;
+using KeePassRPC.JsonRpc;
 using KeePassRPC.Models.DataExchange;
 using KeePassRPC.Models.DataExchange.V2;
 using KeePassRPC.Models.Persistent;
@@ -15,21 +16,21 @@ namespace KeePassRPC
     {
         #region Utility functions to convert between KeePassRPC object schema and KeePass schema
 
-        private LightEntry2 GetEntry2FromPwEntry(PwEntry pwe, int matchAccuracy, bool fullDetails, PwDatabase db)
+        private LightEntry2 GetEntry2FromPwEntry(ClientMetadata clientMetadata, PwEntry pwe, int matchAccuracy, bool fullDetails, PwDatabase db)
         {
-            return GetEntry2FromPwEntry(pwe, matchAccuracy, fullDetails, db, false);
+            return GetEntry2FromPwEntry(clientMetadata, pwe, matchAccuracy, fullDetails, db, false);
         }
 
-        private LightEntry2 GetEntry2FromPwEntry(PwEntry pwe, int matchAccuracy, bool fullDetails, PwDatabase db,
+        private LightEntry2 GetEntry2FromPwEntry(ClientMetadata clientMetadata, PwEntry pwe, int matchAccuracy, bool fullDetails, PwDatabase db,
             bool abortIfHidden)
         {
             EntryConfigv2 conf = pwe.GetKPRPCConfigNormalised(db.GetKPRPCConfig().DefaultMatchAccuracy);
             if (conf == null)
                 return null;
-            return GetEntry2FromPwEntry(pwe, conf, matchAccuracy, fullDetails, db, abortIfHidden);
+            return GetEntry2FromPwEntry(clientMetadata, pwe, conf, matchAccuracy, fullDetails, db, abortIfHidden);
         }
 
-        private LightEntry2 GetEntry2FromPwEntry(PwEntry pwe, EntryConfigv2 conf, int matchAccuracy, bool fullDetails,
+        private LightEntry2 GetEntry2FromPwEntry(ClientMetadata clientMetadata, PwEntry pwe, EntryConfigv2 conf, int matchAccuracy, bool fullDetails,
             PwDatabase db, bool abortIfHidden)
         {
             var fields = new List<ResolvedField>();
@@ -92,10 +93,7 @@ namespace KeePassRPC
                 }
             }
             
-            //TODO: if feature flag: ENTRY_CLIENT_MATCHERS .. add them to the DTO
-
-            //TODO: if feature flag: ICON_SET_1 or CUSTOM_ICON_REFERENCES do diufferent stuff inside...
-            Icon icon = iconConverter.iconToDto(pwe.CustomIconUuid, pwe.IconId);
+            Icon icon = iconConverter.iconToDto(clientMetadata, pwe.CustomIconUuid, pwe.IconId);
 
             if (fullDetails)
             {
@@ -104,13 +102,18 @@ namespace KeePassRPC
                     realm = conf.HttpRealm;
 
                 var temp = fields.ToArray();
+                var mc = (clientMetadata != null && clientMetadata.Features != null &&
+                          clientMetadata.Features.Contains("ENTRY_CLIENT_MATCHERS"))
+                    ? conf.MatcherConfigs
+                    : null;
                 Entry2 kpe = new Entry2(
                     urls.ToArray(), realm,
                     pwe.Strings.ReadSafe(PwDefs.TitleField), temp,
                     conf.Behaviour,
                     KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
-                    GetGroup2FromPwGroup(pwe.ParentGroup), icon,
-                    GetDatabase2FromPwDatabase(db, false, true), matchAccuracy);
+                    GetGroup2FromPwGroup(clientMetadata, pwe.ParentGroup), icon,
+                    GetDatabase2FromPwDatabase(clientMetadata, db, false, true), matchAccuracy, mc);
+                
                 return kpe;
             }
             else
@@ -122,9 +125,9 @@ namespace KeePassRPC
             }
         }
 
-        private Group2 GetGroup2FromPwGroup(PwGroup pwg)
+        private Group2 GetGroup2FromPwGroup(ClientMetadata clientMetadata, PwGroup pwg)
         {
-            Icon icon = iconConverter.iconToDto(pwg.CustomIconUuid, pwg.IconId);
+            Icon icon = iconConverter.iconToDto(clientMetadata, pwg.CustomIconUuid, pwg.IconId);
 
             Group2 kpg = new Group2(pwg.Name, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes),
                 icon, pwg.GetFullPath("/", false));
@@ -132,7 +135,7 @@ namespace KeePassRPC
             return kpg;
         }
 
-        private Database2 GetDatabase2FromPwDatabase(PwDatabase pwd, bool fullDetail, bool noDetail)
+        private Database2 GetDatabase2FromPwDatabase(ClientMetadata clientMetadata, PwDatabase pwd, bool fullDetail, bool noDetail)
         {
             try
             {
@@ -142,14 +145,14 @@ namespace KeePassRPC
                     throw new ArgumentException("Don't be silly");
 
                 PwGroup pwg = GetRootPwGroup(pwd);
-                Group2 rt = GetGroup2FromPwGroup(pwg);
+                Group2 rt = GetGroup2FromPwGroup(clientMetadata, pwg);
                 if (fullDetail)
-                    rt.ChildEntries = (Entry2[])GetChildEntries2(pwd, pwg, fullDetail, true);
+                    rt.ChildEntries = (Entry2[])GetChildEntries2(clientMetadata, pwd, pwg, fullDetail, true);
                 else if (!noDetail)
-                    rt.ChildLightEntries = GetChildEntries2(pwd, pwg, fullDetail, true);
+                    rt.ChildLightEntries = GetChildEntries2(clientMetadata, pwd, pwg, fullDetail, true);
 
                 if (!noDetail)
-                    rt.ChildGroups = GetChildGroups2(pwd, pwg, true, fullDetail);
+                    rt.ChildGroups = GetChildGroups2(clientMetadata, pwd, pwg, true, fullDetail);
 
                 var icon = new Icon()
                 {
@@ -171,7 +174,7 @@ namespace KeePassRPC
             }
         }
 
-        private void setPwEntryFromEntry2(PwEntry pwe, Entry2 entry)
+        private void setPwEntryFromEntry2(ClientMetadata clientMetadata, PwEntry pwe, Entry2 entry)
         {
             EntryConfigv2 conf =
                 (new EntryConfigv1(host.Database.GetKPRPCConfig().DefaultMatchAccuracy)).ConvertToV2(new GuidService());
@@ -268,7 +271,7 @@ namespace KeePassRPC
         /// <param name="urlRequired">true = URL field must exist for a child entry to be returned, false = all entries are returned</param>
         /// <param name="current__"></param>
         /// <returns>the list of every entry directly inside the group.</returns>
-        private LightEntry2[] GetChildEntries2(PwDatabase pwd, PwGroup group, bool fullDetails, bool urlRequired)
+        private LightEntry2[] GetChildEntries2(ClientMetadata clientMetadata, PwDatabase pwd, PwGroup group, bool fullDetails, bool urlRequired)
         {
             List<Entry2> allEntries = new List<Entry2>();
             List<LightEntry2> allLightEntries = new List<LightEntry2>();
@@ -287,13 +290,13 @@ namespace KeePassRPC
                         continue;
                     if (fullDetails)
                     {
-                        Entry2 kpe = (Entry2)GetEntry2FromPwEntry(pwe, MatchAccuracy.None, true, pwd, true);
+                        Entry2 kpe = (Entry2)GetEntry2FromPwEntry(clientMetadata, pwe, MatchAccuracy.None, true, pwd, true);
                         if (kpe != null) // is null if entry is marked as hidden from KPRPC
                             allEntries.Add(kpe);
                     }
                     else
                     {
-                        LightEntry2 kpe = GetEntry2FromPwEntry(pwe, MatchAccuracy.None, false, pwd, true);
+                        LightEntry2 kpe = GetEntry2FromPwEntry(clientMetadata, pwe, MatchAccuracy.None, false, pwd, true);
                         if (kpe != null) // is null if entry is marked as hidden from KPRPC
                             allLightEntries.Add(kpe);
                     }
@@ -325,7 +328,7 @@ namespace KeePassRPC
         /// <param name="complete">true = recursive, including Entries too (direct child entries are not included)</param>
         /// <param name="fullDetails">true = all details; false = some details ommitted (e.g. password)</param>
         /// <returns>the list of every group directly inside the group.</returns>
-        private Group2[] GetChildGroups2(PwDatabase pwd, PwGroup group, bool complete, bool fullDetails)
+        private Group2[] GetChildGroups2(ClientMetadata clientMetadata, PwDatabase pwd, PwGroup group, bool complete, bool fullDetails)
         {
             List<Group2> allGroups = new List<Group2>();
 
@@ -342,15 +345,15 @@ namespace KeePassRPC
                 if (pwd.RecycleBinUuid.Equals(pwg.Uuid))
                     continue; // ignore if it's the recycle bin
 
-                Group2 kpg = GetGroup2FromPwGroup(pwg);
+                Group2 kpg = GetGroup2FromPwGroup(clientMetadata, pwg);
 
                 if (complete)
                 {
-                    kpg.ChildGroups = GetChildGroups2(pwd, pwg, true, fullDetails);
+                    kpg.ChildGroups = GetChildGroups2(clientMetadata, pwd, pwg, true, fullDetails);
                     if (fullDetails)
-                        kpg.ChildEntries = (Entry2[])GetChildEntries2(pwd, pwg, fullDetails, true);
+                        kpg.ChildEntries = (Entry2[])GetChildEntries2(clientMetadata, pwd, pwg, fullDetails, true);
                     else
-                        kpg.ChildLightEntries = GetChildEntries2(pwd, pwg, fullDetails, true);
+                        kpg.ChildLightEntries = GetChildEntries2(clientMetadata, pwd, pwg, fullDetails, true);
                 }
 
                 allGroups.Add(kpg);

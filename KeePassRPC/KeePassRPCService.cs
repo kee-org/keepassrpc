@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using KeePass.UI;
+using KeePassRPC.JsonRpc;
 using KeePassRPC.Models.DataExchange;
 using KeePassRPC.Models.Persistent;
 using KeePassRPC.Models.Shared;
@@ -23,7 +24,7 @@ namespace KeePassRPC
     /// <summary>
     /// Provides an externally accessible API for common KeePass operations
     /// </summary>
-    public partial class KeePassRPCService : JsonRpcService
+    public partial class KeePassRPCService : KprpcJsonRpcService
     {
         #region Class variables, constructor and destructor
 

@@ -9,6 +9,7 @@ using System.Xml.Serialization;
 using System.Threading;
 using System.Linq;
 using System.Windows.Forms;
+using KeePassRPC.JsonRpc;
 using KeePassRPC.Models.DataExchange;
 
 namespace KeePassRPC
@@ -700,8 +701,13 @@ See https://forum.kee.pm/t/3143/ for more information.",
             StringBuilder sb = new StringBuilder();
             string output;
 
+            JsonRpcDispatcherFactory.Current = s => new KprpcJsonRpcDispatcher(s);
             JsonRpcDispatcher dispatcher = JsonRpcDispatcherFactory.CreateDispatcher(service);
-
+            (dispatcher as KprpcJsonRpcDispatcher).ClientMetadata = new ClientMetadata()
+            {
+                Features = ClientFeatures
+            };
+            
             using (StringReader request = new StringReader(jsonrpc))
             using (StringWriter response = new StringWriter(sb))
             {

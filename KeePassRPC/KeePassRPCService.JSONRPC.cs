@@ -10,6 +10,7 @@ using KeePassLib;
 using KeePassLib.Cryptography.PasswordGenerator;
 using KeePassLib.Security;
 using KeePassLib.Serialization;
+using KeePassRPC.JsonRpc;
 using KeePassRPC.Models.DataExchange;
 using KeePassRPC.Models.DataExchange.V2;
 using KeePassRPC.Models.Persistent;
@@ -995,14 +996,18 @@ namespace KeePassRPC
         ///                         if empty or null, the currently active database is used</param>
         /// <returns>The new entry, after having passed through the conversion to and from a KeePass Entry</returns>
         [JsonRpcMethod]
-        public Entry2 AddEntry(Entry2 entry, string parentUuid, string dbFileName)
+        public Entry2 AddEntry(ClientMetadata clientMetadata, Entry2 entry, string parentUuid, string dbFileName)
         {
+            if (clientMetadata == null || clientMetadata.Features == null || !clientMetadata.Features.Contains("DTO_V2"))
+            {
+                throw new Exception("Client feature missing: DTO_V2");
+            }
             // Make sure there is an active database
             if (!ensureDBisOpen()) return null;
 
             PwEntry newLogin = new PwEntry(true, true);
 
-            setPwEntryFromEntry2(newLogin, entry);
+            setPwEntryFromEntry2(clientMetadata, newLogin, entry);
 
             // find the database
             PwDatabase chosenDb = SelectDatabase(dbFileName);
@@ -1026,7 +1031,7 @@ namespace KeePassRPC
             else
                 host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), chosenDb);
 
-            return (Entry2)GetEntry2FromPwEntry(newLogin, MatchAccuracy.Best, true, chosenDb);
+            return (Entry2)GetEntry2FromPwEntry(clientMetadata, newLogin, MatchAccuracy.Best, true, chosenDb);
 
         }
 
@@ -1043,8 +1048,13 @@ namespace KeePassRPC
         /// <param name="dbFileName">Database that contains the entry to update</param>
         /// <returns>The updated entry, after having passed through the conversion to and from a KeePass Entry</returns>
         [JsonRpcMethod]
-        public Entry2 UpdateEntry(Entry2 entry, string oldLoginUuid, int urlMergeMode, string dbFileName)
+        public Entry2 UpdateEntry(ClientMetadata clientMetadata, Entry2 entry, string oldLoginUuid, int urlMergeMode, string dbFileName)
         {
+            if (clientMetadata == null || clientMetadata.Features == null || !clientMetadata.Features.Contains("DTO_V2"))
+            {
+                throw new Exception("Client feature missing: DTO_V2");
+            }
+            
             if (entry == null)
                 throw new ArgumentException("(new) entry was not passed to the updateEntry function");
             if (string.IsNullOrEmpty(oldLoginUuid))
@@ -1058,7 +1068,7 @@ namespace KeePassRPC
             // There are odd bits of the resulting new entry that we don't
             // need but the vast majority is going to be useful
             PwEntry newPwEntryData = new PwEntry(true, true);
-            setPwEntryFromEntry2(newPwEntryData, entry);
+            setPwEntryFromEntry2(clientMetadata, newPwEntryData, entry);
 
             // find the database
             PwDatabase chosenDb = SelectDatabase(dbFileName);
@@ -1072,12 +1082,17 @@ namespace KeePassRPC
 
             host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), chosenDb);
 
-            return (Entry2)GetEntry2FromPwEntry(entryToUpdate, MatchAccuracy.Best, true, chosenDb);
+            return (Entry2)GetEntry2FromPwEntry(clientMetadata, entryToUpdate, MatchAccuracy.Best, true, chosenDb);
         }
 
-        [JsonRpcMethod]
-        public Database2[] AllDatabases(bool fullDetails)
+        [JsonRpcMethod, JsonRpcPrependClientMetadataParameter]
+        public Database2[] AllDatabases(ClientMetadata clientMetadata, bool fullDetails)
         {
+            if (clientMetadata == null || clientMetadata.Features == null || !clientMetadata.Features.Contains("DTO_V2"))
+            {
+                throw new Exception("Client feature missing: DTO_V2");
+            }
+            
             Debug.Indent();
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -1088,7 +1103,7 @@ namespace KeePassRPC
 
             foreach (PwDatabase db in dbs)
             {
-                output.Add(GetDatabase2FromPwDatabase(db, fullDetails, false));
+                output.Add(GetDatabase2FromPwDatabase(clientMetadata, db, fullDetails, false));
             }
 
             Database2[] dbarray = output.ToArray();
@@ -1110,9 +1125,14 @@ namespace KeePassRPC
         /// <param name="username">Limit a search for URL to exact username matches only</param>
         /// <returns>A list of entries suitable for use by a JSON-RPC client.</returns>
         [JsonRpcMethod]
-        public Entry2[] FindEntries(string[] unsanitisedUrls, bool requireFullUrlMatches,
+        public Entry2[] FindEntries(ClientMetadata clientMetadata, string[] unsanitisedUrls, bool requireFullUrlMatches,
             string uuid, string dbFileName, string freeTextSearch, string username)
         {
+            if (clientMetadata == null || clientMetadata.Features == null || !clientMetadata.Features.Contains("DTO_V2"))
+            {
+                throw new Exception("Client feature missing: DTO_V2");
+            }
+            
             List<PwDatabase> dbs = null;
             int count = 0;
             List<Entry2> allEntries = new List<Entry2>();
@@ -1152,7 +1172,7 @@ namespace KeePassRPC
                         continue;
 
                     var logins = new Entry2[1];
-                    logins[0] = (Entry2)GetEntry2FromPwEntry(matchedLogin, MatchAccuracy.Best, true, db);
+                    logins[0] = (Entry2)GetEntry2FromPwEntry(clientMetadata, matchedLogin, MatchAccuracy.Best, true, db);
                     if (logins[0] != null)
                         return logins;
                 }
@@ -1179,7 +1199,7 @@ namespace KeePassRPC
 
                     foreach (PwEntry pwe in output)
                     {
-                        Entry2 kpe = (Entry2)GetEntry2FromPwEntry(pwe, MatchAccuracy.None, true, db);
+                        Entry2 kpe = (Entry2)GetEntry2FromPwEntry(clientMetadata, pwe, MatchAccuracy.None, true, db);
                         if (kpe != null)
                         {
                             allEntries.Add(kpe);
@@ -1330,9 +1350,7 @@ namespace KeePassRPC
 
                         if (entryIsAMatch)
                         {
-                            //TODO: Update dozens of JSONRPC method signatures to accept either Entry or Entry2, etc.? Or duplicate them all? Thousands of lines of code though!!!! Also have previously used and deprecated some useful method names...
-                            // Maybe first step is to find out exactly which methods work with the entities that will be upgraded and identify suitable names for the new methods to replace them.
-                            Entry2 kpe = (Entry2)GetEntry2FromPwEntry(pwe, bestMatchAccuracy, true, db);
+                            Entry2 kpe = (Entry2)GetEntry2FromPwEntry(clientMetadata, pwe, bestMatchAccuracy, true, db);
                             if (kpe != null)
                             {
                                 allEntries.Add(kpe);

@@ -187,6 +187,7 @@
     <Compile Include="Forms\WelcomeForm.Designer.cs">
       <DependentUpon>WelcomeForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="JsonRpc\JsonRpcPrependClientMetadataParameterAttribute.cs" />
     <Compile Include="KeePassRPCClient.cs" />
     <Compile Include="KeePassRPCExt.cs">
     </Compile>
