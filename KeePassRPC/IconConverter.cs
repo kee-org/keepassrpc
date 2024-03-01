@@ -47,7 +47,7 @@ namespace KeePassRPC
         public Icon iconToDto(ClientMetadata clientMetadata, PwUuid customIconUUID, PwIcon iconId)
         {
 
-            //TODO: if feature flag: ICON_SET_1 or CUSTOM_ICON_REFERENCES do diufferent stuff ...
+            //TODO: if feature flag: ICON_SET_1 or CUSTOM_ICON_REFERENCES skip return of full data, etc.
             return new Icon()
             {
                 Base64 = iconToBase64(customIconUUID, iconId)
@@ -60,8 +60,6 @@ namespace KeePassRPC
             //         Base64 = iconToBase64(customIconUUID, iconId)
             //     };
             // }
-            //if (KeePassRPCPlugin.)
-            //TODO: find current client somehow... ClientFeatures
         }
         
 
@@ -161,7 +159,7 @@ namespace KeePassRPC
         /// <param name="iconId">PwIcon of the matched standard icon; ignore if customIconUUID != Zero</param>
         /// <returns>true if the supplied Icon was converted into a customIcon 
         /// or matched with a standard icon.</returns>
-        public bool dtoToIcon(Icon icon, ref PwUuid customIconUUID, ref PwIcon iconId)
+        public bool dtoToIcon(ClientMetadata clientMetadata, Icon icon, ref PwUuid customIconUUID, ref PwIcon iconId)
         {
             //TODO: handle Index and Ref properties if client feature flags permit
             return base64ToIcon(icon.Base64, ref customIconUUID, ref iconId);

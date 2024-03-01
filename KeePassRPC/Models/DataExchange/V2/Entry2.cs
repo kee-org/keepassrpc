@@ -26,24 +26,26 @@ namespace KeePassRPC.Models.DataExchange.V2
             string title,
             ResolvedField[] fields,
             EntryAutomationBehaviour? behaviour,
-            string uuid,
+            string uniqueId,
             Group2 parent,
             Icon icon,
             Database2 db,
             int matchAccuracy,
-            EntryMatcherConfig[] matcherConfigs)
+            EntryMatcherConfig[] matcherConfigs,
+            string[] authenticationMethods)
         {
             Urls = urls;
             Realm = realm;
             Title = title;
             Fields = fields;
-            Uuid = uuid;
+            UniqueID = uniqueId;
             Parent = parent;
             Icon = icon;
             Db = db;
             MatchAccuracy = matchAccuracy;
             Behaviour = behaviour;
             MatcherConfigs = matcherConfigs;
+            AuthenticationMethods = authenticationMethods;
         }
     }
 }

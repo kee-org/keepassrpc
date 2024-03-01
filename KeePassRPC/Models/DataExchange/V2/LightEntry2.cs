@@ -4,7 +4,7 @@ namespace KeePassRPC.Models.DataExchange.V2
     {
         public string[] Urls;
         public string Title;
-        public string Uuid;
+        public string UniqueID;
         public string UsernameValue;
         public string UsernameName;
         public Icon Icon;
@@ -15,7 +15,7 @@ namespace KeePassRPC.Models.DataExchange.V2
         public LightEntry2(
             string[] urls,
             string title,
-            string uuid,
+            string uniqueId,
             Icon icon,
             string usernameName,
             string usernameValue,
@@ -23,7 +23,7 @@ namespace KeePassRPC.Models.DataExchange.V2
         {
             Urls = urls;
             Title = title;
-            Uuid = uuid;
+            UniqueID = uniqueId;
             Icon = icon;
             UsernameName = usernameName;
             UsernameValue = usernameValue;

@@ -14,14 +14,14 @@ namespace KeePassRPC.Models.DataExchange
         public LightEntry(
             string[] urls,
             string title,
-            string uniqueID,
+            string uniqueId,
             string iconImageData,
             string usernameName,
             string usernameValue)
         {
             URLs = urls;
             Title = title;
-            UniqueID = uniqueID;
+            UniqueID = uniqueId;
             IconImageData = iconImageData;
             UsernameName = usernameName;
             UsernameValue = usernameValue;

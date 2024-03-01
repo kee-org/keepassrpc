@@ -14,12 +14,12 @@ namespace KeePassRPC.Models.DataExchange.V2
         public Group2() { }
 
         public Group2(string title,
-            string uniqueID,
+            string uniqueId,
             Icon icon,
             string path)
         {
             Title = title;
-            UniqueID = uniqueID;
+            UniqueID = uniqueId;
             Icon = icon;
             Path = path;
         }

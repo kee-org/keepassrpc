@@ -187,7 +187,11 @@
     <Compile Include="Forms\WelcomeForm.Designer.cs">
       <DependentUpon>WelcomeForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="JsonRpc\JsonRpcPrependClientMetadataParameterAttribute.cs" />
+    <Compile Include="JsonRpc\ClientMetadata.cs" />
+    <Compile Include="JsonRpc\IJsonRpcClientMetadataProperty.cs" />
+    <Compile Include="JsonRpc\IJsonRpcRequestLifetimeNotice.cs" />
+    <Compile Include="JsonRpc\KprpcJsonRpcDispatcher.cs" />
+    <Compile Include="JsonRpc\KprpcJsonRpcService.cs" />
     <Compile Include="KeePassRPCClient.cs" />
     <Compile Include="KeePassRPCExt.cs">
     </Compile>
@@ -422,6 +426,26 @@
       copy "$(ProjectDir)Forms\*.cs" "%25KPPTempDir%25\Forms"
       copy "$(ProjectDir)Forms\*.resx" "%25KPPTempDir%25\Forms"
       if errorlevel 1 goto BuildEventFailed
+
+//TODO: Windows build update...
+      mkdir "${KPPTempDir}\Models"
+      mkdir "${KPPTempDir}\Models\DataExchange"
+      mkdir "${KPPTempDir}\Models\DataExchange\V2"
+      mkdir "${KPPTempDir}\Models\Persistent"
+      mkdir "${KPPTempDir}\Models\Shared"
+      mkdir "${KPPTempDir}\Models\Transient"
+      cp "$(ProjectDir)Models\"*.cs "${KPPTempDir}\Models"
+      cp "$(ProjectDir)Models\DataExchange\"*.cs "${KPPTempDir}\Models\DataExchange"
+      cp "$(ProjectDir)Models\DataExchange\V2\"*.cs "${KPPTempDir}\Models\DataExchange\V2"
+      cp "$(ProjectDir)Models\Persistent\"*.cs "${KPPTempDir}\Models\Persistent"
+      cp "$(ProjectDir)Models\Shared\"*.cs "${KPPTempDir}\Models\Shared"
+      cp "$(ProjectDir)Models\Transient\"*.cs "${KPPTempDir}\Models\Transient"
+      if [ $? = 1 ]; then echo POSTBUILDSTEP for $(ProjectName) FAILED - copy Models sources; exit 1; fi
+      mkdir "${KPPTempDir}\JsonRpc"
+      cp "$(ProjectDir)JsonRpc\"*.cs "${KPPTempDir}\JsonRpc"
+      if [ $? = 1 ]; then echo POSTBUILDSTEP for $(ProjectName) FAILED - copy JsonRpc sources; exit 1; fi
+
+
       mkdir "%25KPPTempDir%25\Properties"
       copy "$(ProjectDir)Properties\AssemblyInfo.cs" "%25KPPTempDir%25\Properties\AssemblyInfo.cs"
       copy "$(ProjectDir)Properties\Resources.resx" "%25KPPTempDir%25\Properties\Resources.resx"
@@ -498,10 +522,10 @@
             
       rm -f "${KPPDir}$(ProjectName).dll"
       rm -f "${KPPDir}$(ProjectName).pdb"
-      rm -f "${KPPDir}\Jayrock.dll"
-      rm -f "${KPPDir}\Jayrock.Json.dll"
-      rm -f "${KPPDir}\Fleck2.dll"
-      rm -f "${KPPDir}\DomainPublicSuffix.dll"
+      rm -f "${KPPDir}Jayrock.dll"
+      rm -f "${KPPDir}Jayrock.Json.dll"
+      rm -f "${KPPDir}Fleck2.dll"
+      rm -f "${KPPDir}DomainPublicSuffix.dll"
       echo Debug DLLs deleted
       
       # create temporary directory
@@ -509,11 +533,6 @@
       mkdir "${KPPTempDir}"
       if [ $? = 1 ]; then echo POSTBUILDSTEP for $(ProjectName) FAILED - prep temp dir; exit 1; fi
       echo Temporary directory created
-            
-      cp "Jayrock.dll" "${KPPDir}Jayrock.dll"
-      cp "Jayrock.Json.dll" "${KPPDir}Jayrock.Json.dll"
-      cp "Fleck2.dll" "${KPPDir}Fleck2.dll"
-      cp "DomainPublicSuffix.dll" "${KPPDir}DomainPublicSuffix.dll"
       
       # copy relevant project files to temporary directory
       # (for simple KeePass plugins you may need to
@@ -533,6 +552,24 @@
       cp "$(ProjectDir)Forms\"*.cs "${KPPTempDir}\Forms"
       cp "$(ProjectDir)Forms\"*.resx "${KPPTempDir}\Forms"
       if [ $? = 1 ]; then echo POSTBUILDSTEP for $(ProjectName) FAILED - copy forms sources; exit 1; fi
+            
+      mkdir "${KPPTempDir}\Models"
+      mkdir "${KPPTempDir}\Models\DataExchange"
+      mkdir "${KPPTempDir}\Models\DataExchange\V2"
+      mkdir "${KPPTempDir}\Models\Persistent"
+      mkdir "${KPPTempDir}\Models\Shared"
+      mkdir "${KPPTempDir}\Models\Transient"
+      cp "$(ProjectDir)Models\"*.cs "${KPPTempDir}\Models"
+      cp "$(ProjectDir)Models\DataExchange\"*.cs "${KPPTempDir}\Models\DataExchange"
+      cp "$(ProjectDir)Models\DataExchange\V2\"*.cs "${KPPTempDir}\Models\DataExchange\V2"
+      cp "$(ProjectDir)Models\Persistent\"*.cs "${KPPTempDir}\Models\Persistent"
+      cp "$(ProjectDir)Models\Shared\"*.cs "${KPPTempDir}\Models\Shared"
+      cp "$(ProjectDir)Models\Transient\"*.cs "${KPPTempDir}\Models\Transient"
+      if [ $? = 1 ]; then echo POSTBUILDSTEP for $(ProjectName) FAILED - copy Models sources; exit 1; fi
+            
+      mkdir "${KPPTempDir}\JsonRpc"
+      cp "$(ProjectDir)JsonRpc\"*.cs "${KPPTempDir}\JsonRpc"
+      if [ $? = 1 ]; then echo POSTBUILDSTEP for $(ProjectName) FAILED - copy JsonRpc sources; exit 1; fi
             
       mkdir "${KPPTempDir}\Properties"
       cp "$(ProjectDir)Properties\AssemblyInfo.cs" "${KPPTempDir}\Properties\AssemblyInfo.cs"
