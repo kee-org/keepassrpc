@@ -4,7 +4,7 @@ namespace KeePassRPC.Models.Shared
 {
     public class Field : IEquatable<Field>
     {
-        public Guid Uuid;
+        public string Uuid; // base64 encoded UUID
         public string Name; // display name, not form field name attribute
         public string ValuePath; // e.g. "Username" for a KeePass Property or "." for this object
         public string Value;

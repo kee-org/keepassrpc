@@ -208,7 +208,7 @@ namespace KeePassRPC.Models.Persistent
                         {
                             Page = Math.Max(ff.Page, 1),
                             ValuePath = PwDefs.UserNameField,
-                            Uuid = guidService.NewGuid(),
+                            Uuid = Convert.ToBase64String(guidService.NewGuid().ToByteArray()), //TODO: similar change elsewhere
                             Type = FieldType.Text,
                             MatcherConfigs = new[] { mc }
                         };
