@@ -527,12 +527,13 @@ namespace KeePassRPC.Forms
                 if (kff.ShowDialog() == DialogResult.OK)
                 {
                     var mc = FieldMatcherConfig.ForSingleClientMatch(kff.Id, kff.Name, kff.HtmlType, kff.QuerySelector);
+                    var newUniqueId = Convert.ToBase64String(guidService.NewGuid().ToByteArray());
                     var field = new Field()
                     {
-                        Name = kff.Name,
+                        Name = newUniqueId,
                         Page = Math.Max(kff.Page, 1),
                         ValuePath = ".",
-                        Uuid = Convert.ToBase64String(guidService.NewGuid().ToByteArray()),
+                        Uuid = newUniqueId,
                         Type = kff.Type,
                         MatcherConfigs = new[] { mc },
                         Value = kff.Value
@@ -587,7 +588,7 @@ namespace KeePassRPC.Forms
                         displayValue = "********";
                     }
 
-                    string displayName = string.IsNullOrEmpty(kff.Name) ? null : kff.Name;
+                    string displayName = string.IsNullOrEmpty(tag.Name) ? tag.Uuid : tag.Name;
                     if (tag.ValuePath == PwDefs.PasswordField)
                     {
                         displayName = null;
