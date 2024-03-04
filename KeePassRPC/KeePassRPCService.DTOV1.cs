@@ -275,7 +275,7 @@ namespace KeePassRPC
                     {
                         Page = Math.Max(kpff.Page, 1),
                         ValuePath = PwDefs.PasswordField,
-                        Uuid = guidService.NewGuid(),
+                        Uuid = Convert.ToBase64String(guidService.NewGuid().ToByteArray()),
                         Type = FieldType.Password,
                         MatcherConfigs = new[] { mc }
                     });
@@ -292,7 +292,7 @@ namespace KeePassRPC
                     {
                         Page = Math.Max(kpff.Page, 1),
                         ValuePath = PwDefs.UserNameField,
-                        Uuid = guidService.NewGuid(),
+                        Uuid = Convert.ToBase64String(guidService.NewGuid().ToByteArray()),
                         Type = FieldType.Text,
                         MatcherConfigs = new[] { mc }
                     });
@@ -307,7 +307,7 @@ namespace KeePassRPC
                         Name = !string.IsNullOrEmpty(kpff.DisplayName) ? kpff.DisplayName : kpff.Name,
                         Page = Math.Max(kpff.Page, 1),
                         ValuePath = ".",
-                        Uuid = guidService.NewGuid(),
+                        Uuid = Convert.ToBase64String(guidService.NewGuid().ToByteArray()),
                         Type = Utilities.FormFieldTypeToFieldType(kpff.Type),
                         MatcherConfigs = new[] { mc },
                         Value = kpff.Value

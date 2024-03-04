@@ -208,7 +208,7 @@ namespace KeePassRPC.Models.Persistent
                         {
                             Page = Math.Max(ff.Page, 1),
                             ValuePath = PwDefs.UserNameField,
-                            Uuid = Convert.ToBase64String(guidService.NewGuid().ToByteArray()), //TODO: similar change elsewhere
+                            Uuid = Convert.ToBase64String(guidService.NewGuid().ToByteArray()),
                             Type = FieldType.Text,
                             MatcherConfigs = new[] { mc }
                         };
@@ -232,7 +232,7 @@ namespace KeePassRPC.Models.Persistent
                         {
                             Page = Math.Max(ff.Page, 1),
                             ValuePath = PwDefs.PasswordField,
-                            Uuid = guidService.NewGuid(),
+                            Uuid = Convert.ToBase64String(guidService.NewGuid().ToByteArray()),
                             Type = FieldType.Password,
                             MatcherConfigs = new[] { mc }
                         };
@@ -249,12 +249,13 @@ namespace KeePassRPC.Models.Persistent
                     else
                     {
                         var mc = FieldMatcherConfig.ForSingleClientMatch(ff.Id, ff.Name, ff.Type);
+                        var newUniqueId = Convert.ToBase64String(guidService.NewGuid().ToByteArray());
                         var f = new Field()
                         {
-                            Name = ff.DisplayName,
+                            Name = !string.IsNullOrWhiteSpace(ff.DisplayName) ? ff.DisplayName : newUniqueId,
                             Page = Math.Max(ff.Page, 1),
                             ValuePath = ".",
-                            Uuid = guidService.NewGuid(),
+                            Uuid = newUniqueId,
                             Type = Utilities.FormFieldTypeToFieldType(ff.Type),
                             MatcherConfigs = new[] { mc },
                             Value = ff.Value
@@ -277,7 +278,7 @@ namespace KeePassRPC.Models.Persistent
                 fields.Add(new Field()
                 {
                     ValuePath = PwDefs.UserNameField,
-                    Uuid = guidService.NewGuid(),
+                    Uuid = Convert.ToBase64String(guidService.NewGuid().ToByteArray()),
                     Type = FieldType.Text,
                     MatcherConfigs = new [] { new FieldMatcherConfig() { MatcherType = FieldMatcherType.UsernameDefaultHeuristic } }
                 });
@@ -287,7 +288,7 @@ namespace KeePassRPC.Models.Persistent
                 fields.Add(new Field()
                 {
                     ValuePath = PwDefs.PasswordField,
-                    Uuid = guidService.NewGuid(),
+                    Uuid = Convert.ToBase64String(guidService.NewGuid().ToByteArray()),
                     Type = FieldType.Password,
                     MatcherConfigs = new [] { new FieldMatcherConfig() { MatcherType = FieldMatcherType.PasswordDefaultHeuristic } }
                 });

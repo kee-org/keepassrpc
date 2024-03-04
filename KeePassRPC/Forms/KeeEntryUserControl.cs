@@ -532,7 +532,7 @@ namespace KeePassRPC.Forms
                         Name = kff.Name,
                         Page = Math.Max(kff.Page, 1),
                         ValuePath = ".",
-                        Uuid = guidService.NewGuid(),
+                        Uuid = Convert.ToBase64String(guidService.NewGuid().ToByteArray()),
                         Type = kff.Type,
                         MatcherConfigs = new[] { mc },
                         Value = kff.Value
