@@ -96,12 +96,13 @@ namespace KeePassRPC.Forms
             if (_conf == null)
                 return;
 
-            this.checkBoxHideFromKee.CheckedChanged += new System.EventHandler(this.checkBoxHideFromKee_CheckedChanged);
+            checkBoxHideFromKee.CheckedChanged += checkBoxHideFromKee_CheckedChanged;
 
-            if (_conf.MatcherConfigs.Any(emc => emc.MatcherType == EntryMatcherType.Hide)) { checkBoxHideFromKee.Checked = true; }
-            var urlMc = _conf.MatcherConfigs.First(emc => emc.MatcherType == EntryMatcherType.Url);
-            if (urlMc.UrlMatchMethod == MatchAccuracyMethod.Exact)
+            if (_conf.MatcherConfigs != null && _conf.MatcherConfigs.Any(emc => emc != null && emc.MatcherType == EntryMatcherType.Hide)) { checkBoxHideFromKee.Checked = true; }
+            var urlMc = _conf.MatcherConfigs != null ? _conf.MatcherConfigs.FirstOrDefault(emc => emc != null && emc.MatcherType == EntryMatcherType.Url) : null;
+            if (urlMc == null || urlMc.UrlMatchMethod == MatchAccuracyMethod.Exact)
             {
+                // Shouldn't ever be null but just in case we come across bad data we make the most secure assumption even though it will most likely break some behaviours
                 radioButton3.Checked = true;
             }
             else if (urlMc.UrlMatchMethod == MatchAccuracyMethod.Hostname)
@@ -119,8 +120,13 @@ namespace KeePassRPC.Forms
                 case MatchAccuracyMethod.Hostname: defaultRadioButton = radioButton2; break;
                 case MatchAccuracyMethod.Domain: defaultRadioButton = radioButton1; break;
             }
-            toolTipRealm.SetToolTip(defaultRadioButton, "This is the default behaviour for new entries. Change in the Database Settings dialog.");
-                
+
+            if (defaultRadioButton != null)
+            {
+                toolTipRealm.SetToolTip(defaultRadioButton,
+                    "This is the default behaviour for new entries. Change in the Database Settings dialog.");
+            }
+
             listNormalURLs = new List<string>();
             listNormalBlockedURLs = new List<string>();
             listRegExURLs = new List<string>();
@@ -141,7 +147,7 @@ namespace KeePassRPC.Forms
                     string type = Utilities.FieldTypeToDisplay(field.Type, false);
 
                     // Override display of standard variables 
-                    string value = field.Value;
+                    string value = field.Value ?? "";
                     if (field.Type == FieldType.Password)
                         value = "********";
                     if (field.ValuePath == PwDefs.UserNameField)
@@ -156,13 +162,15 @@ namespace KeePassRPC.Forms
                     {
                         value = field.Value == "KEEFOX_CHECKED_FLAG_TRUE" ? "Enabled" : "Disabled";
                     }
-                    var customFmc = field.MatcherConfigs.FirstOrDefault(fmc => fmc.MatcherType.GetValueOrDefault(FieldMatcherType.Custom) == FieldMatcherType.Custom);
+                    
+                    // null checks shouldn't be necessary but seems to be bugs in Mono runtime sometimes relating to GetValueOrDefault so being over-cautious here
+                    var customFmc = field.MatcherConfigs != null ? field.MatcherConfigs.FirstOrDefault(fmc => fmc != null && (fmc.MatcherType == null || fmc.MatcherType.GetValueOrDefault(FieldMatcherType.Custom) == FieldMatcherType.Custom)) : null;
                     string id = "";
                     string name = "";
                     if (customFmc != null)
                     {
-                        var cmId = customFmc.CustomMatcher.Ids.FirstOrDefault();
-                        var cmName = customFmc.CustomMatcher.Names.FirstOrDefault();
+                        var cmId = customFmc.CustomMatcher != null && customFmc.CustomMatcher.Ids != null ? customFmc.CustomMatcher.Ids.FirstOrDefault() : null;
+                        var cmName = customFmc.CustomMatcher != null && customFmc.CustomMatcher.Names != null ? customFmc.CustomMatcher.Names.FirstOrDefault() : null;
                         if (cmId != null) id = cmId;
                         if (cmName != null) name = cmName;
                     }
@@ -536,7 +544,7 @@ namespace KeePassRPC.Forms
                         Uuid = newUniqueId,
                         Type = kff.Type,
                         MatcherConfigs = new[] { mc },
-                        Value = kff.Value
+                        Value = !string.IsNullOrEmpty(kff.Value) ? kff.Value : null
                     };
                     if (kff.PlaceholderHandling == PlaceholderHandling.Default)
                     {
@@ -617,7 +625,7 @@ namespace KeePassRPC.Forms
                         Uuid = tag.Uuid,
                         Type = kff.Type,
                         MatcherConfigs = new[] { mc },
-                        Value = kff.Value
+                        Value = !string.IsNullOrEmpty(kff.Value) ? kff.Value : null
                     };
                     if (kff.PlaceholderHandling == PlaceholderHandling.Default)
                     {

@@ -27,17 +27,17 @@ namespace KeePassRPC.Forms
 
         public static KeeFieldForm FromField(Field field)
         {
-            var customFmc = field.MatcherConfigs.FirstOrDefault(fmc => fmc.MatcherType.GetValueOrDefault(FieldMatcherType.Custom) == FieldMatcherType.Custom);
+            var customFmc = field.MatcherConfigs != null ? field.MatcherConfigs.FirstOrDefault(fmc => fmc != null && (fmc.MatcherType == null || fmc.MatcherType.GetValueOrDefault(FieldMatcherType.Custom) == FieldMatcherType.Custom)) : null;
             string id = "";
             string name = "";
             string htmlType = "";
             string querySelector = "";
             if (customFmc != null)
             {
-                var cmId = customFmc.CustomMatcher.Ids != null ? customFmc.CustomMatcher.Ids.FirstOrDefault() : null;
-                var cmName = customFmc.CustomMatcher.Names != null ? customFmc.CustomMatcher.Names.FirstOrDefault() : null;
-                var cmHtmlType = customFmc.CustomMatcher.Types != null ? customFmc.CustomMatcher.Types.FirstOrDefault() : null;
-                var cmQuerySelector = customFmc.CustomMatcher.Queries != null ? customFmc.CustomMatcher.Queries.FirstOrDefault() : null;
+                var cmId = customFmc.CustomMatcher != null && customFmc.CustomMatcher.Ids != null ? customFmc.CustomMatcher.Ids.FirstOrDefault() : null;
+                var cmName = customFmc.CustomMatcher != null && customFmc.CustomMatcher.Names != null ? customFmc.CustomMatcher.Names.FirstOrDefault() : null;
+                var cmHtmlType = customFmc.CustomMatcher != null && customFmc.CustomMatcher.Types != null ? customFmc.CustomMatcher.Types.FirstOrDefault() : null;
+                var cmQuerySelector = customFmc.CustomMatcher != null && customFmc.CustomMatcher.Queries != null ? customFmc.CustomMatcher.Queries.FirstOrDefault() : null;
                 if (cmId != null) id = cmId;
                 if (cmName != null) name = cmName;
                 if (cmHtmlType != null) htmlType = cmHtmlType;

@@ -68,7 +68,7 @@ namespace KeePassRPC
                 FormFieldType htmlType = Utilities.FieldTypeToFormFieldType(ff.Type);
 
                 // Currently we can only have one custommatcher. If that changes and someone tries to use this old version with a newer DB things will break so they will have to upgrade again to fix it.
-                var customMatcherConfig = ff.MatcherConfigs.FirstOrDefault(mc => mc.CustomMatcher != null);
+                var customMatcherConfig = ff.MatcherConfigs.FirstOrDefault(mc => mc != null && mc.CustomMatcher != null);
                 if (customMatcherConfig != null)
                 {
                     if (customMatcherConfig.CustomMatcher.Names != null)
