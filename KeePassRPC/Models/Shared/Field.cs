@@ -58,12 +58,7 @@ namespace KeePassRPC.Models.Shared
     public class ResolvedField : Field
     {
         public string ResolvedValue;
-        //
-        // public ResolvedField(string resolvedValue)
-        // {
-        //     ResolvedValue = resolvedValue;
-        // }
-
+        
         public bool Equals(ResolvedField other)
         {
             if (ReferenceEquals(null, other)) return false;

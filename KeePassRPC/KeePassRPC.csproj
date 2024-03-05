@@ -520,6 +520,10 @@
       export KPDir="${HOME}/keepass-dev/"
       export KPPDir=${KPDir}Plugins/
       export KPPTempDir="${KPPDir}$(ProjectName)"
+
+      echo KPDir: ${KPDir}
+      echo KPPDir: ${KPPDir}
+      echo KPPTempDir: ${KPPTempDir}
             
       rm -f "${KPPDir}$(ProjectName).dll"
       rm -f "${KPPDir}$(ProjectName).pdb"
@@ -560,7 +564,6 @@
       mkdir "${KPPTempDir}\Models\Persistent"
       mkdir "${KPPTempDir}\Models\Shared"
       mkdir "${KPPTempDir}\Models\Transient"
-      cp "$(ProjectDir)Models\"*.cs "${KPPTempDir}\Models"
       cp "$(ProjectDir)Models\DataExchange\"*.cs "${KPPTempDir}\Models\DataExchange"
       cp "$(ProjectDir)Models\DataExchange\V2\"*.cs "${KPPTempDir}\Models\DataExchange\V2"
       cp "$(ProjectDir)Models\Persistent\"*.cs "${KPPTempDir}\Models\Persistent"

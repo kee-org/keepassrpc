@@ -61,7 +61,7 @@ namespace KeePassRPC
             "KPRPC_SECURITY_FIX_20200729",
 
             // Can send new DTO format
-            "KPRPC_KPRPC_FEATURE_DTO_V2"
+            "KPRPC_FEATURE_DTO_V2"
 
             // in the rare event that we want to check for the absense of a feature
             // we would add a feature flag along the lines of "KPRPC_FEATURE_REMOVED_INCOMPATIBLE_THING_X"

@@ -22,7 +22,6 @@ namespace KeePassRPC.Models.Shared
             {
                 CustomMatcher = new FieldMatcher()
                 {
-                    //MatchLogic = MatcherLogic.Client,
                     Ids = string.IsNullOrEmpty(id) ? new string[0] : new[] { id },
                     Names = string.IsNullOrEmpty(name) ? new string[0] : new[] { name },
                     Types = string.IsNullOrEmpty(htmlType) ? new string[0] : new []{ htmlType },
