@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using Jayrock.JsonRpc;
-using KeePassLib;
-using KeePassLib.Security;
-using KeePass.UI;
+using Jayrock.Json.Conversion;
 using KeePass.Forms;
+using KeePass.UI;
+using KeePassLib;
 using KeePassLib.Collections;
 using KeePassRPC.Models.DataExchange;
 using KeePassRPC.Models.Persistent;
@@ -51,7 +46,7 @@ namespace KeePassRPC.Forms
             // if the config is identical to an empty (default) config, only update if a JSON string already exists
             if (!conf.Equals(defaultConf) || _cd.Exists("KPRPC JSON"))
             {
-                _cd.Set("KPRPC JSON", Jayrock.Json.Conversion.JsonConvert.ExportToString(conf));
+                _cd.Set("KPRPC JSON", JsonConvert.ExportToString(conf));
                 if (_strings.Exists("KPRPC JSON"))
                 {
                     _strings.Remove("KPRPC JSON");
@@ -66,7 +61,7 @@ namespace KeePassRPC.Forms
                 var list = _conf.MatcherConfigs.ToList();
                 if (list.All(emc => emc.MatcherType != EntryMatcherType.Hide))
                 {
-                    list.Add(new EntryMatcherConfig() { MatcherType = EntryMatcherType.Hide });
+                    list.Add(new EntryMatcherConfig { MatcherType = EntryMatcherType.Hide });
                 }
                 _conf.MatcherConfigs = list.ToArray();
                 groupBox1.Enabled = false;
@@ -174,7 +169,7 @@ namespace KeePassRPC.Forms
                         if (cmId != null) id = cmId;
                         if (cmName != null) name = cmName;
                     }
-                    ListViewItem lvi = new ListViewItem(new string[] { name, value, id, type, field.Page.ToString() });
+                    ListViewItem lvi = new ListViewItem(new[] { name, value, id, type, field.Page.ToString() });
                     lvi.Tag = field;
                     AddFieldListItem(lvi);
                 }
@@ -188,23 +183,22 @@ namespace KeePassRPC.Forms
             _currentAutomationBehaviour = _conf.Behaviour.GetValueOrDefault(EntryAutomationBehaviour.Default);
             changeBehaviourState(_currentAutomationBehaviour);
 
-            this.comboBoxAutoSubmit.SelectedIndexChanged += new System.EventHandler(this.comboBoxAutoSubmit_SelectedIndexChanged);
-            this.comboBoxAutoFill.SelectedIndexChanged += new System.EventHandler(this.comboBoxAutoFill_SelectedIndexChanged);            
+            comboBoxAutoSubmit.SelectedIndexChanged += comboBoxAutoSubmit_SelectedIndexChanged;
+            comboBoxAutoFill.SelectedIndexChanged += comboBoxAutoFill_SelectedIndexChanged;            
             string realmTooltip = "Set this to the realm (what the \"site says\") in the HTTP authentication popup dialog box for a more accurate match";
-            toolTipRealm.SetToolTip(this.textBoxKeeRealm, realmTooltip);
-            toolTipRealm.SetToolTip(this.labelRealm, realmTooltip);
+            toolTipRealm.SetToolTip(textBoxKeeRealm, realmTooltip);
+            toolTipRealm.SetToolTip(labelRealm, realmTooltip);
         }
 
         private void textBoxKeeRealm_TextChanged(object sender, EventArgs e)
         {
-            string realm = ((System.Windows.Forms.TextBoxBase)sender).Text;
+            string realm = ((TextBoxBase)sender).Text;
 
             if (!string.IsNullOrEmpty(realm))
                 _conf.HttpRealm = realm;
             else
                 _conf.HttpRealm = null;
             UpdateKPRPCJSON(_conf);
-            return;
         }
 
         private void comboBoxAutoFill_SelectedIndexChanged(object sender, EventArgs e)
@@ -329,25 +323,25 @@ namespace KeePassRPC.Forms
                     if (kfurlf.Match && !kfurlf.RegEx)
                     {
                         listNormalURLs.Add(kfurlf.URL);
-                        ListViewItem lvi = new ListViewItem(new string[] { kfurlf.URL, "Normal", "Match" });
+                        ListViewItem lvi = new ListViewItem(new[] { kfurlf.URL, "Normal", "Match" });
                         AddURLListItem(lvi);
                     }
                     if (kfurlf.Block && !kfurlf.RegEx)
                     {
                         listNormalBlockedURLs.Add(kfurlf.URL);
-                        ListViewItem lvi = new ListViewItem(new string[] { kfurlf.URL, "Normal", "Block" });
+                        ListViewItem lvi = new ListViewItem(new[] { kfurlf.URL, "Normal", "Block" });
                         AddURLListItem(lvi);
                     }
                     if (kfurlf.Match && kfurlf.RegEx)
                     {
                         listRegExURLs.Add(kfurlf.URL);
-                        ListViewItem lvi = new ListViewItem(new string[] { kfurlf.URL, "RegEx", "Match" });
+                        ListViewItem lvi = new ListViewItem(new[] { kfurlf.URL, "RegEx", "Match" });
                         AddURLListItem(lvi);
                     }
                     if (kfurlf.Block && kfurlf.RegEx)
                     {
                         listRegExBlockedURLs.Add(kfurlf.URL);
-                        ListViewItem lvi = new ListViewItem(new string[] { kfurlf.URL, "RegEx", "Block" });
+                        ListViewItem lvi = new ListViewItem(new[] { kfurlf.URL, "RegEx", "Block" });
                         AddURLListItem(lvi);
                     }
                     UpdateURLStrings();
@@ -390,25 +384,25 @@ namespace KeePassRPC.Forms
                         if (kfurlf.Match && !kfurlf.RegEx)
                         {
                             listNormalURLs.Add(kfurlf.URL);
-                            ListViewItem lvi = new ListViewItem(new string[] { kfurlf.URL, "Normal", "Match" });
+                            ListViewItem lvi = new ListViewItem(new[] { kfurlf.URL, "Normal", "Match" });
                             AddURLListItem(lvi);
                         }
                         if (kfurlf.Block && !kfurlf.RegEx)
                         {
                             listNormalBlockedURLs.Add(kfurlf.URL);
-                            ListViewItem lvi = new ListViewItem(new string[] { kfurlf.URL, "Normal", "Block" });
+                            ListViewItem lvi = new ListViewItem(new[] { kfurlf.URL, "Normal", "Block" });
                             AddURLListItem(lvi);
                         }
                         if (kfurlf.Match && kfurlf.RegEx)
                         {
                             listRegExURLs.Add(kfurlf.URL);
-                            ListViewItem lvi = new ListViewItem(new string[] { kfurlf.URL, "RegEx", "Match" });
+                            ListViewItem lvi = new ListViewItem(new[] { kfurlf.URL, "RegEx", "Match" });
                             AddURLListItem(lvi);
                         }
                         if (kfurlf.Block && kfurlf.RegEx)
                         {
                             listRegExBlockedURLs.Add(kfurlf.URL);
-                            ListViewItem lvi = new ListViewItem(new string[] { kfurlf.URL, "RegEx", "Block" });
+                            ListViewItem lvi = new ListViewItem(new[] { kfurlf.URL, "RegEx", "Block" });
                             AddURLListItem(lvi);
                         }
                         UpdateURLStrings();
@@ -477,22 +471,22 @@ namespace KeePassRPC.Forms
         {
             foreach (string url in listNormalURLs)
             {
-                ListViewItem lvi = new ListViewItem(new string[] { url, "Normal", "Match" });
+                ListViewItem lvi = new ListViewItem(new[] { url, "Normal", "Match" });
                 AddURLListItem(lvi);
             }
             foreach (string url in listNormalBlockedURLs)
             {
-                ListViewItem lvi = new ListViewItem(new string[] { url, "Normal", "Block" });
+                ListViewItem lvi = new ListViewItem(new[] { url, "Normal", "Block" });
                 AddURLListItem(lvi);
             }
             foreach (string url in listRegExURLs)
             {
-                ListViewItem lvi = new ListViewItem(new string[] { url, "RegEx", "Match" });
+                ListViewItem lvi = new ListViewItem(new[] { url, "RegEx", "Match" });
                 AddURLListItem(lvi);
             }
             foreach (string url in listRegExBlockedURLs)
             {
-                ListViewItem lvi = new ListViewItem(new string[] { url, "RegEx", "Block" });
+                ListViewItem lvi = new ListViewItem(new[] { url, "RegEx", "Block" });
                 AddURLListItem(lvi);
             }
         }
@@ -536,7 +530,7 @@ namespace KeePassRPC.Forms
                 {
                     var mc = FieldMatcherConfig.ForSingleClientMatch(kff.Id, kff.Name, kff.HtmlType, kff.QuerySelector);
                     var newUniqueId = Convert.ToBase64String(guidService.NewGuid().ToByteArray());
-                    var field = new Field()
+                    var field = new Field
                     {
                         Name = newUniqueId,
                         Page = Math.Max(kff.Page, 1),
@@ -570,7 +564,7 @@ namespace KeePassRPC.Forms
                         displayValue = kff.Value == "KEEFOX_CHECKED_FLAG_TRUE" ? "Enabled" : "Disabled";
                     }
 
-                    ListViewItem lvi = new ListViewItem(new string[]
+                    ListViewItem lvi = new ListViewItem(new[]
                     {
                         kff.Name, displayValue, kff.Id, type, page.ToString()
                     });
@@ -617,7 +611,7 @@ namespace KeePassRPC.Forms
                     int page = kff.Page;
                     
                     var mc = FieldMatcherConfig.ForSingleClientMatch(kff.Id, kff.Name, kff.HtmlType, kff.QuerySelector);
-                    var field = new Field()
+                    var field = new Field
                     {
                         Name = displayName,
                         Page = Math.Max(page, 1),
@@ -636,7 +630,7 @@ namespace KeePassRPC.Forms
                         field.PlaceholderHandling = kff.PlaceholderHandling;
                     }
 
-                    ListViewItem lvi = new ListViewItem(new string[] { kff.Name, displayValue, kff.Id, type, page.ToString() });
+                    ListViewItem lvi = new ListViewItem(new[] { kff.Name, displayValue, kff.Id, type, page.ToString() });
                     lvi.Tag = field;
                     RemoveFieldListItem(lvsicSel[0]);
                     AddFieldListItem(lvi);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -34,7 +35,7 @@ namespace KeePassRPC
         private const int SW_MINIMIZE = 6;
         private const int SW_RESTORE = 9;
 
-        private static bool? m_bIsUnix = null;
+        private static bool? m_bIsUnix;
         public static bool IsUnix()
         {
             if (m_bIsUnix.HasValue) return m_bIsUnix.Value;
@@ -51,7 +52,7 @@ namespace KeePassRPC
             return m_bIsUnix.Value;
         }
 
-        private static PlatformID? m_platID = null;
+        private static PlatformID? m_platID;
         public static PlatformID GetPlatformID()
         {
             if (m_platID.HasValue) return m_platID.Value;
@@ -96,7 +97,7 @@ namespace KeePassRPC
 
             bool bStdOut = ((f & AppRunFlags.GetStdOutput) != AppRunFlags.None);
 
-            RunProcessDelegate fnRun = delegate ()
+            RunProcessDelegate fnRun = delegate
             {
                 Process pToDispose = null;
                 try
@@ -226,7 +227,7 @@ namespace KeePassRPC
 
         internal static IntPtr GetForegroundWindowHandle()
         {
-            if (!Native.IsUnix())
+            if (!IsUnix())
                 return GetForegroundWindow(); // Windows API
 
             try
@@ -244,7 +245,7 @@ namespace KeePassRPC
             try
             {
                 Application.DoEvents(); // E.g. for clipboard updates
-                string strOutput = Native.RunConsoleApp("xdotool", strParams);
+                string strOutput = RunConsoleApp("xdotool", strParams);
                 Application.DoEvents(); // E.g. for clipboard updates
                 return (strOutput ?? string.Empty);
             }
@@ -256,11 +257,11 @@ namespace KeePassRPC
 
         internal static bool SetForegroundWindowEx(IntPtr hWnd)
         {
-            if (!Native.IsUnix())
+            if (!IsUnix())
                 return SetForegroundWindow(hWnd);
 
             return (RunXDoTool("windowactivate " +
-                hWnd.ToInt64().ToString()).Trim().Length == 0);
+                hWnd.ToInt64()).Trim().Length == 0);
         }
 
         [DllImport("User32.dll")]
@@ -316,7 +317,7 @@ namespace KeePassRPC
         {
             public ANIMATIONINFO(bool iMinAnimate)
             {
-                this.cbSize = GetSize();
+                cbSize = GetSize();
                 if (iMinAnimate) this.iMinAnimate = 1;
                 else this.iMinAnimate = 0;
             }
@@ -328,13 +329,13 @@ namespace KeePassRPC
             {
                 get
                 {
-                    if (this.iMinAnimate == 0) return false;
-                    else return true;
+                    if (iMinAnimate == 0) return false;
+                    return true;
                 }
                 set
                 {
-                    if (value == true) this.iMinAnimate = 1;
-                    else this.iMinAnimate = 0;
+                    if (value) iMinAnimate = 1;
+                    else iMinAnimate = 0;
                 }
             }
 
@@ -400,7 +401,7 @@ namespace KeePassRPC
 
         internal static bool IsWindowEx(IntPtr hWnd)
         {
-            if (!Native.IsUnix()) // Windows
+            if (!IsUnix()) // Windows
                 return IsWindow(hWnd);
 
             return true;
@@ -442,9 +443,9 @@ namespace KeePassRPC
             public int length;
             public int flags;
             public int showCmd;
-            public System.Drawing.Point ptMinPosition;
-            public System.Drawing.Point ptMaxPosition;
-            public System.Drawing.Rectangle rcNormalPosition;
+            public Point ptMinPosition;
+            public Point ptMaxPosition;
+            public Rectangle rcNormalPosition;
         }
 
 

@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using KeePassLib;
 using KeePassRPC.Models.DataExchange;
-using KeePassRPC.Models.Persistent;
 using KeePassRPC.Models.Shared;
+using KeePassRPC.Properties;
 
 namespace KeePassRPC.Forms
 {
@@ -53,11 +48,11 @@ namespace KeePassRPC.Forms
             string valuePath, bool editing, string htmlType, string querySelector)
         {
             InitializeComponent();
-            Icon = global::KeePassRPC.Properties.Resources.KPRPCico;
+            Icon = Resources.KPRPCico;
             if (!editing)
-                this.Text = "Add a form field";
+                Text = "Add a form field";
             else
-                this.Text = "Edit a form field";
+                Text = "Edit a form field";
 
             comboBox1.Text = Utilities.FieldTypeToDisplay(type, true);
             if (valuePath == PwDefs.UserNameField)
@@ -108,7 +103,7 @@ namespace KeePassRPC.Forms
                     break;
             }
 
-            comboBox1.SelectedIndexChanged += new System.EventHandler(comboBox1_SelectedIndexChanged);
+            comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -116,7 +111,7 @@ namespace KeePassRPC.Forms
             if (textBox2.Visible && textBox2.Text.Length <= 0)
             {
                 MessageBox.Show(this, "Please specify a value");
-                this.DialogResult = DialogResult.None;
+                DialogResult = DialogResult.None;
                 return;
             }
 
@@ -125,7 +120,7 @@ namespace KeePassRPC.Forms
             {
                 MessageBox.Show(this,
                     "Please change the value of this form field - it is currently set to a value that Kee needs to reserve for internal use. Sorry, please report this on the support forums if you are inconvenienced by this choice of reserved phrase.");
-                this.DialogResult = DialogResult.None;
+                DialogResult = DialogResult.None;
                 return;
             }
 

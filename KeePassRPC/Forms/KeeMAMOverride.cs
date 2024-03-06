@@ -1,7 +1,8 @@
-﻿using DomainPublicSuffix;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using DomainPublicSuffix;
+using KeePassRPC.Properties;
 
 namespace KeePassRPC.Forms
 {
@@ -14,7 +15,7 @@ namespace KeePassRPC.Forms
         public KeeMAMOverrideForm(string domain, MatchAccuracyMethod? mam, List<string> otherKeys)
         {
             InitializeComponent();
-            Icon = global::KeePassRPC.Properties.Resources.KPRPCico;
+            Icon = Resources.KPRPCico;
             Domain = domain;
             OtherKeys = otherKeys;
             MAM = mam.GetValueOrDefault(MatchAccuracyMethod.Domain);
@@ -68,8 +69,8 @@ namespace KeePassRPC.Forms
         private MatchAccuracyMethod DetermineDefaultMatchAccuracy()
         {
             if (radioButton3.Checked) return MatchAccuracyMethod.Exact;
-            else if (radioButton2.Checked) return MatchAccuracyMethod.Hostname;
-            else return MatchAccuracyMethod.Domain;
+            if (radioButton2.Checked) return MatchAccuracyMethod.Hostname;
+            return MatchAccuracyMethod.Domain;
         }
     }
 }

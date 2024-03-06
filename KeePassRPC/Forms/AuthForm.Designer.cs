@@ -1,11 +1,14 @@
-﻿namespace KeePassRPC.Forms
+﻿using System.ComponentModel;
+using System.Windows.Forms;
+
+namespace KeePassRPC.Forms
 {
     partial class AuthForm
     {
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -147,12 +150,12 @@
 
         #endregion
 
-        private System.Windows.Forms.Button buttonDeny;
-        private System.Windows.Forms.RichTextBox richTextBoxClientID;
-        private System.Windows.Forms.RichTextBox richTextBoxPassword;
-        private System.Windows.Forms.RichTextBox richTextBoxSecurityLevel;
-        private System.Windows.Forms.RichTextBox richTextBoxConfirmInstruction;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Panel panel1;
+        private Button buttonDeny;
+        private RichTextBox richTextBoxClientID;
+        private RichTextBox richTextBoxPassword;
+        private RichTextBox richTextBoxSecurityLevel;
+        private RichTextBox richTextBoxConfirmInstruction;
+        private Label label1;
+        private Panel panel1;
     }
 }

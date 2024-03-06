@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using KeePassRPC.Properties;
 
 namespace KeePassRPC
 {
@@ -12,7 +13,7 @@ namespace KeePassRPC
 
         public DPIScaledToolStripMenuItem(string text) : base(text)
         {
-            var images = new Image[] { Properties.Resources.KPRPC16, Properties.Resources.KPRPC64 };
+            var images = new Image[] { Resources.KPRPC16, Resources.KPRPC64 };
             Images = images.OrderBy(i => i.Height).ToList();
             ImageScaling = ToolStripItemImageScaling.None;
             RefreshImage();
@@ -27,7 +28,7 @@ namespace KeePassRPC
         public void RefreshImage()
         {
             // DpiUtil.ScaleImage ?
-            int h = this.Height;
+            int h = Height;
             //int h = this.ContentRectangle.Height;
             // Padding p = this.Padding;
             // Padding m = this.Margin;
@@ -45,14 +46,14 @@ namespace KeePassRPC
             }
 
             // scale down the image
-            Image oldImage = this.Image;
+            Image oldImage = Image;
             Bitmap newImage = new Bitmap(h, h);
             using (var g = Graphics.FromImage(newImage))
             {
                 g.DrawImage(bestImage, 0, 0, h, h);
             }
 
-            this.Image = newImage;
+            Image = newImage;
 
             if (oldImage != null)
                 oldImage.Dispose();

@@ -1,12 +1,11 @@
-﻿using KeePassLib;
-using KeePassLib.Collections;
-using KeePassLib.Security;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using KeePassRPC.Models.DataExchange;
+using Jayrock.Json.Conversion;
+using KeePassLib;
+using KeePassLib.Collections;
+using KeePassLib.Security;
 using KeePassRPC.Models.Persistent;
 using KeePassRPC.Models.Shared;
 using KeePassRPC.Models.Transient;
@@ -49,7 +48,7 @@ namespace KeePassRPC
             {
                 try
                 {
-                    conf = (EntryConfigv1)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfigv1), json);
+                    conf = (EntryConfigv1)JsonConvert.Import(typeof(EntryConfigv1), json);
                 }
                 catch (Exception)
                 {
@@ -82,7 +81,7 @@ namespace KeePassRPC
             {
                 try
                 {
-                    conf = (EntryConfigv2)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfigv2), json);
+                    conf = (EntryConfigv2)JsonConvert.Import(typeof(EntryConfigv2), json);
                 }
                 catch (Exception ex)
                 {
@@ -151,12 +150,12 @@ namespace KeePassRPC
         public static void SetKPRPCConfig(this PwEntry entry, EntryConfigv1 newConfig)
         {
             entry.Strings.Set("KPRPC JSON", new ProtectedString(
-                true, Jayrock.Json.Conversion.JsonConvert.ExportToString(newConfig)));
+                true, JsonConvert.ExportToString(newConfig)));
         }
         
         public static void SetKPRPCConfig(this PwEntry entry, EntryConfigv2 newConfig)
         {
-            entry.CustomData.Set("KPRPC JSON", Jayrock.Json.Conversion.JsonConvert.ExportToString(newConfig));
+            entry.CustomData.Set("KPRPC JSON", JsonConvert.ExportToString(newConfig));
         }
         
         public static MatchAccuracyMethod GetMatchAccuracyMethod(this PwEntry entry, URLSummary urlsum, DatabaseConfig dbConf)
@@ -166,8 +165,7 @@ namespace KeePassRPC
             if (urlsum.Domain != null && urlsum.Domain.RegistrableDomain != null &&
                 dbConf.MatchedURLAccuracyOverrides.TryGetValue(urlsum.Domain.RegistrableDomain, out overridenMethod))
                 return overridenMethod;
-            else
-                return conf.MatcherConfigs.First(mc => mc.MatcherType == EntryMatcherType.Url).UrlMatchMethod ?? MatchAccuracyMethod.Domain;
+            return conf.MatcherConfigs.First(mc => mc.MatcherType == EntryMatcherType.Url).UrlMatchMethod ?? MatchAccuracyMethod.Domain;
         }
 
         public static DatabaseConfig GetKPRPCConfig(this PwDatabase db)
@@ -186,25 +184,23 @@ namespace KeePassRPC
                 db.SetKPRPCConfig(newConfig);
                 return newConfig;
             }
-            else
+
+            try
             {
-                try
-                {
-                    return (DatabaseConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(DatabaseConfig), db.CustomData.Get("KeePassRPC.Config"));
-                }
-                catch (Exception)
-                {
-                    // Reset to default config because the current stored config is corrupt
-                    var newConfig = new DatabaseConfig();
-                    db.SetKPRPCConfig(newConfig);
-                    return newConfig;
-                }
+                return (DatabaseConfig)JsonConvert.Import(typeof(DatabaseConfig), db.CustomData.Get("KeePassRPC.Config"));
+            }
+            catch (Exception)
+            {
+                // Reset to default config because the current stored config is corrupt
+                var newConfig = new DatabaseConfig();
+                db.SetKPRPCConfig(newConfig);
+                return newConfig;
             }
         }
 
         public static void SetKPRPCConfig(this PwDatabase db, DatabaseConfig newConfig)
         {
-            db.CustomData.Set("KeePassRPC.Config", Jayrock.Json.Conversion.JsonConvert.ExportToString(newConfig));
+            db.CustomData.Set("KeePassRPC.Config", JsonConvert.ExportToString(newConfig));
         }
 
         public static bool IsOrIsContainedIn(this PwGroup gp, PwGroup hostGroup)

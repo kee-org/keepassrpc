@@ -1,11 +1,14 @@
-﻿namespace KeePassRPC.Forms
+﻿using System.ComponentModel;
+using System.Windows.Forms;
+
+namespace KeePassRPC.Forms
 {
 	partial class WelcomeForm
 	{
 		/// <summary>
 		/// Required designer variable.
 		/// </summary>
-		private System.ComponentModel.IContainer components = null;
+		private IContainer components = null;
 
 		/// <summary>
 		/// Clean up any resources being used.
@@ -167,13 +170,13 @@
 
 		#endregion
 
-        private System.Windows.Forms.PictureBox m_bannerImage;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.LinkLabel linkLabel1;
-        private System.Windows.Forms.RichTextBox richTextBox1;
-        private System.Windows.Forms.RichTextBox richTextBox3;
+        private PictureBox m_bannerImage;
+        private Label label2;
+        private Label label3;
+        private Button button1;
+        private Button button2;
+        private LinkLabel linkLabel1;
+        private RichTextBox richTextBox1;
+        private RichTextBox richTextBox3;
 	}
 }

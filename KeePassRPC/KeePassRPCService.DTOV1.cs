@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using KeePassLib;
+using KeePassLib.Collections;
 using KeePassLib.Security;
+using KeePassLib.Utility;
 using KeePassRPC.Models.DataExchange;
 using KeePassRPC.Models.Persistent;
 using KeePassRPC.Models.Shared;
@@ -189,19 +191,17 @@ namespace KeePassRPC
                 Entry kpe = new Entry(
                     (string[])URLs.ToArray(typeof(string)), realm,
                     pwe.Strings.ReadSafe(PwDefs.TitleField), temp,
-                    KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
+                    MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
                     alwaysAutoFill, neverAutoFill, alwaysAutoSubmit, neverAutoSubmit, priority,
                     GetGroupFromPwGroup(pwe.ParentGroup), imageData,
                     GetDatabaseFromPwDatabase(db, false, true), matchAccuracy);
                 return kpe;
             }
-            else
-            {
-                return new LightEntry((string[])URLs.ToArray(typeof(string)),
-                    pwe.Strings.ReadSafe(PwDefs.TitleField),
-                    KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
-                    imageData, "username", usernameValue);
-            }
+
+            return new LightEntry((string[])URLs.ToArray(typeof(string)),
+                pwe.Strings.ReadSafe(PwDefs.TitleField),
+                MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
+                imageData, "username", usernameValue);
         }
 
         private Group GetGroupFromPwGroup(PwGroup pwg)
@@ -211,7 +211,7 @@ namespace KeePassRPC
 
             string imageData = _iconConverter.iconToBase64(pwg.CustomIconUuid, pwg.IconId);
 
-            Group kpg = new Group(pwg.Name, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes),
+            Group kpg = new Group(pwg.Name, MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes),
                 imageData, pwg.GetFullPath("/", false));
 
             //sw.Stop();
@@ -271,9 +271,9 @@ namespace KeePassRPC
                 if (kpff.Type == FormFieldType.FFTpassword && !firstPasswordFound)
                 {
                     var mc = string.IsNullOrEmpty(kpff.Id) && string.IsNullOrEmpty(kpff.Name)
-                        ? new FieldMatcherConfig() { MatcherType = FieldMatcherType.PasswordDefaultHeuristic }
+                        ? new FieldMatcherConfig { MatcherType = FieldMatcherType.PasswordDefaultHeuristic }
                         : FieldMatcherConfig.ForSingleClientMatch(kpff.Id, kpff.Name, kpff.Type);
-                    fields.Add(new Field()
+                    fields.Add(new Field
                     {
                         Page = Math.Max(kpff.Page, 1),
                         ValuePath = PwDefs.PasswordField,
@@ -288,9 +288,9 @@ namespace KeePassRPC
                 else if (kpff.Type == FormFieldType.FFTusername)
                 {
                     var mc = string.IsNullOrEmpty(kpff.Id) && string.IsNullOrEmpty(kpff.Name)
-                        ? new FieldMatcherConfig() { MatcherType = FieldMatcherType.UsernameDefaultHeuristic }
+                        ? new FieldMatcherConfig { MatcherType = FieldMatcherType.UsernameDefaultHeuristic }
                         : FieldMatcherConfig.ForSingleClientMatch(kpff.Id, kpff.Name, kpff.Type);
-                    fields.Add(new Field()
+                    fields.Add(new Field
                     {
                         Page = Math.Max(kpff.Page, 1),
                         ValuePath = PwDefs.UserNameField,
@@ -304,7 +304,7 @@ namespace KeePassRPC
                 else
                 {
                     var mc = FieldMatcherConfig.ForSingleClientMatch(kpff.Id, kpff.Name, kpff.Type);
-                    fields.Add(new Field()
+                    fields.Add(new Field
                     {
                         Name = !string.IsNullOrEmpty(kpff.DisplayName) ? kpff.DisplayName : kpff.Name,
                         Page = Math.Max(kpff.Page, 1),
@@ -363,7 +363,7 @@ namespace KeePassRPC
                 && login.IconImageData.Length > 0
                 && _iconConverter.base64ToIcon(ClientMetadata, login.IconImageData, ref customIconUUID, ref iconId))
             {
-                if (customIconUUID == PwUuid.Zero)
+                if (ReferenceEquals(customIconUUID, PwUuid.Zero))
                     pwe.IconId = iconId;
                 else
                     pwe.CustomIconUuid = customIconUUID;
@@ -379,7 +379,6 @@ namespace KeePassRPC
         /// Returns a list of every entry in the database
         /// </summary>
         /// <param name="urlRequired">true = URL field must exist for a child entry to be returned, false = all entries are returned</param>
-        /// <param name="current__"></param>
         /// <returns>all logins in the database subject to the urlRequired setting</returns>
         public Entry[] getAllLogins(bool urlRequired)
         {
@@ -392,7 +391,7 @@ namespace KeePassRPC
                 return null;
             }
 
-            KeePassLib.Collections.PwObjectList<PwEntry> output;
+            PwObjectList<PwEntry> output;
             output = GetRootPwGroup(_host.Database).GetEntries(true);
 
             foreach (PwEntry pwe in output)
@@ -424,7 +423,6 @@ namespace KeePassRPC
         /// <param name="group">the group to search in</param>
         /// <param name="fullDetails">true = all details; false = some details ommitted (e.g. password)</param>
         /// <param name="urlRequired">true = URL field must exist for a child entry to be returned, false = all entries are returned</param>
-        /// <param name="current__"></param>
         /// <returns>the list of every entry directly inside the group.</returns>
         private LightEntry[] GetChildEntries(PwDatabase pwd, PwGroup group, bool fullDetails, bool urlRequired)
         {
@@ -433,7 +431,7 @@ namespace KeePassRPC
 
             if (group != null)
             {
-                KeePassLib.Collections.PwObjectList<PwEntry> output;
+                PwObjectList<PwEntry> output;
                 output = group.GetEntries(false);
 
                 foreach (PwEntry pwe in output)
@@ -462,14 +460,12 @@ namespace KeePassRPC
                     allEntries.Sort(delegate(Entry e1, Entry e2) { return e1.Title.CompareTo(e2.Title); });
                     return allEntries.ToArray();
                 }
-                else
+
+                allLightEntries.Sort(delegate(LightEntry e1, LightEntry e2)
                 {
-                    allLightEntries.Sort(delegate(LightEntry e1, LightEntry e2)
-                    {
-                        return e1.Title.CompareTo(e2.Title);
-                    });
-                    return allLightEntries.ToArray();
-                }
+                    return e1.Title.CompareTo(e2.Title);
+                });
+                return allLightEntries.ToArray();
             }
 
             return null;
@@ -492,7 +488,7 @@ namespace KeePassRPC
                 return null;
             }
 
-            KeePassLib.Collections.PwObjectList<PwGroup> output;
+            PwObjectList<PwGroup> output;
             output = group.Groups;
 
             foreach (PwGroup pwg in output)

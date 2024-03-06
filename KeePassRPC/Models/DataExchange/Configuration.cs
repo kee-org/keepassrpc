@@ -8,9 +8,9 @@ namespace KeePassRPC.Models.DataExchange
         public bool AutoCommit; // whether KeePass should save the active database after every change
 
         public Configuration() { }
-        public Configuration(string[] MRUList, bool autoCommit)
+        public Configuration(string[] mruList, bool autoCommit)
         {
-            KnownDatabases = MRUList;
+            KnownDatabases = mruList;
             AutoCommit = autoCommit;
         }
     }

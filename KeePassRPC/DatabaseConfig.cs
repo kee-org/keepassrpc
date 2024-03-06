@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using KeePassRPC.Models.DataExchange;
 using KeePassRPC.Models.Shared;
 
 namespace KeePassRPC

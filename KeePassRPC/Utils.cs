@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Security.Cryptography;
+using System.Text;
 using System.Windows.Forms;
 
 namespace KeePassRPC
@@ -9,7 +10,7 @@ namespace KeePassRPC
 
         internal static byte[] Hash(string data)
         {
-            byte[] dataBytes = System.Text.Encoding.UTF8.GetBytes(data);
+            byte[] dataBytes = Encoding.UTF8.GetBytes(data);
             return Hash(dataBytes);
         }
 
@@ -74,10 +75,9 @@ namespace KeePassRPC
                 {
                     f.Invoke(new Action(() => MessageBox.Show(description, title, mb, mi, mdb)));
                     return;
-                } else
-                {
-                    win = f;
                 }
+
+                win = f;
             } catch (Exception)
             {
             }

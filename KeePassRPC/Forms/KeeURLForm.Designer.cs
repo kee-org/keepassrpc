@@ -1,11 +1,14 @@
-﻿namespace KeePassRPC.Forms
+﻿using System.ComponentModel;
+using System.Windows.Forms;
+
+namespace KeePassRPC.Forms
 {
     partial class KeeURLForm
     {
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -133,12 +136,12 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Button buttonOK;
-        private System.Windows.Forms.Button buttonCancel;
-        private System.Windows.Forms.RadioButton radioButtonMatch;
-        private System.Windows.Forms.RadioButton radioButtonBlock;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.CheckBox checkBoxRegEx;
+        private TextBox textBox1;
+        private Button buttonOK;
+        private Button buttonCancel;
+        private RadioButton radioButtonMatch;
+        private RadioButton radioButtonBlock;
+        private Label label1;
+        private CheckBox checkBoxRegEx;
     }
 }

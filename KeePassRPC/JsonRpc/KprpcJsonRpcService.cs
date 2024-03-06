@@ -1,6 +1,8 @@
+using Jayrock.JsonRpc;
+
 namespace KeePassRPC.JsonRpc
 {
-    public class KprpcJsonRpcService : Jayrock.JsonRpc.JsonRpcService,
+    public class KprpcJsonRpcService : JsonRpcService,
         IJsonRpcRequestLifetimeNotice,
         IJsonRpcClientMetadataProperty
     {

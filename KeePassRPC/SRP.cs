@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Security.Authentication;
+using KeePassLib.Utility;
 using KeePassRPC.Models.DataExchange;
 
 namespace KeePassRPC
@@ -48,14 +49,14 @@ namespace KeePassRPC
                 {
                     if (Authenticated)
                     {
-                        _K = KeePassLib.Utility.MemUtil.ByteArrayToHexString(Utils.Hash(S.ToString(16))).ToLower();
+                        _K = MemUtil.ByteArrayToHexString(Utils.Hash(S.ToString(16))).ToLower();
                         return _K;
                     }
-                    else
-                        throw new System.Security.Authentication.AuthenticationException("User has not been authenticated.");
+
+                    throw new AuthenticationException("User has not been authenticated.");
                 }
-                else
-                    return _K;
+
+                return _K;
             }
         }
 
@@ -87,7 +88,7 @@ namespace KeePassRPC
         // Send salt to the client and store the parameters they sent to us
         internal Error Handshake(string I, string Astr)
         {
-            this._I = I;
+            _I = I;
             return Calculations(Astr, v);
         }
 
@@ -102,7 +103,7 @@ namespace KeePassRPC
             }
 
             // u = H(A,B)
-            BigInteger u = new BigInteger(Utils.Hash(Astr + this.Bstr));
+            BigInteger u = new BigInteger(Utils.Hash(Astr + Bstr));
 
             //TODO: I think this is an unnecessary check for the server-side
             // and was probably erroneously used instead of the correct check
@@ -115,14 +116,14 @@ namespace KeePassRPC
 
             //S = (Av^u) ^ b
             BigInteger Avu = A * (v.modPow(u, N));
-            this.S = Avu.modPow(b, N);
+            S = Avu.modPow(b, N);
 
             // Calculate the auth hash we will expect from the client (M) and the one we will send back in the next step (M2)
             // M = H(A, B, S)
             //M2 = H(A, M, S)
-            string Mstr = A.ToString(16) + this.B.ToString(16) + this.S.ToString(16);
-            this.M = KeePassLib.Utility.MemUtil.ByteArrayToHexString(Utils.Hash(Mstr));
-            this.M2 = KeePassLib.Utility.MemUtil.ByteArrayToHexString(Utils.Hash(A.ToString(16) + this.M.ToLower() + this.S.ToString(16)));
+            string Mstr = A.ToString(16) + B.ToString(16) + S.ToString(16);
+            M = MemUtil.ByteArrayToHexString(Utils.Hash(Mstr));
+            M2 = MemUtil.ByteArrayToHexString(Utils.Hash(A.ToString(16) + M.ToLower() + S.ToString(16)));
             return new Error(ErrorCode.SUCCESS);
         }
 

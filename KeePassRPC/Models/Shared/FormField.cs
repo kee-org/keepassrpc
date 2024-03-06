@@ -7,7 +7,7 @@ namespace KeePassRPC.Models.Shared
         public string Name;
         public string DisplayName;
         public string Value;
-        public FormFieldType @Type;
+        public FormFieldType Type;
         public string Id;
         public int Page;
         public PlaceholderHandling PlaceholderHandling;
@@ -17,7 +17,7 @@ namespace KeePassRPC.Models.Shared
         public FormField(string name,
             string displayName,
             string value,
-            FormFieldType @type,
+            FormFieldType type,
             string id,
             int page,
             PlaceholderHandling placeholderHandling)
@@ -25,7 +25,7 @@ namespace KeePassRPC.Models.Shared
             Name = name;
             DisplayName = displayName;
             Value = value;
-            @Type = @type;
+            Type = type;
             Id = id;
             Page = page;
             PlaceholderHandling = placeholderHandling;

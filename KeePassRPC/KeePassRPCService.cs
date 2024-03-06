@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using Jayrock.JsonRpc;
-using System.Windows.Forms;
-using KeePass.Forms;
-using KeePassLib;
-using System.Collections;
-using KeePass.Resources;
-using KeePassLib.Serialization;
-using KeePassLib.Security;
-using KeePass.Plugins;
-using KeePassLib.Cryptography.PasswordGenerator;
-using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
+using System.Windows.Forms;
+using KeePass;
+using KeePass.Forms;
+using KeePass.Plugins;
 using KeePass.UI;
+using KeePassLib;
+using KeePassLib.Security;
+using KeePassLib.Serialization;
+using KeePassLib.Utility;
 using KeePassRPC.JsonRpc;
 using KeePassRPC.Models.DataExchange;
 using KeePassRPC.Models.Persistent;
@@ -35,8 +31,8 @@ namespace KeePassRPC
         public KeePassRPCService(IPluginHost host, string[] standardIconsBase64, KeePassRPCExt plugin)
         {
             _keePassRpcPlugin = plugin;
-            this._host = host;
-            this._iconConverter = new IconConverter(host, _keePassRpcPlugin, standardIconsBase64);
+            _host = host;
+            _iconConverter = new IconConverter(host, _keePassRpcPlugin, standardIconsBase64);
         }
 
         #endregion
@@ -65,11 +61,11 @@ namespace KeePassRPC
 
             IntPtr ffWindow = IntPtr.Zero;
             if (returnFocus) ffWindow = Native.GetForegroundWindowHandle();
-            bool minimised = KeePass.Program.MainForm.WindowState == FormWindowState.Minimized;
-            bool trayed = KeePass.Program.MainForm.IsTrayed();
+            bool minimised = Program.MainForm.WindowState == FormWindowState.Minimized;
+            bool trayed = Program.MainForm.IsTrayed();
 
             if (ioci == null)
-                ioci = KeePass.Program.Config.Application.LastUsedFile;
+                ioci = Program.Config.Application.LastUsedFile;
 
             if (!Native.IsUnix())
             {
@@ -78,18 +74,18 @@ namespace KeePassRPC
                 // the window without these shenanigans. We don't need to this.showOpenDB(ioci)
                 // because any appropriate "enter master key" dialog is triggered after 
                 // minimising and restoring the window
-                Native.AttachToActiveAndBringToForeground(KeePass.Program.MainForm.Handle);
+                Native.AttachToActiveAndBringToForeground(Program.MainForm.Handle);
             }
             else
             {
-                Native.EnsureForegroundWindow(KeePass.Program.MainForm.Handle);
-                if (KeePass.Program.MainForm.IsFileLocked(null) && !KeePass.Program.MainForm.UIIsAutoUnlockBlocked())
+                Native.EnsureForegroundWindow(Program.MainForm.Handle);
+                if (Program.MainForm.IsFileLocked(null) && !Program.MainForm.UIIsAutoUnlockBlocked())
                 {
                     showOpenDB(ioci);
                 }
             }
 
-            KeePass.Program.MainForm.Activate();
+            Program.MainForm.Activate();
 
             // refresh the UI in case user cancelled the dialog box and/or KeePass 
             // native calls have left us in a bit of a weird state
@@ -97,18 +93,18 @@ namespace KeePassRPC
 
             // Set the program state back to what is was unless the user has
             // configured "lock on minimise" in which case we always set it to Normal
-            if (!KeePass.Program.Config.Security.WorkspaceLocking.LockOnWindowMinimize)
+            if (!Program.Config.Security.WorkspaceLocking.LockOnWindowMinimize)
             {
                 minimised = false;
                 trayed = false;
             }
 
-            KeePass.Program.MainForm.WindowState = minimised ? FormWindowState.Minimized : FormWindowState.Normal;
+            Program.MainForm.WindowState = minimised ? FormWindowState.Minimized : FormWindowState.Normal;
 
             if (trayed)
             {
-                KeePass.Program.MainForm.Visible = false;
-                KeePass.Program.MainForm.UpdateTrayIcon();
+                Program.MainForm.Visible = false;
+                Program.MainForm.UpdateTrayIcon();
             }
 
             // Make Firefox active again
@@ -118,7 +114,7 @@ namespace KeePassRPC
         private bool showOpenDB(IOConnectionInfo ioci)
         {
             // KeePass does this on "show window" keypress. Not sure what it does but most likely does no harm to check here too
-            if (KeePass.Program.MainForm.UIIsInteractionBlocked())
+            if (Program.MainForm.UIIsInteractionBlocked())
             {
                 return false;
             }
@@ -127,7 +123,7 @@ namespace KeePassRPC
             if (GlobalWindowManager.WindowCount != 0) return false;
 
             // Prompt user to open database
-            KeePass.Program.MainForm.OpenDatabase(ioci, null, false);
+            Program.MainForm.OpenDatabase(ioci, null, false);
             return true;
         }
 
@@ -219,7 +215,7 @@ namespace KeePassRPC
                         continue;
                     }
 
-                    if (iocMru.Path.Equals(ioc.Path, KeePassLib.Utility.StrUtil.CaseIgnoreCmp))
+                    if (iocMru.Path.Equals(ioc.Path, StrUtil.CaseIgnoreCmp))
                     {
                         ioc = iocMru.CloneDeep();
                         break;
@@ -319,7 +315,7 @@ namespace KeePassRPC
                 new ProtectedString(chosenDB.MemoryProtection.ProtectNotes, explanatoryNote));
             EntryConfigv2 conf = (new EntryConfigv1(MatchAccuracyMethod.Hostname)).ConvertToV2(new GuidService());
             var list = conf.MatcherConfigs.ToList();
-            list.Add(new EntryMatcherConfig() { MatcherType = EntryMatcherType.Hide });
+            list.Add(new EntryMatcherConfig { MatcherType = EntryMatcherType.Hide });
             conf.MatcherConfigs = list.ToArray();
             newLogin.SetKPRPCConfig(conf);
             parentGroup.AddEntry(newLogin, true);
@@ -327,8 +323,6 @@ namespace KeePassRPC
             // We can't save the database at this point because KeePass steals
             // window focus while saving; that breaks Firefox's Australis UI panels.
             _host.MainWindow.BeginInvoke(new dlgUpdateUINoSave(updateUINoSave));
-
-            return;
         }
 
         // We can't just use the MatchAccuracyMethod found for the entry (in the conf parameter)
@@ -422,11 +416,9 @@ namespace KeePassRPC
             PwGroup matchedGroup;
             if (!string.IsNullOrEmpty(uuid))
             {
-                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
+                PwUuid pwuuid = new PwUuid(MemUtil.HexStringToByteArray(uuid));
 
-                matchedGroup = _host.Database.RootGroup.Uuid == pwuuid
-                    ? _host.Database.RootGroup
-                    : _host.Database.RootGroup.FindGroup(pwuuid, true);
+                matchedGroup = _host.Database.RootGroup.FindGroup(pwuuid, true);
             }
             else
             {
@@ -460,10 +452,8 @@ namespace KeePassRPC
             {
                 return true;
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         /// <summary>
@@ -488,10 +478,8 @@ namespace KeePassRPC
                     rootGroups = rootGroupsConfig.Split(',');
                     foreach (string rootGroupId in rootGroups)
                     {
-                        PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(rootGroupId));
-                        PwGroup matchedGroup = _host.Database.RootGroup.Uuid == pwuuid
-                            ? _host.Database.RootGroup
-                            : _host.Database.RootGroup.FindGroup(pwuuid, true);
+                        PwUuid pwuuid = new PwUuid(MemUtil.HexStringToByteArray(rootGroupId));
+                        PwGroup matchedGroup = _host.Database.RootGroup.FindGroup(pwuuid, true);
 
                         if (matchedGroup == null)
                             continue;
@@ -508,27 +496,24 @@ namespace KeePassRPC
             {
                 string uuid = conf.RootUUID;
 
-                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
+                PwUuid pwuuid = new PwUuid(MemUtil.HexStringToByteArray(uuid));
 
-                PwGroup matchedGroup =
-                    pwd.RootGroup.Uuid == pwuuid ? pwd.RootGroup : pwd.RootGroup.FindGroup(pwuuid, true);
+                PwGroup matchedGroup = pwd.RootGroup.FindGroup(pwuuid, true);
 
                 if (matchedGroup == null)
                     throw new Exception(
                         "Could not find requested group. Have you deleted your Kee home group? Set a new one and try again.");
 
                 var rid = _host.Database.RecycleBinUuid;
-                if (rid != null && rid != PwUuid.Zero &&
+                if (rid != null && !ReferenceEquals(rid, PwUuid.Zero) &&
                     matchedGroup.IsOrIsContainedIn(_host.Database.RootGroup.FindGroup(rid, true)))
                     throw new Exception(
                         "Kee home group is in the Recycle Bin. Restore the group or set a new home group and try again.");
 
                 return matchedGroup;
             }
-            else
-            {
-                return pwd.RootGroup;
-            }
+
+            return pwd.RootGroup;
         }
 
         private void MergeEntries(PwEntry destination, PwEntry source, int urlMergeMode, PwDatabase db)
@@ -592,9 +577,6 @@ namespace KeePassRPC
                     break;
                 case 5:
                     destURLs = sourceURLs;
-                    break;
-                default:
-                    // No changes to URLs
                     break;
             }
 

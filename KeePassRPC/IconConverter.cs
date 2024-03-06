@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using KeePass.Plugins;
@@ -21,7 +22,7 @@ namespace KeePassRPC
         public IconConverter(IPluginHost host, KeePassRPCExt plugin, string[] _standardIconsBase64)
         {
             this.host = host;
-            this.KeePassRPCPlugin = plugin;
+            KeePassRPCPlugin = plugin;
             this._standardIconsBase64 = _standardIconsBase64;
         }
 
@@ -32,7 +33,7 @@ namespace KeePassRPC
         {
             var highestIndex = HighestKnownStandardIconIndex(clientMetadata);
 
-            return _standardIconsBase64.Skip(highestIndex).Select((data, index) => new IconData()
+            return _standardIconsBase64.Skip(highestIndex).Select((data, index) => new IconData
             {
                 Id = index.ToString(),
                 Icon = data
@@ -63,19 +64,19 @@ namespace KeePassRPC
             if ((clientMetadata != null && clientMetadata.Features != null &&
                  clientMetadata.Features.Contains("KPRPC_FEATURE_ICON_REFERENCES")))
             {
-                if (customIconUUID != PwUuid.Zero)
+                if (!ReferenceEquals(customIconUUID, PwUuid.Zero))
                 {
-                    return new Icon()
+                    return new Icon
                     {
                         RefId = customIconUUID.ToHexString()
                     };
                 }
-                return new Icon()
+                return new Icon
                 {
                     Index = ((int)iconId).ToString()
                 };
             }
-            return new Icon()
+            return new Icon
             {
                 Base64 = iconToBase64(customIconUUID, iconId)
             };
@@ -94,7 +95,7 @@ namespace KeePassRPC
             PwUuid uuid = null;
 
             string imageData = "";
-            if (customIconUUID != PwUuid.Zero)
+            if (!ReferenceEquals(customIconUUID, PwUuid.Zero))
             {
                 string cachedBase64 = IconCache<PwUuid>.GetIconEncoding(customIconUUID);
                 if (string.IsNullOrEmpty(cachedBase64))
@@ -123,7 +124,7 @@ namespace KeePassRPC
             if (icon == null)
             {
                 int iconIdInt = (int)iconId;
-                uuid = new PwUuid(new byte[]
+                uuid = new PwUuid(new[]
                 {
                     (byte)(iconIdInt & 0xFF), (byte)(iconIdInt & 0xFF),
                     (byte)(iconIdInt & 0xFF), (byte)(iconIdInt & 0xFF),
@@ -162,7 +163,7 @@ namespace KeePassRPC
                 {
                     lock (iconSavingLock)
                     {
-                        icon.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                        icon.Save(ms, ImageFormat.Png);
                     }
 
                     imageData = Convert.ToBase64String(ms.ToArray());
@@ -260,7 +261,7 @@ namespace KeePassRPC
                 {
                     // No need to lock here because we've created a new Bitmap 
                     // (KeePass.UI.UIUtil.LoadImage has no caching or fancy stuff)
-                    imgNew.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    imgNew.Save(ms, ImageFormat.Png);
 
                     byte[] msByteArray = ms.ToArray();
 
@@ -269,7 +270,7 @@ namespace KeePassRPC
                         // re-use existing custom icon if it's already in the database
                         // (This will probably fail if database is used on 
                         // both 32 bit and 64 bit machines - not sure why...)
-                        if (KeePassLib.Utility.MemUtil.ArraysEqual(msByteArray, item.ImageDataPng))
+                        if (MemUtil.ArraysEqual(msByteArray, item.ImageDataPng))
                         {
                             customIconUUID = item.Uuid;
                             host.Database.UINeedsIconUpdate = true;

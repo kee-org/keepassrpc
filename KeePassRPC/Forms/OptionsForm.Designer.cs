@@ -1,11 +1,14 @@
-﻿namespace KeePassRPC.Forms
+﻿using System.ComponentModel;
+using System.Windows.Forms;
+
+namespace KeePassRPC.Forms
 {
     partial class OptionsForm
     {
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -506,43 +509,43 @@
 
         #endregion
 
-        private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.PictureBox m_bannerImage;
-        private System.Windows.Forms.Button m_btnCancel;
-        private System.Windows.Forms.Button m_btnOK;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.CheckBox checkBox2;
-        private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TabPage tabPage2;
-        private System.Windows.Forms.TabPage tabPage3;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.TextBox textBoxAuthExpiry;
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.ComboBox comboBoxSecLevelMinClient;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.ComboBox comboBoxSecLevelKeePass;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label labelSecLevelWarning;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.TextBox textBoxPort;
-        private System.Windows.Forms.DataGridView dataGridView1;
-        private System.Windows.Forms.Label labelAuthorisedClientsFail;
-        private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ClientName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn UniqueID;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Expires;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn Connected;
-        private System.Windows.Forms.DataGridViewButtonColumn Revoke;
-        private System.Windows.Forms.Label label13;
-        private System.Windows.Forms.CheckBox checkBox3;
+        private CheckBox checkBox1;
+        private PictureBox m_bannerImage;
+        private Button m_btnCancel;
+        private Button m_btnOK;
+        private Label label1;
+        private Label label2;
+        private CheckBox checkBox2;
+        private TabControl tabControl1;
+        private TabPage tabPage1;
+        private TabPage tabPage2;
+        private TabPage tabPage3;
+        private GroupBox groupBox1;
+        private Label label9;
+        private Label label8;
+        private TextBox textBoxAuthExpiry;
+        private GroupBox groupBox2;
+        private ComboBox comboBoxSecLevelMinClient;
+        private Label label4;
+        private GroupBox groupBox3;
+        private ComboBox comboBoxSecLevelKeePass;
+        private Label label3;
+        private Label label5;
+        private Label labelSecLevelWarning;
+        private Label label7;
+        private Label label6;
+        private TextBox textBoxPort;
+        private DataGridView dataGridView1;
+        private Label labelAuthorisedClientsFail;
+        private Label label11;
+        private Label label10;
+        private Label label12;
+        private DataGridViewTextBoxColumn ClientName;
+        private DataGridViewTextBoxColumn UniqueID;
+        private DataGridViewTextBoxColumn Expires;
+        private DataGridViewCheckBoxColumn Connected;
+        private DataGridViewButtonColumn Revoke;
+        private Label label13;
+        private CheckBox checkBox3;
     }
 }

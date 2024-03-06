@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using KeePass.Util;
 using KeePassLib;
 using KeePassRPC.Models.DataExchange;
 using KeePassRPC.Models.Shared;
@@ -43,9 +42,9 @@ namespace KeePassRPC.Models.Persistent
         public MatchAccuracyMethod? GetMatchAccuracyMethod(bool nullDefault = false)
         {
             if (BlockHostnameOnlyMatch) return MatchAccuracyMethod.Exact;
-            else if (BlockDomainOnlyMatch) return MatchAccuracyMethod.Hostname;
-            else if (nullDefault) return null;
-            else return MatchAccuracyMethod.Domain;
+            if (BlockDomainOnlyMatch) return MatchAccuracyMethod.Hostname;
+            if (nullDefault) return null;
+            return MatchAccuracyMethod.Domain;
         }
 
         /// <remarks>This has to be a method because Jayrock</remarks>
@@ -93,13 +92,13 @@ namespace KeePassRPC.Models.Persistent
         {
         }
 
-        public override bool Equals(System.Object obj)
+        public override bool Equals(Object obj)
         {
             if (obj == null)
                 return false;
 
             EntryConfigv1 p = obj as EntryConfigv1;
-            if ((System.Object)p == null)
+            if (p == null)
                 return false;
 
             return Version == p.Version
@@ -173,15 +172,15 @@ namespace KeePassRPC.Models.Persistent
             conf2.AltUrls = AltURLs;
             conf2.RegExUrls = RegExURLs;
             conf2.RegExBlockedUrls = RegExBlockedURLs;
-            conf2.AuthenticationMethods = new string[] {"password"};
+            conf2.AuthenticationMethods = new[] {"password"};
             conf2.Fields = ConvertFields(FormFieldList, guidService);
             var mcList = new List<EntryMatcherConfig>
             {
-                new EntryMatcherConfig() {MatcherType = EntryMatcherType.Url, UrlMatchMethod = GetMatchAccuracyMethod(true)}
+                new EntryMatcherConfig {MatcherType = EntryMatcherType.Url, UrlMatchMethod = GetMatchAccuracyMethod(true)}
             };
             if (Hide)
             {
-                mcList.Add(new EntryMatcherConfig() {MatcherType = EntryMatcherType.Hide});
+                mcList.Add(new EntryMatcherConfig {MatcherType = EntryMatcherType.Hide});
             }
 
             conf2.MatcherConfigs = mcList.ToArray();
@@ -202,9 +201,9 @@ namespace KeePassRPC.Models.Persistent
                     {
                         usernameFound = true;
                         var mc = string.IsNullOrEmpty(ff.Id) && string.IsNullOrEmpty(ff.Name)
-                            ? new FieldMatcherConfig() { MatcherType = FieldMatcherType.UsernameDefaultHeuristic }
+                            ? new FieldMatcherConfig { MatcherType = FieldMatcherType.UsernameDefaultHeuristic }
                             : FieldMatcherConfig.ForSingleClientMatch(ff.Id, ff.Name, FormFieldType.FFTusername);
-                        var f = new Field()
+                        var f = new Field
                         {
                             Page = Math.Max(ff.Page, 1),
                             ValuePath = PwDefs.UserNameField,
@@ -226,9 +225,9 @@ namespace KeePassRPC.Models.Persistent
                     {
                         passwordFound = true;
                         var mc = string.IsNullOrEmpty(ff.Id) && string.IsNullOrEmpty(ff.Name)
-                            ? new FieldMatcherConfig() { MatcherType = FieldMatcherType.PasswordDefaultHeuristic }
+                            ? new FieldMatcherConfig { MatcherType = FieldMatcherType.PasswordDefaultHeuristic }
                             : FieldMatcherConfig.ForSingleClientMatch(ff.Id, ff.Name, FormFieldType.FFTpassword);
-                        var f = new Field()
+                        var f = new Field
                         {
                             Page = Math.Max(ff.Page, 1),
                             ValuePath = PwDefs.PasswordField,
@@ -250,7 +249,7 @@ namespace KeePassRPC.Models.Persistent
                     {
                         var mc = FieldMatcherConfig.ForSingleClientMatch(ff.Id, ff.Name, ff.Type);
                         var newUniqueId = Convert.ToBase64String(guidService.NewGuid().ToByteArray());
-                        var f = new Field()
+                        var f = new Field
                         {
                             Name = !string.IsNullOrWhiteSpace(ff.DisplayName) ? ff.DisplayName : newUniqueId,
                             Page = Math.Max(ff.Page, 1),
@@ -275,22 +274,22 @@ namespace KeePassRPC.Models.Persistent
 
             if (!usernameFound)
             {
-                fields.Add(new Field()
+                fields.Add(new Field
                 {
                     ValuePath = PwDefs.UserNameField,
                     Uuid = Convert.ToBase64String(guidService.NewGuid().ToByteArray()),
                     Type = FieldType.Text,
-                    MatcherConfigs = new [] { new FieldMatcherConfig() { MatcherType = FieldMatcherType.UsernameDefaultHeuristic } }
+                    MatcherConfigs = new [] { new FieldMatcherConfig { MatcherType = FieldMatcherType.UsernameDefaultHeuristic } }
                 });
             }
             if (!passwordFound)
             {
-                fields.Add(new Field()
+                fields.Add(new Field
                 {
                     ValuePath = PwDefs.PasswordField,
                     Uuid = Convert.ToBase64String(guidService.NewGuid().ToByteArray()),
                     Type = FieldType.Password,
-                    MatcherConfigs = new [] { new FieldMatcherConfig() { MatcherType = FieldMatcherType.PasswordDefaultHeuristic } }
+                    MatcherConfigs = new [] { new FieldMatcherConfig { MatcherType = FieldMatcherType.PasswordDefaultHeuristic } }
                 });
             }
 

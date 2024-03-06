@@ -1,11 +1,14 @@
-﻿namespace KeePassRPC.Forms
+﻿using System.ComponentModel;
+using System.Windows.Forms;
+
+namespace KeePassRPC.Forms
 {
     partial class KeeGroupUserControl
     {
         /// <summary> 
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary> 
         /// Clean up any resources being used.
@@ -102,10 +105,10 @@
 
         #endregion
 
-        private System.Windows.Forms.Label l_status;
-        private System.Windows.Forms.Button buttonMakeHome;
-        private System.Windows.Forms.Label l_homeExplanation;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.ComboBox comboBoxLocation;
+        private Label l_status;
+        private Button buttonMakeHome;
+        private Label l_homeExplanation;
+        private Label label1;
+        private ComboBox comboBoxLocation;
     }
 }

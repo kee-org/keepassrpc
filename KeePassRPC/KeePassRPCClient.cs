@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using Fleck2.Interfaces;
-using Jayrock.JsonRpc;
-using System.Security.Cryptography;
-using System.Xml.Serialization;
-using System.Threading;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
 using System.Windows.Forms;
+using System.Xml.Serialization;
+using Fleck2.Interfaces;
+using Jayrock.Json;
+using Jayrock.Json.Conversion;
+using Jayrock.JsonRpc;
+using KeePassLib.Utility;
+using KeePassRPC.Forms;
 using KeePassRPC.JsonRpc;
 using KeePassRPC.Models.DataExchange;
 
@@ -20,7 +24,7 @@ namespace KeePassRPC
     public class KeePassRPCClientConnection
     {
         // wanted to use uint really but that seems to break Jayrock JSON-RPC - presumably because there is no such concept in JavaScript
-        static private int _protocolVersion = 0;
+        static private int _protocolVersion;
 
         private static int ProtocolVersion { get {
             if (_protocolVersion == 0)
@@ -33,7 +37,7 @@ namespace KeePassRPC
             return _protocolVersion;
         } }
         
-        private static string[] featuresOffered = new string[] {
+        private static string[] featuresOffered = {
 
             // Full feature set as of KeeFox 1.6
             "KPRPC_FEATURE_VERSION_1_6",
@@ -69,7 +73,7 @@ namespace KeePassRPC
 
         };
 
-        private static string[] featuresRequired = new string[] {
+        private static string[] featuresRequired = {
 
             // Full feature set as of KeeFox 1.6
             "KPRPC_FEATURE_VERSION_1_6",
@@ -82,9 +86,9 @@ namespace KeePassRPC
         /// <summary>
         /// The ID of the next signal we'll send to the client
         /// </summary>
-        private int _currentCallBackId = 0;
+        private int _currentCallBackId;
         private bool _authorised;
-        private IWebSocketConnection _webSocketConnection = null;
+        private IWebSocketConnection _webSocketConnection;
         private SRP _srp;
         private KeyChallengeResponse _kcp;
         private int securityLevel;
@@ -93,7 +97,11 @@ namespace KeePassRPC
         private string[] _clientFeatures;
 
         // Read-only username is accessible to anyone but only once the connection has been confirmed
-        public string UserName { get { if (Authorised) return userName; else return ""; } }
+        public string UserName { get
+        {
+            if (Authorised) return userName;
+            return "";
+        } }
 
         private KeyChallengeResponse Kcp
         {
@@ -101,8 +109,8 @@ namespace KeePassRPC
             set { _kcp = value; }
         }
 
-        private KeePassRPC.Forms.AuthForm _authForm;
-        private KeePassRPCExt KPRPC = null;
+        private AuthForm _authForm;
+        private KeePassRPCExt KPRPC;
         
         /// <summary>
         /// The underlying web socket connection that links us to this client.
@@ -176,7 +184,7 @@ namespace KeePassRPC
                                 return null;
                             try
                             {
-                                byte[] keyBytes = System.Security.Cryptography.ProtectedData.Unprotect(
+                                byte[] keyBytes = ProtectedData.Unprotect(
                                 Convert.FromBase64String(secret),
                                 new byte[] { 172, 218, 37, 36, 15 },
                                 DataProtectionScope.CurrentUser);
@@ -194,37 +202,34 @@ namespace KeePassRPC
 
                         if (serialisedKeyContainer == null)
                             return null;
-                        else
+                        try
                         {
-                            try
+                            XmlSerializer mySerializer = new XmlSerializer(typeof(KeyContainerClass));
+                            using (MemoryStream ms = new MemoryStream(serialisedKeyContainer))
                             {
-                                XmlSerializer mySerializer = new XmlSerializer(typeof(KeyContainerClass));
-                                using (MemoryStream ms = new MemoryStream(serialisedKeyContainer))
-                                {
-                                    KeyContainerClass keyContainer = (KeyContainerClass) mySerializer.Deserialize(ms);
+                                KeyContainerClass keyContainer = (KeyContainerClass) mySerializer.Deserialize(ms);
                                     
-                                    // A serialised key equal to sha256('0') suggests previous successful exploit of CVE-2020-16271
-                                    if (keyContainer == null || 
-                                        keyContainer.Key == "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9")
-                                    {
-                                        Utils.ShowMonoSafeMessageBox(@"Your KeePass instance may have previously been exploited by a malicious attacker.
+                                // A serialised key equal to sha256('0') suggests previous successful exploit of CVE-2020-16271
+                                if (keyContainer == null || 
+                                    keyContainer.Key == "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9")
+                                {
+                                    Utils.ShowMonoSafeMessageBox(@"Your KeePass instance may have previously been exploited by a malicious attacker.
 
 The passwords contained within any databases that were open before this point may have been exposed so you should change them.
 
 See https://forum.kee.pm/t/3143/ for more information.",
-                                            "WARNING!",
-                                            MessageBoxButtons.OK, 
-                                            MessageBoxIcon.Warning);
-                                        return null;
-                                    }
-
-                                    _keyContainer = keyContainer;
+                                        "WARNING!",
+                                        MessageBoxButtons.OK, 
+                                        MessageBoxIcon.Warning);
+                                    return null;
                                 }
+
+                                _keyContainer = keyContainer;
                             }
-                            catch (Exception)
-                            {
-                                return null;
-                            }
+                        }
+                        catch (Exception)
+                        {
+                            return null;
                         }
                     }
                 }
@@ -251,7 +256,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
                 {
                     // Store unencrypted in config file
                     KPRPC._host.CustomConfig.SetString("KeePassRPC.Key." + userName, Convert.ToBase64String(serialisedKeyContainer));
-                    KPRPC._host.MainWindow.Invoke((System.Windows.Forms.MethodInvoker)delegate { KPRPC._host.MainWindow.SaveConfig(); });
+                    KPRPC._host.MainWindow.Invoke((MethodInvoker)delegate { KPRPC._host.MainWindow.SaveConfig(); });
                 }
                 else if (securityLevel == 2)
                 {
@@ -260,13 +265,13 @@ See https://forum.kee.pm/t/3143/ for more information.",
                         // Encrypt the data using DataProtectionScope.CurrentUser. The result can be decrypted 
                         //  only by the same current user. 
 
-                        byte[] secret = System.Security.Cryptography.ProtectedData.Protect(
+                        byte[] secret = ProtectedData.Protect(
                             serialisedKeyContainer,
                             new byte[] { 172, 218, 37, 36, 15 },
                             DataProtectionScope.CurrentUser);
 
                         KPRPC._host.CustomConfig.SetString("KeePassRPC.Key." + userName, Convert.ToBase64String(secret));
-                        KPRPC._host.MainWindow.Invoke((System.Windows.Forms.MethodInvoker)delegate { KPRPC._host.MainWindow.SaveConfig(); });
+                        KPRPC._host.MainWindow.Invoke((MethodInvoker)delegate { KPRPC._host.MainWindow.SaveConfig(); });
                     }
                     catch (CryptographicException e)
                     {
@@ -307,13 +312,13 @@ See https://forum.kee.pm/t/3143/ for more information.",
 
             try
             {
-                Jayrock.Json.JsonObject call = new Jayrock.Json.JsonObject();
+                JsonObject call = new JsonObject();
                 call["id"] = ++_currentCallBackId;
                 call["method"] = methodName;
-                call["params"] = new int[] { (int)signal };
+                call["params"] = new[] { (int)signal };
 
                 StringBuilder sb = new StringBuilder();
-                Jayrock.Json.Conversion.JsonConvert.Export(call, sb);
+                JsonConvert.Export(call, sb);
                 KPRPCMessage data2client = new KPRPCMessage();
                 data2client.protocol = "jsonrpc";
                 data2client.version = ProtocolVersion;
@@ -332,13 +337,13 @@ See https://forum.kee.pm/t/3143/ for more information.",
                 // Respond to each message on a different thread
                 ThreadStart work = delegate
                 {
-                    WebSocketConnection.Send(Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client));
+                    WebSocketConnection.Send(JsonConvert.ExportToString(data2client));
                 };
                 Thread messageHandler = new Thread(work);
                 messageHandler.Name = "signalDispatcher";
                 messageHandler.Start();
             }
-            catch (System.IO.IOException)
+            catch (IOException)
             {
                 // Sometimes a connection is unexpectedly closed e.g. by Firefox
                 // or (more likely) dodgy security "protection". From one year's
@@ -355,11 +360,10 @@ See https://forum.kee.pm/t/3143/ for more information.",
                 // BUT: the exception to this rule is when the client fails to receive the
                 // "shutdown" signal - it then gets itself in an inconsistent state
                 // and has no opportunity to recover until KeePass is running again.
-                return;
             }
             catch (Exception ex)
             {
-                Utils.ShowMonoSafeMessageBox("ERROR! Please click on this box, press CTRL-C on your keyboard and paste into a new post on the Kee forum (https://forum.kee.pm). Doing this will help other people to use Kee without any unexpected error messages like this. Please briefly describe what you were doing when the problem occurred, which version of Kee, KeePass and web browser you use and what other security software you run on your machine. Thanks! Technical detail follows: " + ex.ToString());
+                Utils.ShowMonoSafeMessageBox("ERROR! Please click on this box, press CTRL-C on your keyboard and paste into a new post on the Kee forum (https://forum.kee.pm). Doing this will help other people to use Kee without any unexpected error messages like this. Please briefly describe what you were doing when the problem occurred, which version of Kee, KeePass and web browser you use and what other security software you run on your machine. Thanks! Technical detail follows: " + ex);
             }
         }
 
@@ -370,7 +374,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
 
             try
             {
-                kprpcm = (KPRPCMessage)Jayrock.Json.Conversion.JsonConvert.Import(typeof(KPRPCMessage), message);
+                kprpcm = (KPRPCMessage)JsonConvert.Import(typeof(KPRPCMessage), message);
             }
             catch (Exception )
             {
@@ -384,7 +388,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
                 data2client.srp = new SRPParams();
                 data2client.version = ProtocolVersion;
 
-                data2client.error = new Error(ErrorCode.INVALID_MESSAGE, new string[] { "Contents can't be interpreted as an SRPEncapsulatedMessage" });
+                data2client.error = new Error(ErrorCode.INVALID_MESSAGE, new[] { "Contents can't be interpreted as an SRPEncapsulatedMessage" });
 
                 AbortWithMessageToClient(data2client);
                 return;
@@ -408,7 +412,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
                     data2client.srp = new SRPParams();
                     data2client.version = ProtocolVersion;
 
-                    data2client.error = new Error(ErrorCode.UNRECOGNISED_PROTOCOL, new string[] { "Use setup or jsonrpc" });
+                    data2client.error = new Error(ErrorCode.UNRECOGNISED_PROTOCOL, new[] { "Use setup or jsonrpc" });
 
                     AbortWithMessageToClient(data2client);
                     return;
@@ -435,16 +439,15 @@ See https://forum.kee.pm/t/3143/ for more information.",
             data2client.version = ProtocolVersion;
 
             // From 1.7 onwards, the client can never be too new but can be too low if we find that it is missing essential features
-            data2client.error = new Error(ErrorCode.VERSION_CLIENT_TOO_LOW, new string[] { ProtocolVersion.ToString() });
+            data2client.error = new Error(ErrorCode.VERSION_CLIENT_TOO_LOW, new[] { ProtocolVersion.ToString() });
             AbortWithMessageToClient(data2client);
-            return;
         }
 
         private void AbortWithMessageToClient(KPRPCMessage data2client)
         {
             Authorised = false;
             _clientFeatures = null;
-            string response = Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client);
+            string response = JsonConvert.ExportToString(data2client);
             WebSocketConnection.Send(response);
         }
 
@@ -457,7 +460,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
                 data2client.srp = new SRPParams();
                 data2client.version = ProtocolVersion;
 
-                data2client.error = new Error(ErrorCode.AUTH_RESTART, new string[] { "Already authorised" });
+                data2client.error = new Error(ErrorCode.AUTH_RESTART, new[] { "Already authorised" });
 
                 AbortWithMessageToClient(data2client);
                 return;
@@ -473,18 +476,18 @@ See https://forum.kee.pm/t/3143/ for more information.",
 
                 if (clientSecurityLevel < securityLevelClientMinimum)
                 {
-                    data2client.error = new Error(ErrorCode.AUTH_CLIENT_SECURITY_LEVEL_TOO_LOW, new string[] { securityLevelClientMinimum.ToString() });
+                    data2client.error = new Error(ErrorCode.AUTH_CLIENT_SECURITY_LEVEL_TOO_LOW, new[] { securityLevelClientMinimum.ToString() });
                     /* TODO1.3: need to disconnect/delete/reset this connection once we've decided we are not interested in letting the client connect. Maybe 
                      * tie in to finding a way to abort if user clicks a "cancel" button on the auth form.
                      */
-                    this.WebSocketConnection.Send(Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client));
+                    WebSocketConnection.Send(JsonConvert.ExportToString(data2client));
                 }
                 else
                 {
                     switch (kprpcm.srp.stage)
                     {
-                        case "identifyToServer": this.WebSocketConnection.Send(SRPIdentifyToServer(kprpcm)); break;
-                        case "proofToServer": this.WebSocketConnection.Send(SRPProofToServer(kprpcm)); break;
+                        case "identifyToServer": WebSocketConnection.Send(SRPIdentifyToServer(kprpcm)); break;
+                        case "proofToServer": WebSocketConnection.Send(SRPProofToServer(kprpcm)); break;
                         default: return;
                     }
                 }
@@ -499,57 +502,57 @@ See https://forum.kee.pm/t/3143/ for more information.",
 
                 if (clientSecurityLevel < securityLevelClientMinimum)
                 {
-                    data2client.error = new Error(ErrorCode.AUTH_CLIENT_SECURITY_LEVEL_TOO_LOW, new string[] { securityLevelClientMinimum.ToString() });
+                    data2client.error = new Error(ErrorCode.AUTH_CLIENT_SECURITY_LEVEL_TOO_LOW, new[] { securityLevelClientMinimum.ToString() });
                     /* TODO1.3: need to disconnect/delete/reset this connection once we've decided we are not interested in letting the client connect. Maybe 
                      * tie in to finding a way to abort if user clicks a "cancel" button on the auth form.
                      */
-                    this.WebSocketConnection.Send(Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client));
+                    WebSocketConnection.Send(JsonConvert.ExportToString(data2client));
                 }
                 else
                 {
                     if (!string.IsNullOrEmpty(kprpcm.key.username))
                     {
                         // confirm username
-                        this.userName = kprpcm.key.username;
-                        KeyContainerClass kc = this.KeyContainer;
+                        userName = kprpcm.key.username;
+                        KeyContainerClass kc = KeyContainer;
 
                         if (kc == null)
                         {
-                            this.userName = null;
-                            data2client.error = new Error(ErrorCode.AUTH_FAILED, new string[] { "Stored key not found - Caused by changed Firefox profile or KeePass instance; changed OS user credentials; or KeePass config file may be corrupt" });
+                            userName = null;
+                            data2client.error = new Error(ErrorCode.AUTH_FAILED, new[] { "Stored key not found - Caused by changed Firefox profile or KeePass instance; changed OS user credentials; or KeePass config file may be corrupt" });
                             /* TODO1.3: need to disconnect/delete/reset this connection once we've decided we are not interested in letting the client connect. Maybe 
                              * tie in to finding a way to abort if user clicks a "cancel" button on the auth form.
                              */
-                            this.WebSocketConnection.Send(Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client));
+                            WebSocketConnection.Send(JsonConvert.ExportToString(data2client));
                             return;
                         } 
-                        if (kc.Username != this.userName)
+                        if (kc.Username != userName)
                         {
-                            this.userName = null;
-                            data2client.error = new Error(ErrorCode.AUTH_FAILED, new string[] { "Username mismatch - KeePass config file is probably corrupt" });
+                            userName = null;
+                            data2client.error = new Error(ErrorCode.AUTH_FAILED, new[] { "Username mismatch - KeePass config file is probably corrupt" });
                             /* TODO1.3: need to disconnect/delete/reset this connection once we've decided we are not interested in letting the client connect. Maybe 
                              * tie in to finding a way to abort if user clicks a "cancel" button on the auth form.
                              */
-                            this.WebSocketConnection.Send(Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client));
+                            WebSocketConnection.Send(JsonConvert.ExportToString(data2client));
                             return;
                         }
                         if (kc.AuthExpires < DateTime.UtcNow)
                         {
-                            this.userName = null;
+                            userName = null;
                             data2client.error = new Error(ErrorCode.AUTH_EXPIRED);
                             /* TODO1.3: need to disconnect/delete/reset this connection once we've decided we are not interested in letting the client connect. Maybe 
                              * tie in to finding a way to abort if user clicks a "cancel" button on the auth form.
                              */
-                            this.WebSocketConnection.Send(Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client));
+                            WebSocketConnection.Send(JsonConvert.ExportToString(data2client));
                             return;
                         }
 
-                        this.WebSocketConnection.Send(Kcp.KeyChallengeResponse1(this.userName, securityLevel));
+                        WebSocketConnection.Send(Kcp.KeyChallengeResponse1(userName, securityLevel));
                     }
                     else if (!string.IsNullOrEmpty(kprpcm.key.cc) && !string.IsNullOrEmpty(kprpcm.key.cr))
                     {
                         bool authorised = false;
-                        this.WebSocketConnection.Send(Kcp.KeyChallengeResponse2(kprpcm.key.cc, kprpcm.key.cr, KeyContainer, securityLevel, out authorised));
+                        WebSocketConnection.Send(Kcp.KeyChallengeResponse2(kprpcm.key.cc, kprpcm.key.cr, KeyContainer, securityLevel, out authorised));
                         Authorised = authorised;
                         if (authorised)
                         {
@@ -584,11 +587,11 @@ See https://forum.kee.pm/t/3143/ for more information.",
 
             if (string.IsNullOrEmpty(srp.I))
             {
-                data2client.error = new Error(ErrorCode.AUTH_MISSING_PARAM, new string[] { "I" });
+                data2client.error = new Error(ErrorCode.AUTH_MISSING_PARAM, new[] { "I" });
             }
             else if (string.IsNullOrEmpty(srp.A))
             {
-                data2client.error = new Error(ErrorCode.AUTH_MISSING_PARAM, new string[] { "A" });
+                data2client.error = new Error(ErrorCode.AUTH_MISSING_PARAM, new[] { "A" });
             }
             else
             {
@@ -622,7 +625,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
                 }
             }
 	    	    
-            return Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client);
+            return JsonConvert.ExportToString(data2client);
   	    }
 
         private delegate void ShowAuthDialogDelegate(string securityLevel, string name, string description, string password);
@@ -634,7 +637,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
         {
             if (_authForm != null)
                 _authForm.Hide();
-            _authForm = new KeePassRPC.Forms.AuthForm(this, securityLevel, name, description, password);
+            _authForm = new AuthForm(this, securityLevel, name, description, password);
             _authForm.Show();
         }
 
@@ -664,14 +667,14 @@ See https://forum.kee.pm/t/3143/ for more information.",
 
             if (string.IsNullOrEmpty(srp.M))
             {
-                data2client.error = new Error(ErrorCode.AUTH_MISSING_PARAM, new string[] { "M" });
+                data2client.error = new Error(ErrorCode.AUTH_MISSING_PARAM, new[] { "M" });
             }
             else
             {
                 _srp.Authenticate(srp.M);
 
                 if (!_srp.Authenticated)
-                    data2client.error = new Error(ErrorCode.AUTH_FAILED, new string[] { "Keys do not match" });
+                    data2client.error = new Error(ErrorCode.AUTH_FAILED, new[] { "Keys do not match" });
                 else
                 {
                     data2client.srp.M2 = _srp.M2;
@@ -693,7 +696,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
                 }
             }
 
-            return Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client);
+            return JsonConvert.ExportToString(data2client);
   	    }
 
         private void KPRPCReceiveJSONRPC(JSONRPCContainer jsonrpcEncrypted, KeePassRPCService service)
@@ -704,7 +707,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
 
             JsonRpcDispatcherFactory.Current = s => new KprpcJsonRpcDispatcher(s);
             JsonRpcDispatcher dispatcher = JsonRpcDispatcherFactory.CreateDispatcher(service);
-            (dispatcher as KprpcJsonRpcDispatcher).ClientMetadata = new ClientMetadata()
+            (dispatcher as KprpcJsonRpcDispatcher).ClientMetadata = new ClientMetadata
             {
                 Features = ClientFeatures
             };
@@ -728,11 +731,11 @@ See https://forum.kee.pm/t/3143/ for more information.",
                 data2client = new KPRPCMessage();
                 data2client.protocol = "error";
                 data2client.version = ProtocolVersion;
-                data2client.error = new Error(ErrorCode.AUTH_RESTART, new string[] { "Encryption error" });
-                this.Authorised = false;
+                data2client.error = new Error(ErrorCode.AUTH_RESTART, new[] { "Encryption error" });
+                Authorised = false;
                 if (KPRPC.logger != null) KPRPC.logger.WriteLine("Encryption error when trying to reply to client message");
             }
-            _webSocketConnection.Send(Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client));
+            _webSocketConnection.Send(JsonConvert.ExportToString(data2client));
             
         }
 
@@ -750,7 +753,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
             using (RijndaelManaged myRijndael = new RijndaelManaged())
             {
                 myRijndael.GenerateIV();
-                myRijndael.Key = KeePassLib.Utility.MemUtil.HexStringToByteArray(kc.Key);
+                myRijndael.Key = MemUtil.HexStringToByteArray(kc.Key);
                 ICryptoTransform encryptor = myRijndael.CreateEncryptor();
                 byte[] encrypted;
                 using (MemoryStream msEncrypt = new MemoryStream(100))
@@ -853,7 +856,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
                 || string.IsNullOrEmpty(jsonrpcEncrypted.hmac))
                 return null;
 
-            KeyContainerClass kc = this.KeyContainer;
+            KeyContainerClass kc = KeyContainer;
 
                 byte[] rawKeyBytes;
                 byte[] keyBytes;
@@ -865,7 +868,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
                 // Get the raw bytes that are used to calculate the HMAC
                 try
                 {
-                    rawKeyBytes = KeePassLib.Utility.MemUtil.HexStringToByteArray(kc.Key);
+                    rawKeyBytes = MemUtil.HexStringToByteArray(kc.Key);
                     keyBytes = sha.ComputeHash(rawKeyBytes);
                     messageBytes = Convert.FromBase64String(jsonrpcEncrypted.message);
                     IVBytes = Convert.FromBase64String(jsonrpcEncrypted.iv);

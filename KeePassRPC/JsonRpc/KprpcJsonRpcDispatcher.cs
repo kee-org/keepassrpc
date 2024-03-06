@@ -1,9 +1,10 @@
 using System.Collections;
+using Jayrock.JsonRpc;
 using Jayrock.Services;
 
 namespace KeePassRPC.JsonRpc
 {
-    internal sealed class KprpcJsonRpcDispatcher : Jayrock.JsonRpc.JsonRpcDispatcher
+    internal sealed class KprpcJsonRpcDispatcher : JsonRpcDispatcher
     {
         public ClientMetadata ClientMetadata;
 

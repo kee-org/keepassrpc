@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using KeePass.UI;
+using KeePassRPC.Properties;
 
 namespace KeePassRPC.Forms
 {
@@ -17,7 +15,7 @@ namespace KeePassRPC.Forms
         public string URL;
         public List<string> OtherKeys;
 
-        private bool _editing = false;
+        private bool _editing;
         protected override void OnLoad(EventArgs e)
         {
             GlobalWindowManager.AddWindow(this);
@@ -33,7 +31,7 @@ namespace KeePassRPC.Forms
         public KeeURLForm(bool match, bool block, string regExURL, string url, List<string> otherKeys)
         {
             InitializeComponent();
-            Icon = global::KeePassRPC.Properties.Resources.KPRPCico;
+            Icon = Resources.KPRPCico;
             Match = match;
             Block = block;
             OtherKeys = otherKeys;
@@ -64,9 +62,9 @@ namespace KeePassRPC.Forms
             checkBoxRegEx.Checked = RegEx;
 
             if (_editing)
-                this.Text = "Edit URL";
+                Text = "Edit URL";
             else
-                this.Text = "Add URL";
+                Text = "Add URL";
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -79,19 +77,19 @@ namespace KeePassRPC.Forms
             if (textBox1.Text.Length > 0)
                 URL = textBox1.Text;
             else
-                this.DialogResult = DialogResult.None;
+                DialogResult = DialogResult.None;
 
             if (OtherKeys.Contains(URL))
             {
                 MessageBox.Show(this, "A rule for '" + URL + "' has already been added.");
-                this.DialogResult = DialogResult.None;
+                DialogResult = DialogResult.None;
                 return;
             }
 
             //TODO2: Check the URL follows an acceptable pattern
 
             if (!radioButtonBlock.Checked && !radioButtonMatch.Checked)
-                this.DialogResult = DialogResult.None;
+                DialogResult = DialogResult.None;
 
             RegEx = checkBoxRegEx.Checked;
             Block = radioButtonBlock.Checked;
@@ -102,13 +100,12 @@ namespace KeePassRPC.Forms
             {
                 try
                 {
-                    System.Text.RegularExpressions.Regex test = new System.Text.RegularExpressions.Regex(URL);
+                    Regex test = new Regex(URL);
                 }
                 catch (ArgumentException ex)
                 {
                     MessageBox.Show(this, "'" + URL + "' is not a valid regular expression. Details: " + ex.Message, "Invalid regular expression", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    this.DialogResult = DialogResult.None;
-                    return;
+                    DialogResult = DialogResult.None;
                 }
             }
         }

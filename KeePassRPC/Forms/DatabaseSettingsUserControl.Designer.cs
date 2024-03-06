@@ -1,11 +1,14 @@
-﻿namespace KeePassRPC.Forms
+﻿using System.ComponentModel;
+using System.Windows.Forms;
+
+namespace KeePassRPC.Forms
 {
     partial class DatabaseSettingsUserControl
     {
         /// <summary> 
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary> 
         /// Clean up any resources being used.
@@ -296,25 +299,25 @@
 
         #endregion
 
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Button buttonURLEdit;
-        private System.Windows.Forms.Button buttonURLDelete;
-        private System.Windows.Forms.Button buttonURLAdd;
-        private System.Windows.Forms.ListView listView1;
-        private System.Windows.Forms.ColumnHeader columnHeaderValue;
-        private System.Windows.Forms.ColumnHeader columnHeaderMethod;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.RadioButton radioButton6;
-        private System.Windows.Forms.RadioButton radioButton5;
-        private System.Windows.Forms.RadioButton radioButton4;
-        private System.Windows.Forms.TabControl tabControl2;
-        private System.Windows.Forms.TabPage tabPage3;
-        private System.Windows.Forms.TabPage tabPage4;
-        private System.Windows.Forms.LinkLabel linkLabel1;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.RadioButton radioButton7;
-        private System.Windows.Forms.RadioButton radioButton8;
+        private GroupBox groupBox1;
+        private GroupBox groupBox2;
+        private Label label2;
+        private Button buttonURLEdit;
+        private Button buttonURLDelete;
+        private Button buttonURLAdd;
+        private ListView listView1;
+        private ColumnHeader columnHeaderValue;
+        private ColumnHeader columnHeaderMethod;
+        private Label label3;
+        private RadioButton radioButton6;
+        private RadioButton radioButton5;
+        private RadioButton radioButton4;
+        private TabControl tabControl2;
+        private TabPage tabPage3;
+        private TabPage tabPage4;
+        private LinkLabel linkLabel1;
+        private Label label8;
+        private RadioButton radioButton7;
+        private RadioButton radioButton8;
     }
 }

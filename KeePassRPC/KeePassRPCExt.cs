@@ -1,29 +1,35 @@
 using System;
 using System.Collections.Generic;
-using System.Collections;
 using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
 using System.Diagnostics;
-using System.Threading;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
-
-using KeePass.Plugins;
-using KeePass.Forms;
-using KeePass.Resources;
-
-using KeePassLib;
-using KeePassLib.Security;
-using KeePass.App;
-using KeePass.UI;
-using KeePassRPC.Forms;
+using System.Net.Sockets;
 using System.Reflection;
-using KeePassLib.Collections;
-using Fleck2.Interfaces;
+using System.Threading;
+using System.Windows.Forms;
 using DomainPublicSuffix;
-using KeePassLib.Utility;
+using Fleck2;
+using Fleck2.Interfaces;
+using KeePass;
+using KeePass.App;
+using KeePass.App.Configuration;
+using KeePass.Forms;
+using KeePass.Plugins;
+using KeePass.Resources;
+using KeePass.UI;
+using KeePass.Util;
 using KeePass.Util.Spr;
+using KeePassLib;
+using KeePassLib.Collections;
+using KeePassLib.Keys;
+using KeePassLib.Serialization;
+using KeePassLib.Utility;
+using KeePassRPC.Forms;
 using KeePassRPC.Models.DataExchange;
+using KeePassRPC.Properties;
+using OptionsForm = KeePassRPC.Forms.OptionsForm;
 
 namespace KeePassRPC
 {
@@ -72,7 +78,7 @@ namespace KeePassRPC
 
         private static LockManager _lockRPCClientManagers = new LockManager();
         private Dictionary<string, KeePassRPCClientManager> _RPCClientManagers = new Dictionary<string, KeePassRPCClientManager>(3);
-        public volatile bool terminating = false;
+        public volatile bool terminating;
 
         private int FindKeePassRPCPort(IPluginHost host)
         {
@@ -121,16 +127,16 @@ namespace KeePassRPC
                 _host = host;
 
                 // Reduce Fleck library logging verbosity
-                Fleck2.FleckLog.Level = Fleck2.LogLevel.Error;
+                FleckLog.Level = LogLevel.Error;
 
                 // Enable update checks
-                KeePass.Util.UpdateCheckEx.SetFileSigKey(UpdateUrl, "<RSAKeyValue><Modulus>t2jki5ttRkT7D110Q5n/ZdgFZ7JGdlRDme0NvcG1Uz7CnGF40NOqWtuzW4a9p0xUN05I5JegaJ20Nu6ejuxMfOhn0jUALHYe6F2wn4yGbPHJvXLXYyc3fU7W75eWJwQabup2vKhrAjvPMSQfy05JgPcfDmLk0txuKkrPO0u3d9ZzZsYrW+GLyJAQAT9Lt87A04iQsPxB30gXv4JX7iOqtKVsWfKEzanX/zuA5XB8JEd2I7bh2u0AgUA2rnwjSkI01tb6BheruwWm5GLZhe+k/wQkgiTxLAi/HNX9BjebWvVgd7B2OpDWAq4QFLrdSlBqT8d+V1IuJeztcjKhe5lHxHDiE6/5ajmBs4/c0EmKN7bXC+fF7xbVLa+aiKQCW7rzldXx0aqP/6/+VYAXrre55nIWzuArciLT43G1DzDRTyWz+KtNm9CYd07bn1QA9a3bvQxpuM3KSo2fyfBQTcxapBNDoMnM4gKUNd3rTdDmC0j2bHN9Ikyef9ohWzgIkmLleh8Ey1TpGbWS3Y2B3AD2bmqxWgzUBUMkenmp1GglHtc448BuusPPAcibIntZMQqmaHoJ1zeNJQKGNUKCJFjbe/aeHBm/jJ7izPfR8W27D+NMhdvFOZjprmh1AVa97yQ5Zqbh1zH/gsL0XCEuNOobVaVjAsOBhXMiFnl4U4sjknE=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>");
+                UpdateCheckEx.SetFileSigKey(UpdateUrl, "<RSAKeyValue><Modulus>t2jki5ttRkT7D110Q5n/ZdgFZ7JGdlRDme0NvcG1Uz7CnGF40NOqWtuzW4a9p0xUN05I5JegaJ20Nu6ejuxMfOhn0jUALHYe6F2wn4yGbPHJvXLXYyc3fU7W75eWJwQabup2vKhrAjvPMSQfy05JgPcfDmLk0txuKkrPO0u3d9ZzZsYrW+GLyJAQAT9Lt87A04iQsPxB30gXv4JX7iOqtKVsWfKEzanX/zuA5XB8JEd2I7bh2u0AgUA2rnwjSkI01tb6BheruwWm5GLZhe+k/wQkgiTxLAi/HNX9BjebWvVgd7B2OpDWAq4QFLrdSlBqT8d+V1IuJeztcjKhe5lHxHDiE6/5ajmBs4/c0EmKN7bXC+fF7xbVLa+aiKQCW7rzldXx0aqP/6/+VYAXrre55nIWzuArciLT43G1DzDRTyWz+KtNm9CYd07bn1QA9a3bvQxpuM3KSo2fyfBQTcxapBNDoMnM4gKUNd3rTdDmC0j2bHN9Ikyef9ohWzgIkmLleh8Ey1TpGbWS3Y2B3AD2bmqxWgzUBUMkenmp1GglHtc448BuusPPAcibIntZMQqmaHoJ1zeNJQKGNUKCJFjbe/aeHBm/jJ7izPfR8W27D+NMhdvFOZjprmh1AVa97yQ5Zqbh1zH/gsL0XCEuNOobVaVjAsOBhXMiFnl4U4sjknE=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>");
 
                 _BackgroundWorker = new BackgroundWorker();
                 _BackgroundWorker.WorkerReportsProgress = true;
                 _BackgroundWorker.ProgressChanged += _BackgroundWorker_ProgressChanged;
                 _BackgroundWorkerAutoResetEvent = new AutoResetEvent(false);
-                _BackgroundWorker.DoWork += delegate (object sender, DoWorkEventArgs e)
+                _BackgroundWorker.DoWork += delegate
                 {
                     _BackgroundWorkerAutoResetEvent.WaitOne();
                 };
@@ -146,7 +152,7 @@ namespace KeePassRPC
                     }
                     catch (Exception ex)
                     {
-                        Utils.ShowMonoSafeMessageBox("KeePassRPC debug logger failed to initialise. No logging will be performed until KeePass is restarted with a valid debug log file location. Reason: " + ex.ToString());
+                        Utils.ShowMonoSafeMessageBox("KeePassRPC debug logger failed to initialise. No logging will be performed until KeePass is restarted with a valid debug log file location. Reason: " + ex);
                     }
                 }
                 if (logger != null) logger.WriteLine("Logger initialised.");
@@ -174,25 +180,25 @@ namespace KeePassRPC
                     config.PermittedOrigins = DeterminePermittedOrigins();
                     _RPCServer = new KeePassRPCServer(RPCService, this, config);
                 }
-                catch (System.Net.Sockets.SocketException ex)
+                catch (SocketException ex)
                 {
-                    if (ex.SocketErrorCode == System.Net.Sockets.SocketError.AddressAlreadyInUse)
+                    if (ex.SocketErrorCode == SocketError.AddressAlreadyInUse)
                     {
                         Utils.ShowMonoSafeMessageBox(@"KeePassRPC is already listening for connections. To allow KeePassRPC clients (e.g. Kee in your web browser) to connect to this instance of KeePass, please close all other running instances of KeePass and restart this KeePass. If you want multiple instances of KeePass to be running at the same time, you'll need to configure some of them to connect using a different communication port.
 
 See https://forum.kee.pm/t/connection-security-levels/1075
 
-KeePassRPC requires this port to be available: " + portNew + ". Technical detail: " + ex.ToString());
-                        if (logger != null) logger.WriteLine("Socket (port) already in use. KeePassRPC requires this port to be available: " + portNew + ". Technical detail: " + ex.ToString());
+KeePassRPC requires this port to be available: " + portNew + ". Technical detail: " + ex);
+                        if (logger != null) logger.WriteLine("Socket (port) already in use. KeePassRPC requires this port to be available: " + portNew + ". Technical detail: " + ex);
                     }
                     else
                     {
                         Utils.ShowMonoSafeMessageBox(@"KeePassRPC could not start listening for connections. To allow KeePassRPC clients (e.g. Kee in your web browser) to connect to this instance of KeePass, please fix the problem indicated in the technical detail below and restart KeePass.
 
-KeePassRPC requires this port to be available: " + portNew + ". Technical detail: " + ex.ToString());
-                        if (logger != null) logger.WriteLine("Socket error. KeePassRPC requires this port to be available: " + portNew + ". Maybe check that you have no firewall or other third party security software interfering with your system. Technical detail: " + ex.ToString());
+KeePassRPC requires this port to be available: " + portNew + ". Technical detail: " + ex);
+                        if (logger != null) logger.WriteLine("Socket error. KeePassRPC requires this port to be available: " + portNew + ". Maybe check that you have no firewall or other third party security software interfering with your system. Technical detail: " + ex);
                     }
-                    if (logger != null) logger.WriteLine("KPRPC startup failed: " + ex.ToString());
+                    if (logger != null) logger.WriteLine("KPRPC startup failed: " + ex);
                     _BackgroundWorkerAutoResetEvent.Set(); // terminate _BackgroundWorker
                     return false;
                 }
@@ -217,12 +223,12 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 //if (dr == DialogResult.Yes)
                 //    CreateNewDatabase();
 
-                GwmWindowAddedHandler = new EventHandler<GwmWindowEventArgs>(GlobalWindowManager_WindowAdded);
+                GwmWindowAddedHandler = GlobalWindowManager_WindowAdded;
                 GlobalWindowManager.WindowAdded += GwmWindowAddedHandler;
             }
             catch (Exception ex)
             {
-                if (logger != null) logger.WriteLine("KPRPC startup failed: " + ex.ToString());
+                if (logger != null) logger.WriteLine("KPRPC startup failed: " + ex);
                 _BackgroundWorkerAutoResetEvent.Set(); // terminate _BackgroundWorker
                 return false;
             }
@@ -233,16 +239,16 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
         private string[] DeterminePermittedOrigins()
         {
             string configPermittedOrigins = _host.CustomConfig.GetString("KeePassRPC.webSocket.permittedOrigins", "");
-            string[] permittedOrigins = configPermittedOrigins.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] permittedOrigins = configPermittedOrigins.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             if (permittedOrigins.Length > 0) return permittedOrigins;
-            return new string[] { "resource://gre-resources", "ms-browser-extension://", "safari-web-extension://", "moz-extension://", "chrome-extension://" };
+            return new[] { "resource://gre-resources", "ms-browser-extension://", "safari-web-extension://", "moz-extension://", "chrome-extension://" };
         }
 
         private string GetLocalConfigLocation()
         {
             string strBaseDirName = PwDefs.ShortProductName;
-            if (!string.IsNullOrEmpty(KeePass.App.Configuration.AppConfigSerializer.BaseName))
-                strBaseDirName = KeePass.App.Configuration.AppConfigSerializer.BaseName;
+            if (!string.IsNullOrEmpty(AppConfigSerializer.BaseName))
+                strBaseDirName = AppConfigSerializer.BaseName;
 
             string strUserDir;
             try
@@ -265,21 +271,21 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             var ef = e.Form as PwEntryForm;
             if (ef != null)
             {
-                ef.Shown += new EventHandler(editEntryFormShown);
+                ef.Shown += editEntryFormShown;
                 return;
             }
 
             var gf = e.Form as GroupForm;
             if (gf != null)
             {
-                gf.Shown += new EventHandler(editGroupFormShown);
+                gf.Shown += editGroupFormShown;
                 return;
             }
 
             var dsf = e.Form as DatabaseSettingsForm;
             if (dsf != null)
             {
-                dsf.Shown += new EventHandler(databaseSettingsFormShown);
+                dsf.Shown += databaseSettingsFormShown;
             }
         }
 
@@ -311,7 +317,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             keeTabPage.Controls.Add(dbSettingsUserControl);
             if (mainTabControl.ImageList == null)
                 mainTabControl.ImageList = new ImageList();
-            int imageIndex = mainTabControl.ImageList.Images.Add(global::KeePassRPC.Properties.Resources.KPRPC64, Color.Transparent);
+            int imageIndex = mainTabControl.ImageList.Images.Add(Resources.KPRPC64, Color.Transparent);
             keeTabPage.ImageIndex = imageIndex;
             mainTabControl.TabPages.Add(keeTabPage);
         }
@@ -418,7 +424,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
 
         private void OnToolsOptions(object sender, EventArgs e)
         {
-            using (KeePassRPC.Forms.OptionsForm ofDlg = new KeePassRPC.Forms.OptionsForm(_host, this))
+            using (OptionsForm ofDlg = new OptionsForm(_host, this))
                 ofDlg.ShowDialog();
         }
 
@@ -431,7 +437,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 Image image = il.Images[i];
                 using (MemoryStream ms = new MemoryStream())
                 {
-                    image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    image.Save(ms, ImageFormat.Png);
                     icons[i] = Convert.ToBase64String(ms.ToArray());
                 }
             }
@@ -459,7 +465,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
 
         public Image GetIcon(int iconIndex)
         {
-            Image im = _host.MainWindow.ClientIcons.Images[(int)iconIndex];
+            Image im = _host.MainWindow.ClientIcons.Images[iconIndex];
             // can't do this until we drop support for KP <2.28: if (DpiUtil.ScalingRequired)
             im = DpiFix.ScaleImageTo16x16(im, false);
             return im;
@@ -485,7 +491,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 using (Image originalImage = _host.MainWindow.Icon.ToBitmap())
                 using (Image imgNew = new Bitmap(originalImage, new Size(16, 16)))
                 {
-                    imgNew.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    imgNew.Save(ms, ImageFormat.Png);
                     string imageData = Convert.ToBase64String(ms.ToArray());
                     IconCache<string>
                         .AddIcon(_host.Database.IOConnectionInfo.Path, imageData);
@@ -497,8 +503,6 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
         /// Called when [file new].
         /// </summary>
         /// <remarks>Review whenever private KeePass.MainForm.OnFileNew method changes. Last reviewed 20180416</remarks>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         internal void CreateNewDatabase()
         {
             if (!AppPolicy.Try(AppPolicyId.SaveFile)) return;
@@ -518,15 +522,15 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
 
             if (dr != DialogResult.OK) return;
 
-            KeePassLib.Keys.CompositeKey key = null;
+            CompositeKey key = null;
             bool showUsualKeePassKeyCreationDialog = false;
             using (KeyCreationSimpleForm kcsf = new KeyCreationSimpleForm())
             {
                 // Don't show the simple key creation form if the user has set
                 // security policies that restrict the allowable composite key sources
-                if (KeePass.Program.Config.UI.KeyCreationFlags == 0)
+                if (Program.Config.UI.KeyCreationFlags == 0)
                 {
-                    kcsf.InitEx(KeePassLib.Serialization.IOConnectionInfo.FromPath(strPath), true);
+                    kcsf.InitEx(IOConnectionInfo.FromPath(strPath), true);
                     dr = kcsf.ShowDialog(_host.MainWindow);
                     if ((dr == DialogResult.Cancel) || (dr == DialogResult.Abort)) return;
                     if (dr == DialogResult.No)
@@ -547,7 +551,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 {
                     using (KeyCreationForm kcf = new KeyCreationForm())
                     {
-                        kcf.InitEx(KeePassLib.Serialization.IOConnectionInfo.FromPath(strPath), true);
+                        kcf.InitEx(IOConnectionInfo.FromPath(strPath), true);
                         dr = kcf.ShowDialog(_host.MainWindow);
                         if ((dr == DialogResult.Cancel) || (dr == DialogResult.Abort)) return;
                         key = kcf.CompositeKey;
@@ -556,7 +560,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
 
                 PwDocument dsPrevActive = _host.MainWindow.DocumentManager.ActiveDocument;
                 PwDatabase pd = _host.MainWindow.DocumentManager.CreateNewDocument(true).Database;
-                pd.New(KeePassLib.Serialization.IOConnectionInfo.FromPath(strPath), key);
+                pd.New(IOConnectionInfo.FromPath(strPath), key);
 
                 if (!string.IsNullOrEmpty(kcsf.DatabaseName))
                 {
@@ -635,7 +639,8 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             {
                 return pd.RootGroup;
             }
-            else if (kfpg.Name == "KeeFox")
+
+            if (kfpg.Name == "KeeFox")
             {
                 kfpg.Name = "Kee";
             }
@@ -655,7 +660,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
 
             foreach (PwCustomIcon testIcon in _host.Database.CustomIcons)
             {
-                if (testIcon.Uuid == kprpcIconUuid)
+                if (testIcon.Uuid.Equals(kprpcIconUuid))
                 {
                     icon = testIcon;
                     break;
@@ -666,7 +671,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             {
                 using (MemoryStream ms = new MemoryStream())
                 {
-                    global::KeePassRPC.Properties.Resources.KPRPC64.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    Resources.KPRPC64.Save(ms, ImageFormat.Png);
 
                     // Create a new custom icon for use with this entry
                     icon = new PwCustomIcon(kprpcIconUuid,
@@ -675,32 +680,6 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 }
             }
             return kprpcIconUuid;
-
-
-            //string keeFoxIcon = @"iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAFfKj/FAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAABpUExURf///wAAAAAAAFpaWl5eXm5ubnh4eICAgIeHh5GRkaCgoKOjo66urq+vr8jIyMnJycvLy9LS0uDg4Ovr6+zs7O3t7e7u7u/v7/X19fb29vf39/j4+Pn5+fr6+vv7+/z8/P39/f7+/v///5goWdMAAAADdFJOUwAxTTRG/kEAAACRSURBVBjTTY2JEoMgDESDaO0h9m5DUZT9/49sCDLtzpB5eQwLkSTkwb0cOBnJksYxiHqORHZG3gFc88WReTzvBFoOMbUCVkN/ATw3CnwHmwLjpYCfYoF5TQphAUztMfp5zsm5phY6MEsV+LapYRPAoC/ooOLxfL33RXQifJjjsnZFWPBniksCbBU+6F4FmV+IvtrgDOmaq+PeAAAAAElFTkSuQmCC";
-
-            //byte[] msByteArray = ms.ToArray();
-
-            //foreach (PwCustomIcon item in _host.Database.CustomIcons)
-            //{
-            //    *var* t = item.Image.[1][2];
-            //    // re-use existing custom icon if it's already in the database
-            //    // (This will probably fail if database is used on 
-            //    // both 32 bit and 64 bit machines - not sure why...)
-            //    if (KeePassLib.Utility.MemUtil.ArraysEqual(msByteArray, item.ImageDataPng))
-            //    {
-            //        pwe.CustomIconUuid = item.Uuid;
-            //        m_host.Database.UINeedsIconUpdate = true;
-            //        return;
-            //    }
-            //}
-
-            //    // Create a new custom icon for use with this entry
-            //    PwCustomIcon pwci = new PwCustomIcon(new PwUuid(true),
-            //        ms.ToArray());
-            //    m_host.Database.CustomIcons.Add(pwci);
-
-            //    return pwci.Uuid;
         }
 
         private void CreateClientManagers()
@@ -744,7 +723,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 //TODO: Remove DPIScaledToolStripMenuItem after 2023 if no DPI regressions found 
                 //ToolStripMenuItem tsmi = new DPIScaledToolStripMenuItem("KeePassRPC (Kee) Options...");
                 ToolStripMenuItem tsmi = new ToolStripMenuItem("KeePassRPC (Kee) Options...");
-                tsmi.Image = Properties.Resources.KPRPC64;
+                tsmi.Image = Resources.KPRPC64;
                 tsmi.Click += OnToolsOptions;
                 return tsmi;
             }
@@ -757,7 +736,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
         /// </summary>
         public override void Terminate()
         {
-            this.terminating = true;
+            terminating = true;
             lock (_lockRPCClientManagers)
             {
                 _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;

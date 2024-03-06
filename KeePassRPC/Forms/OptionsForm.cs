@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
-using System.Text;
-using System.Windows.Forms;
-
-using KeePass;
-using KeePass.UI;
-using KeePass.Plugins;
-using KeePass.Resources;
-using KeePassRPC;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Windows.Forms;
+using System.Xml.Serialization;
+using KeePass.App.Configuration;
+using KeePass.Plugins;
+using KeePass.UI;
+using KeePassRPC.Properties;
 
 namespace KeePassRPC.Forms
 {
@@ -27,7 +24,7 @@ namespace KeePassRPC.Forms
             _plugin = plugin;
 
             InitializeComponent();
-            Icon = global::KeePassRPC.Properties.Resources.KPRPCico;
+            Icon = Resources.KPRPCico;
             checkBox1.Text = "Automatically save KeePass database when Kee makes changes";
             if (host.CustomConfig.GetBool("KeePassRPC.KeeFox.autoCommit", true))
                 checkBox1.Checked = true;
@@ -97,7 +94,7 @@ namespace KeePassRPC.Forms
                 if (connectedClientUsernames.Contains(kc.Username))
                     connected = true;
 
-                string[] row = new string[] { kc.ClientName, kc.Username, kc.AuthExpires.ToString() };
+                string[] row = { kc.ClientName, kc.Username, kc.AuthExpires.ToString() };
                 int rowid = dataGridView1.Rows.Add(row);
                 dataGridView1.Rows[rowid].Cells[3].Value = connected;
 
@@ -120,9 +117,6 @@ See https://forum.kee.pm/t/3143/ for more information.",
                     MessageBoxButtons.OK, 
                     MessageBoxIcon.Warning);
             }
-
-            return;
-
         }
 
         private KeyContainerClass[] FindAuthorisedConnections()
@@ -133,11 +127,11 @@ See https://forum.kee.pm/t/3143/ for more information.",
             try
             {
                 FieldInfo fi = null;
-                fi = typeof(KeePass.App.Configuration.AceCustomConfig)
+                fi = typeof(AceCustomConfig)
                                .GetField("m_vItems", BindingFlags.NonPublic | BindingFlags.Instance);
                 if (fi == null)
                 {
-                    fi = typeof(KeePass.App.Configuration.AceCustomConfig)
+                    fi = typeof(AceCustomConfig)
                                .GetField("m_d", BindingFlags.NonPublic | BindingFlags.Instance);
                 }
                 configValues = (Dictionary<string, string>)fi.GetValue(_host.CustomConfig);
@@ -164,13 +158,13 @@ See https://forum.kee.pm/t/3143/ for more information.",
                         return null;
                     try
                     {
-                        byte[] keyBytes = System.Security.Cryptography.ProtectedData.Unprotect(
+                        byte[] keyBytes = ProtectedData.Unprotect(
                         Convert.FromBase64String(kvp.Value),
                         new byte[] { 172, 218, 37, 36, 15 },
-                        System.Security.Cryptography.DataProtectionScope.CurrentUser);
+                        DataProtectionScope.CurrentUser);
                         serialisedKeyContainer = keyBytes;
-                        System.Xml.Serialization.XmlSerializer mySerializer = new System.Xml.Serialization.XmlSerializer(typeof(KeyContainerClass));
-                        using (MemoryStream ms = new System.IO.MemoryStream(serialisedKeyContainer))
+                        XmlSerializer mySerializer = new XmlSerializer(typeof(KeyContainerClass));
+                        using (MemoryStream ms = new MemoryStream(serialisedKeyContainer))
                         {
                             keyContainers.Add((KeyContainerClass) mySerializer.Deserialize(ms));
                         }
@@ -180,7 +174,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
                         try
                         {
                             serialisedKeyContainer = Convert.FromBase64String(kvp.Value);
-                            System.Xml.Serialization.XmlSerializer mySerializer = new System.Xml.Serialization.XmlSerializer(typeof(KeyContainerClass));
+                            XmlSerializer mySerializer = new XmlSerializer(typeof(KeyContainerClass));
                             using (MemoryStream ms = new MemoryStream(serialisedKeyContainer))
                             {
                                 keyContainers.Add((KeyContainerClass) mySerializer.Deserialize(ms));
@@ -189,7 +183,6 @@ See https://forum.kee.pm/t/3143/ for more information.",
                         catch (Exception)
                         {
                             // It's not a valid entry so ignore it and move on
-                            continue;
                         }
                     }
                     
@@ -203,9 +196,9 @@ See https://forum.kee.pm/t/3143/ for more information.",
             ulong port = 0;
             try
             {
-                if (this.textBoxPort.Text.Length > 0)
+                if (textBoxPort.Text.Length > 0)
                 {
-                    port = ulong.Parse(this.textBoxPort.Text);
+                    port = ulong.Parse(textBoxPort.Text);
                     if (port <= 0 || port > 65535)
                         throw new ArgumentOutOfRangeException();
                     if (port == _host.CustomConfig.GetULong("KeePassRPC.connection.port", 12536))
@@ -236,7 +229,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
             long expTime = 8760;
             try
             {
-                expTime = long.Parse(this.textBoxAuthExpiry.Text);
+                expTime = long.Parse(textBoxAuthExpiry.Text);
             }
             catch (Exception)
             {
@@ -302,7 +295,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Close();
         }
 
         private void OnFormClosed(object sender, FormClosedEventArgs e)

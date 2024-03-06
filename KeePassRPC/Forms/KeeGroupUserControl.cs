@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Text;
 using System.Windows.Forms;
 using KeePassLib;
+using KeePassLib.Utility;
 
 namespace KeePassRPC.Forms
 {
     public partial class KeeGroupUserControl : UserControl
     {
-        private KeePassRPCExt KeePassRPCPlugin;
+        private readonly KeePassRPCExt KeePassRPCPlugin;
 
         private PwGroup _group;
 
@@ -27,7 +23,7 @@ namespace KeePassRPC.Forms
 
                 if (_rootGroup.Uuid.Equals(_group.Uuid))
                     _status = KeeHomeStatus.Home;
-                else if (rid != null && rid != PwUuid.Zero && _group.IsOrIsContainedIn(KeePassRPCPlugin._host.Database.RootGroup.FindGroup(rid, true)))
+                else if (rid != null && !ReferenceEquals(rid, PwUuid.Zero) && _group.IsOrIsContainedIn(KeePassRPCPlugin._host.Database.RootGroup.FindGroup(rid, true)))
                         _status = KeeHomeStatus.Rubbish;
                 else if (_group.IsContainedIn(_rootGroup)) // returns true when _group is main root and custom root group has been selected.
                     _status = KeeHomeStatus.Inside;
@@ -63,7 +59,7 @@ and entries that are inside your Home group";
             string klconf = KeePassRPCPlugin._host.CustomConfig.GetString("KeePassRPC.knownLocations");
             if (!string.IsNullOrEmpty(klconf))
             {
-                string[] knownLocations = klconf.Split(new char[] { ',' });
+                string[] knownLocations = klconf.Split(',');
                 foreach (string location in knownLocations)
                 {
                     comboBoxLocation.Items.Add(location);
@@ -104,7 +100,7 @@ the recycle bin if you want Kee to work with this group.";
             if (string.IsNullOrEmpty(_location))
             {
                 var conf = KeePassRPCPlugin._host.Database.GetKPRPCConfig();
-                conf.RootUUID = KeePassLib.Utility.MemUtil.ByteArrayToHexString(_group.Uuid.UuidBytes);
+                conf.RootUUID = MemUtil.ByteArrayToHexString(_group.Uuid.UuidBytes);
                 KeePassRPCPlugin._host.Database.SetKPRPCConfig(conf);
             }
             else
@@ -116,7 +112,7 @@ the recycle bin if you want Kee to work with this group.";
                 
                 if (currentLocationRoots.Length > 0)
                     currentLocationRoots += ",";
-                currentLocationRoots += KeePassLib.Utility.MemUtil.ByteArrayToHexString(_group.Uuid.UuidBytes);
+                currentLocationRoots += MemUtil.ByteArrayToHexString(_group.Uuid.UuidBytes);
 
                 KeePassRPCPlugin._host.CustomConfig.SetString("KeePassRPC.knownLocations." + _location + ".RootGroups",
                     currentLocationRoots);
@@ -137,9 +133,9 @@ the recycle bin if you want Kee to work with this group.";
                 if (guid.Length <= 0)
                     continue;
 
-                PwUuid uuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(guid)); ;
+                PwUuid uuid = new PwUuid(MemUtil.HexStringToByteArray(guid)); ;
 
-                if (KeePassRPCPlugin._host.Database.RootGroup.Uuid == uuid)
+                if (KeePassRPCPlugin._host.Database.RootGroup.Uuid.Equals(uuid))
                     continue;
 
                 PwGroup group = KeePassRPCPlugin._host.Database.RootGroup.FindGroup(uuid, true);

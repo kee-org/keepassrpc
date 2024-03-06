@@ -1,46 +1,34 @@
 /*
   Modified version of KeyCreationForm.cs from...
-  
+
   KeePass Password Safe - The Open-Source Password Manager
   KeePass is Copyright (C) 2003-2009 Dominik Reichl <dominik.reichl@t-online.de>
 */
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
 using System.Diagnostics;
-
+using System.Windows.Forms;
+using KeePass;
 using KeePass.App;
+using KeePass.Forms;
 using KeePass.Resources;
 using KeePass.UI;
-using KeePass.Util;
-
-using KeePassLib;
 using KeePassLib.Cryptography;
 using KeePassLib.Keys;
-using KeePassLib.Native;
-using KeePassLib.Security;
 using KeePassLib.Serialization;
 using KeePassLib.Utility;
-using KeePass;
-using KeePass.Forms;
-using KeePassRPC;
 
 namespace KeePassRPC.Forms
 {
 	public partial class KeyCreationSimpleForm : Form
 	{
-		private CompositeKey m_pKey = null;
-		private bool m_bCreatingNew = false;
+		private CompositeKey m_pKey;
+		private bool m_bCreatingNew;
 		private IOConnectionInfo m_ioInfo = new IOConnectionInfo();
-        private string _databaseName = null;
+        private string _databaseName;
 
-		private KeePassRPC.SecureEdit m_secPassword = new SecureEdit();
-		private KeePassRPC.SecureEdit m_secRepeat = new SecureEdit();
+		private SecureEdit m_secPassword = new SecureEdit();
+		private SecureEdit m_secRepeat = new SecureEdit();
 
 		public CompositeKey CompositeKey
 		{
@@ -77,7 +65,7 @@ namespace KeePassRPC.Forms
 			GlobalWindowManager.AddWindow(this);
 
 			//this.Icon = Properties.Resources.KeePass;
-			this.Text = KPRes.CreateMasterKey;
+			Text = KPRes.CreateMasterKey;
 
 			//m_ttRect.SetToolTip(m_cbHidePassword, KPRes.TogglePasswordAsterisks);
 
@@ -203,7 +191,7 @@ namespace KeePassRPC.Forms
 
 		private void OnBtnOK(object sender, EventArgs e)
 		{
-			if(!CreateCompositeKey()) this.DialogResult = DialogResult.None;
+			if(!CreateCompositeKey()) DialogResult = DialogResult.None;
             if (!string.IsNullOrEmpty(dbNameTextBox.Text))
                 _databaseName = dbNameTextBox.Text;
 		}
@@ -219,7 +207,7 @@ namespace KeePassRPC.Forms
 			uint uBits = QualityEstimation.EstimatePasswordBits(pbUTF8);
 			MemUtil.ZeroByteArray(pbUTF8);
 
-			m_lblQualityBits.Text = uBits.ToString() + " " + KPRes.Bits;
+			m_lblQualityBits.Text = uBits + " " + KPRes.Bits;
 			int iPos = (int)((100 * uBits) / (256 / 2));
 			if(iPos < 0) iPos = 0; else if(iPos > 100) iPos = 100;
 			m_pbPasswordQuality.Value = iPos;

@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
-using KeePassRPC.Forms;
-using System.Windows.Forms;
 using System.Drawing;
+using System.Windows.Forms;
+using KeePass.Forms;
+using KeePass.UI;
+using KeePass.Util.MultipleValues;
 using KeePassLib;
 using KeePassLib.Collections;
-using KeePass.UI;
-using KeePass.Forms;
-using System.Reflection;
+using KeePassRPC.Forms;
 using KeePassRPC.Models.DataExchange;
+using KeePassRPC.Properties;
 
 namespace KeePassRPC
 {
@@ -99,12 +100,10 @@ namespace KeePassRPC
 
         public virtual void AttachToEntryDialog(KeePassRPCExt plugin, PwEntry entry, TabControl mainTabControl, PwEntryForm form, CustomListViewEx advancedListView, ProtectedStringDictionary strings, StringDictionaryEx customData)
         {
-            return;
         }
 
         public virtual void AttachToGroupDialog(KeePassRPCExt plugin, PwGroup group, TabControl mainTabControl)
         {
-            return;
         }
 
 
@@ -122,7 +121,7 @@ namespace KeePassRPC
         {
             UserControl entryControl;
 
-            string mvString = KeePass.Util.MultipleValues.MultipleValuesEx.CueString;
+            string mvString = MultipleValuesEx.CueString;
             string json1 = strings.ReadSafe("KPRPC JSON");
             string json2 = customData.Get("KPRPC JSON");
             if ((!string.IsNullOrEmpty(json1) && mvString == json1) || (!string.IsNullOrEmpty(json2) && mvString == json2))
@@ -138,7 +137,7 @@ namespace KeePassRPC
             keeTabPage.Controls.Add(entryControl);
             if (mainTabControl.ImageList == null)
                 mainTabControl.ImageList = new ImageList();
-            int imageIndex = mainTabControl.ImageList.Images.Add(global::KeePassRPC.Properties.Resources.KPRPC64, Color.Transparent);
+            int imageIndex = mainTabControl.ImageList.Images.Add(Resources.KPRPC64, Color.Transparent);
             keeTabPage.ImageIndex = imageIndex;
             mainTabControl.TabPages.Add(keeTabPage);
         }
@@ -151,7 +150,7 @@ namespace KeePassRPC
             keeTabPage.Controls.Add(groupControl);
             if (mainTabControl.ImageList == null)
                 mainTabControl.ImageList = new ImageList();
-            int imageIndex = mainTabControl.ImageList.Images.Add(global::KeePassRPC.Properties.Resources.KPRPC64, Color.Transparent);
+            int imageIndex = mainTabControl.ImageList.Images.Add(Resources.KPRPC64, Color.Transparent);
             keeTabPage.ImageIndex = imageIndex;
             mainTabControl.TabPages.Add(keeTabPage);
         }
@@ -174,7 +173,7 @@ namespace KeePassRPC
             keefoxTabPage.Controls.Add(entryControl);
             if (mainTabControl.ImageList == null)
                 mainTabControl.ImageList = new ImageList();
-            int imageIndex = mainTabControl.ImageList.Images.Add(global::KeePassRPC.Properties.Resources.KPRPC64, Color.Transparent);
+            int imageIndex = mainTabControl.ImageList.Images.Add(Resources.KPRPC64, Color.Transparent);
             keefoxTabPage.ImageIndex = imageIndex;
             mainTabControl.TabPages.Add(keefoxTabPage);
         }
@@ -187,7 +186,7 @@ namespace KeePassRPC
             keefoxTabPage.Controls.Add(groupControl);
             if (mainTabControl.ImageList == null)
                 mainTabControl.ImageList = new ImageList();
-            int imageIndex = mainTabControl.ImageList.Images.Add(global::KeePassRPC.Properties.Resources.KPRPC64, Color.Transparent);
+            int imageIndex = mainTabControl.ImageList.Images.Add(Resources.KPRPC64, Color.Transparent);
             keefoxTabPage.ImageIndex = imageIndex;
             mainTabControl.TabPages.Add(keefoxTabPage);
         }

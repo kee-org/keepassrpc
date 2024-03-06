@@ -9,7 +9,7 @@ namespace KeePassRPC.Models.Shared
         public string ValuePath; // e.g. "Username" for a KeePass Property or "." for this object
         public string Value;
         public int Page = 1; // Fields with multiple positive page numbers are effectively treated as multiple Entries when Kee assesses potential matches and field candidates to fill. Other clients might use for similar logical grouping purposes.
-        public FieldType @Type;
+        public FieldType Type;
         public PlaceholderHandling? PlaceholderHandling;
         public FieldMatcherConfig[] MatcherConfigs;
 
@@ -24,7 +24,7 @@ namespace KeePassRPC.Models.Shared
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((Field)obj);
         }
 
@@ -70,7 +70,7 @@ namespace KeePassRPC.Models.Shared
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((ResolvedField)obj);
         }
 

@@ -13,14 +13,14 @@ namespace KeePassRPC.Models.Shared
         public static FieldMatcherConfig ForSingleClientMatch(string id, string name, FormFieldType fft)
         {
             var htmlType = Utilities.FormFieldTypeToHtmlType(fft);
-            return FieldMatcherConfig.ForSingleClientMatch(id, name, htmlType, null);
+            return ForSingleClientMatch(id, name, htmlType, null);
         }
 
         public static FieldMatcherConfig ForSingleClientMatch(string id, string name, string htmlType, string domSelector)
         {
-            return new FieldMatcherConfig()
+            return new FieldMatcherConfig
             {
-                CustomMatcher = new FieldMatcher()
+                CustomMatcher = new FieldMatcher
                 {
                     Ids = string.IsNullOrEmpty(id) ? new string[0] : new[] { id },
                     Names = string.IsNullOrEmpty(name) ? new string[0] : new[] { name },
@@ -41,7 +41,7 @@ namespace KeePassRPC.Models.Shared
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((FieldMatcherConfig)obj);
         }
 

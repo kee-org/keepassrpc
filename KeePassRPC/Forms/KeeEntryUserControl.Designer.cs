@@ -1,11 +1,14 @@
-﻿namespace KeePassRPC.Forms
+﻿using System.ComponentModel;
+using System.Windows.Forms;
+
+namespace KeePassRPC.Forms
 {
     partial class KeeEntryUserControl
     {
         /// <summary> 
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary> 
         /// Clean up any resources being used.
@@ -480,42 +483,42 @@
 
         #endregion
 
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.CheckBox checkBoxHideFromKee;
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.ComboBox comboBoxAutoSubmit;
-        private System.Windows.Forms.ComboBox comboBoxAutoFill;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.ListView listView1;
-        private System.Windows.Forms.Button buttonURLDelete;
-        private System.Windows.Forms.Button buttonURLEdit;
-        private System.Windows.Forms.Button buttonURLAdd;
-        private System.Windows.Forms.ColumnHeader columnHeaderValue;
-        private System.Windows.Forms.ColumnHeader columnHeaderType;
-        private System.Windows.Forms.ColumnHeader columnHeaderMethod;
-        private System.Windows.Forms.Button buttonFieldEdit;
-        private System.Windows.Forms.Button buttonFieldDelete;
-        private System.Windows.Forms.ListView listView2;
-        private System.Windows.Forms.Button buttonFieldAdd;
-        private System.Windows.Forms.ColumnHeader columnHeaderFName;
-        private System.Windows.Forms.ColumnHeader columnHeaderFValue;
-        private System.Windows.Forms.ColumnHeader columnHeaderFId;
-        private System.Windows.Forms.ColumnHeader columnHeaderFType;
-        private System.Windows.Forms.ColumnHeader columnHeaderFPage;
-        private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TabPage tabPage2;
-        private System.Windows.Forms.TabPage tabPage3;
-        private System.Windows.Forms.TextBox textBoxKeeRealm;
-        private System.Windows.Forms.Label labelRealm;
-        private System.Windows.Forms.ToolTip toolTipRealm;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.RadioButton radioButton2;
-        private System.Windows.Forms.RadioButton radioButton1;
-        private System.Windows.Forms.RadioButton radioButton3;
+        private GroupBox groupBox1;
+        private CheckBox checkBoxHideFromKee;
+        private GroupBox groupBox2;
+        private GroupBox groupBox3;
+        private ComboBox comboBoxAutoSubmit;
+        private ComboBox comboBoxAutoFill;
+        private Label label4;
+        private Label label3;
+        private ListView listView1;
+        private Button buttonURLDelete;
+        private Button buttonURLEdit;
+        private Button buttonURLAdd;
+        private ColumnHeader columnHeaderValue;
+        private ColumnHeader columnHeaderType;
+        private ColumnHeader columnHeaderMethod;
+        private Button buttonFieldEdit;
+        private Button buttonFieldDelete;
+        private ListView listView2;
+        private Button buttonFieldAdd;
+        private ColumnHeader columnHeaderFName;
+        private ColumnHeader columnHeaderFValue;
+        private ColumnHeader columnHeaderFId;
+        private ColumnHeader columnHeaderFType;
+        private ColumnHeader columnHeaderFPage;
+        private TabControl tabControl1;
+        private TabPage tabPage1;
+        private TabPage tabPage2;
+        private TabPage tabPage3;
+        private TextBox textBoxKeeRealm;
+        private Label labelRealm;
+        private ToolTip toolTipRealm;
+        private Label label2;
+        private GroupBox groupBox4;
+        private Label label5;
+        private RadioButton radioButton2;
+        private RadioButton radioButton1;
+        private RadioButton radioButton3;
     }
 }

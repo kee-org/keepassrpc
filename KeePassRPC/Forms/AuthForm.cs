@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
 using System.Diagnostics;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace KeePassRPC.Forms
 {
@@ -59,7 +54,7 @@ namespace KeePassRPC.Forms
             secLevel += @"If you do not know what ""{\b " + ClientName + @"}"" is or have reason to suspect that a malicious program on your computer is pretending to be ""{\b " + ClientName + @"}"" you can deny the request by clicking the button below.
 }";
             richTextBoxSecurityLevel.Rtf = secLevel;
-            richTextBoxSecurityLevel.LinkClicked += new LinkClickedEventHandler(this.richTextBoxSecurityLevel_LinkClicked);
+            richTextBoxSecurityLevel.LinkClicked += richTextBoxSecurityLevel_LinkClicked;
 
             richTextBoxClientID.Rtf = @"{\rtf1\ansi{\fonttbl\f0\fArial;}\f0A program claiming to be ""{\b " + ClientName + @"}"" is asking you to confirm you want to allow it to access your passwords.\par
 \par

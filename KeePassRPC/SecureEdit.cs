@@ -19,10 +19,7 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Security;
 using System.Text;
-using System.Threading;
 using System.Windows.Forms;
 using KeePass.UI;
 using KeePassLib.Security;
@@ -36,7 +33,7 @@ namespace KeePassRPC
   /// </summary>
   public sealed class SecureEdit
   {
-    private static char? m_ochPasswordChar = null;
+    private static char? m_ochPasswordChar;
     internal static char PasswordChar {
       get {
         if (m_ochPasswordChar.HasValue) return m_ochPasswordChar.Value;
@@ -50,8 +47,8 @@ namespace KeePassRPC
       }
     }
 
-    private TextBox m_tbPassword = null;
-    private EventHandler m_evTextChanged = null;
+    private TextBox m_tbPassword;
+    private EventHandler m_evTextChanged;
 
     private static readonly ProtectedString g_psEmpty = new ProtectedString(
       true, new byte[0]);
@@ -59,11 +56,11 @@ namespace KeePassRPC
     // With ProtectedString.Empty no incremental protection (Remove/Insert)
     private ProtectedString m_psText = g_psEmpty;
 
-    private bool m_bBlockTextChanged = false;
+    private bool m_bBlockTextChanged;
 
     private bool m_bFirstGotFocus = true;
 
-    private bool m_bSecureDesktop = false;
+    private bool m_bSecureDesktop;
     public bool SecureDesktopMode {
       get { return m_bSecureDesktop; }
       set { m_bSecureDesktop = value; }
@@ -118,12 +115,12 @@ namespace KeePassRPC
       if (!m_bSecureDesktop) m_tbPassword.AllowDrop = true;
 
       // Register event handler
-      m_tbPassword.TextChanged += this.OnPasswordTextChanged;
-      m_tbPassword.GotFocus += this.OnGotFocus;
+      m_tbPassword.TextChanged += OnPasswordTextChanged;
+      m_tbPassword.GotFocus += OnGotFocus;
       if (!m_bSecureDesktop) {
-        m_tbPassword.DragEnter += this.OnDragCheck;
-        m_tbPassword.DragOver += this.OnDragCheck;
-        m_tbPassword.DragDrop += this.OnDragDrop;
+        m_tbPassword.DragEnter += OnDragCheck;
+        m_tbPassword.DragOver += OnDragCheck;
+        m_tbPassword.DragDrop += OnDragDrop;
       }
     }
 
@@ -134,12 +131,12 @@ namespace KeePassRPC
     public void Detach()
     {
       if (m_tbPassword != null) {
-        m_tbPassword.TextChanged -= this.OnPasswordTextChanged;
-        m_tbPassword.GotFocus -= this.OnGotFocus;
+        m_tbPassword.TextChanged -= OnPasswordTextChanged;
+        m_tbPassword.GotFocus -= OnGotFocus;
         if (!m_bSecureDesktop) {
-          m_tbPassword.DragEnter -= this.OnDragCheck;
-          m_tbPassword.DragOver -= this.OnDragCheck;
-          m_tbPassword.DragDrop -= this.OnDragDrop;
+          m_tbPassword.DragEnter -= OnDragCheck;
+          m_tbPassword.DragOver -= OnDragCheck;
+          m_tbPassword.DragDrop -= OnDragDrop;
         }
 
         m_tbPassword = null;
@@ -184,7 +181,7 @@ namespace KeePassRPC
       int inxLeft = -1, inxRight = 0;
       StringBuilder sbNewPart = new StringBuilder();
 
-      char chPasswordChar = SecureEdit.PasswordChar;
+      char chPasswordChar = PasswordChar;
       for (int i = 0; i < strText.Length; ++i) {
         if (strText[i] != chPasswordChar) {
           if (inxLeft == -1) inxLeft = i;
@@ -220,7 +217,7 @@ namespace KeePassRPC
       if (!m_tbPassword.UseSystemPasswordChar)
         m_tbPassword.Text = GetAsString();
       else
-        m_tbPassword.Text = new string(SecureEdit.PasswordChar,
+        m_tbPassword.Text = new string(PasswordChar,
           m_psText.Length);
       m_bBlockTextChanged = false;
 

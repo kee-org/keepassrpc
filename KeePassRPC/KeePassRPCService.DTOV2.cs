@@ -1,10 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using KeePassLib;
+using KeePassLib.Collections;
 using KeePassLib.Security;
-using KeePassRPC.JsonRpc;
+using KeePassLib.Utility;
 using KeePassRPC.Models.DataExchange;
 using KeePassRPC.Models.DataExchange.V2;
 using KeePassRPC.Models.Persistent;
@@ -75,7 +75,7 @@ namespace KeePassRPC
                 {
                     if (!string.IsNullOrEmpty(ffValue))
                     {
-                        fields.Add(new ResolvedField()
+                        fields.Add(new ResolvedField
                         {
                             ResolvedValue = derefValue,
                             ValuePath = field.ValuePath,
@@ -113,27 +113,25 @@ namespace KeePassRPC
                     urls.ToArray(), realm,
                     pwe.Strings.ReadSafe(PwDefs.TitleField), temp,
                     conf.Behaviour,
-                    KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
+                    MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
                     GetGroup2FromPwGroup(pwe.ParentGroup), icon,
                     GetDatabase2FromPwDatabase(db, false, true, urlRequired), matchAccuracy, mc,
                     conf.AuthenticationMethods);
 
                 return kpe;
             }
-            else
-            {
-                return new LightEntry2(urls.ToArray(),
-                    pwe.Strings.ReadSafe(PwDefs.TitleField),
-                    KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
-                    icon, usernameName, usernameValue, conf.AuthenticationMethods);
-            }
+
+            return new LightEntry2(urls.ToArray(),
+                pwe.Strings.ReadSafe(PwDefs.TitleField),
+                MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
+                icon, usernameName, usernameValue, conf.AuthenticationMethods);
         }
 
         private Group2 GetGroup2FromPwGroup(PwGroup pwg)
         {
             Icon icon = _iconConverter.iconToDto(ClientMetadata, pwg.CustomIconUuid, pwg.IconId);
 
-            Group2 kpg = new Group2(pwg.Name, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes),
+            Group2 kpg = new Group2(pwg.Name, MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes),
                 icon, pwg.GetFullPath("/", false));
 
             return kpg;
@@ -162,7 +160,7 @@ namespace KeePassRPC
                 var icon = (ClientMetadata != null && ClientMetadata.Features != null &&
                             ClientMetadata.Features.Contains("KPRPC_FEATURE_ICON_REFERENCES"))
                     ? null
-                    : new Icon()
+                    : new Icon
                     {
                         Base64 = IconCache<string>.GetIconEncoding(pwd.IOConnectionInfo.Path) ?? ""
                     };
@@ -202,7 +200,7 @@ namespace KeePassRPC
                         new ProtectedString(_host.Database.MemoryProtection.ProtectUserName, incomingField.Value));
                 }
 
-                fields.Add(new Field()
+                fields.Add(new Field
                 {
                     Name = incomingField.Name,
                     Page = Math.Max(incomingField.Page, 1),
@@ -259,7 +257,7 @@ namespace KeePassRPC
             if (entry.Icon != null
                 && _iconConverter.dtoToIcon(ClientMetadata, entry.Icon, ref customIconUuid, ref iconId))
             {
-                if (customIconUuid == PwUuid.Zero)
+                if (ReferenceEquals(customIconUuid, PwUuid.Zero))
                     pwe.IconId = iconId;
                 else
                     pwe.CustomIconUuid = customIconUuid;
@@ -278,7 +276,6 @@ namespace KeePassRPC
         /// <param name="group">the group to search in</param>
         /// <param name="fullDetails">true = all details; false = some details ommitted (e.g. password)</param>
         /// <param name="urlRequired">true = URL field must exist for a child entry to be returned, false = all entries are returned</param>
-        /// <param name="current__"></param>
         /// <returns>the list of every entry directly inside the group.</returns>
         private LightEntry2[] GetChildEntries2(PwDatabase pwd, PwGroup group, bool fullDetails, bool urlRequired)
         {
@@ -287,7 +284,7 @@ namespace KeePassRPC
 
             if (group != null)
             {
-                KeePassLib.Collections.PwObjectList<PwEntry> output;
+                PwObjectList<PwEntry> output;
                 output = group.GetEntries(false);
 
                 foreach (PwEntry pwe in output)
@@ -316,14 +313,12 @@ namespace KeePassRPC
                     allEntries.Sort(delegate(Entry2 e1, Entry2 e2) { return e1.Title.CompareTo(e2.Title); });
                     return allEntries.ToArray();
                 }
-                else
+
+                allLightEntries.Sort(delegate(LightEntry2 e1, LightEntry2 e2)
                 {
-                    allLightEntries.Sort(delegate(LightEntry2 e1, LightEntry2 e2)
-                    {
-                        return e1.Title.CompareTo(e2.Title);
-                    });
-                    return allLightEntries.ToArray();
-                }
+                    return e1.Title.CompareTo(e2.Title);
+                });
+                return allLightEntries.ToArray();
             }
 
             return null;
@@ -346,7 +341,7 @@ namespace KeePassRPC
                 return null;
             }
 
-            KeePassLib.Collections.PwObjectList<PwGroup> output;
+            PwObjectList<PwGroup> output;
             output = group.Groups;
 
             foreach (PwGroup pwg in output)

@@ -3,18 +3,23 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Jayrock.JsonRpc;
+using KeePass;
 using KeePass.Resources;
+using KeePass.Util;
 using KeePassLib;
+using KeePassLib.Collections;
 using KeePassLib.Cryptography.PasswordGenerator;
 using KeePassLib.Security;
 using KeePassLib.Serialization;
-using KeePassRPC.JsonRpc;
+using KeePassLib.Utility;
 using KeePassRPC.Models.DataExchange;
 using KeePassRPC.Models.DataExchange.V2;
 using KeePassRPC.Models.Persistent;
 using KeePassRPC.Models.Shared;
+using Group = KeePassRPC.Models.DataExchange.Group;
 
 namespace KeePassRPC
 {
@@ -24,6 +29,7 @@ namespace KeePassRPC
         /// Launches the group editor.
         /// </summary>
         /// <param name="uuid">The UUID of the group to edit.</param>
+        /// <param name="dbFileName">DB filename</param>
         [JsonRpcMethod]
         public void LaunchGroupEditor(string uuid, string dbFileName)
         {
@@ -35,7 +41,7 @@ namespace KeePassRPC
 
             if (uuid != null && uuid.Length > 0)
             {
-                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
+                PwUuid pwuuid = new PwUuid(MemUtil.HexStringToByteArray(uuid));
 
                 PwGroup matchedGroup = GetRootPwGroup(db).FindGroup(pwuuid, true);
 
@@ -50,6 +56,7 @@ namespace KeePassRPC
         /// Launches the login editor.
         /// </summary>
         /// <param name="uuid">The UUID of the entry to edit.</param>
+        /// <param name="dbFileName">DB filename</param>
         [JsonRpcMethod]
         public void LaunchLoginEditor(string uuid, string dbFileName)
         {
@@ -61,7 +68,7 @@ namespace KeePassRPC
 
             if (uuid != null && uuid.Length > 0)
             {
-                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
+                PwUuid pwuuid = new PwUuid(MemUtil.HexStringToByteArray(uuid));
 
                 PwEntry matchedLogin = GetRootPwGroup(db).FindEntry(pwuuid, true);
 
@@ -167,7 +174,6 @@ namespace KeePassRPC
         {
             IOConnectionInfo ioci = SelectActiveDatabase(fileName);
             OpenIfRequired(ioci, false);
-            return;
         }
 
         /// <summary>
@@ -187,7 +193,6 @@ namespace KeePassRPC
 
             IOConnectionInfo ioci = SelectActiveDatabase(fileName);
             OpenIfRequired(ioci, true);
-            return;
         }
 
         /// <summary>
@@ -208,8 +213,6 @@ namespace KeePassRPC
             // tell all RPC clients they need to refresh their representation of the KeePass data
             if (_host.Database.IsOpen)
                 _keePassRpcPlugin.SignalAllManagedRPCClients(Signal.DATABASE_SELECTED);
-
-            return;
         }
 
         /// <summary>
@@ -218,7 +221,7 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public string[] GetPasswordProfiles()
         {
-            List<PwProfile> profiles = KeePass.Util.PwGeneratorUtil.GetAllProfiles(true);
+            List<PwProfile> profiles = PwGeneratorUtil.GetAllProfiles(true);
             List<string> profileNames = new List<string>(profiles.Count);
             foreach (PwProfile prof in profiles)
                 profileNames.Add(prof.Name);
@@ -232,15 +235,15 @@ namespace KeePassRPC
             PwProfile profile = null;
 
             if (string.IsNullOrEmpty(profileName))
-                profile = KeePass.Program.Config.PasswordGenerator.LastUsedProfile;
+                profile = Program.Config.PasswordGenerator.LastUsedProfile;
             else
             {
-                foreach (PwProfile pp in KeePass.Util.PwGeneratorUtil.GetAllProfiles(false))
+                foreach (PwProfile pp in PwGeneratorUtil.GetAllProfiles(false))
                 {
                     if (pp.Name == profileName)
                     {
                         profile = pp;
-                        KeePass.Program.Config.PasswordGenerator.LastUsedProfile = pp;
+                        Program.Config.PasswordGenerator.LastUsedProfile = pp;
                         break;
                     }
                 }
@@ -276,7 +279,7 @@ namespace KeePassRPC
 
             if (uuid != null && uuid.Length > 0)
             {
-                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
+                PwUuid pwuuid = new PwUuid(MemUtil.HexStringToByteArray(uuid));
 
                 PwEntry matchedLogin = GetRootPwGroup(_host.Database).FindEntry(pwuuid, true);
 
@@ -292,7 +295,7 @@ namespace KeePassRPC
 
                 if (_host.Database.RecycleBinEnabled == false)
                 {
-                    if (!KeePassLib.Utility.MessageService.AskYesNo(KPRes.DeleteEntriesQuestionSingle,
+                    if (!MessageService.AskYesNo(KPRes.DeleteEntriesQuestionSingle,
                             KPRes.DeleteEntriesTitleSingle))
                         return false;
 
@@ -338,7 +341,7 @@ namespace KeePassRPC
 
             if (uuid != null && uuid.Length > 0)
             {
-                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
+                PwUuid pwuuid = new PwUuid(MemUtil.HexStringToByteArray(uuid));
 
                 PwGroup matchedGroup = GetRootPwGroup(_host.Database).FindGroup(pwuuid, true);
 
@@ -354,7 +357,7 @@ namespace KeePassRPC
 
                 if (_host.Database.RecycleBinEnabled == false)
                 {
-                    if (!KeePassLib.Utility.MessageService.AskYesNo(KPRes.DeleteGroupQuestion, KPRes.DeleteGroupTitle))
+                    if (!MessageService.AskYesNo(KPRes.DeleteGroupQuestion, KPRes.DeleteGroupTitle))
                         return false;
 
                     PwDeletedObject pdo = new PwDeletedObject();
@@ -415,7 +418,7 @@ namespace KeePassRPC
 
             if (parentUUID != null && parentUUID.Length > 0)
             {
-                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(parentUUID));
+                PwUuid pwuuid = new PwUuid(MemUtil.HexStringToByteArray(parentUUID));
 
                 PwGroup matchedGroup = GetRootPwGroup(chosenDB).FindGroup(pwuuid, true);
 
@@ -440,7 +443,6 @@ namespace KeePassRPC
         /// </summary>
         /// <param name="name">The name of the group to be added</param>
         /// <param name="parentUUID">The UUID of the parent group for the new group. If null, the root group will be used.</param>
-        /// <param name="current__"></param>
         [JsonRpcMethod]
         public Group AddGroup(string name, string parentUUID)
         {
@@ -454,11 +456,9 @@ namespace KeePassRPC
 
             if (parentUUID != null && parentUUID.Length > 0)
             {
-                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(parentUUID));
+                PwUuid pwuuid = new PwUuid(MemUtil.HexStringToByteArray(parentUUID));
 
-                PwGroup matchedGroup = _host.Database.RootGroup.Uuid == pwuuid
-                    ? _host.Database.RootGroup
-                    : _host.Database.RootGroup.FindGroup(pwuuid, true);
+                PwGroup matchedGroup = _host.Database.RootGroup.FindGroup(pwuuid, true);
 
                 if (matchedGroup != null)
                     parentGroup = matchedGroup;
@@ -506,7 +506,7 @@ namespace KeePassRPC
             // find the database
             PwDatabase chosenDB = SelectDatabase(dbFileName);
 
-            PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(oldLoginUUID));
+            PwUuid pwuuid = new PwUuid(MemUtil.HexStringToByteArray(oldLoginUUID));
             PwEntry entryToUpdate = GetRootPwGroup(chosenDB).FindEntry(pwuuid, true);
             if (entryToUpdate == null)
                 throw new Exception("oldLoginUUID could not be resolved to an existing entry.");
@@ -524,7 +524,6 @@ namespace KeePassRPC
         /// Return the parent group of the object with the supplied UUID
         /// </summary>
         /// <param name="uuid">the UUID of the object we want to find the parent of</param>
-        /// <param name="current__"></param>
         /// <returns>the parent group</returns>
         [JsonRpcMethod]
         public Group GetParent(string uuid)
@@ -534,7 +533,7 @@ namespace KeePassRPC
             // Make sure there is an active database
             if (!EnsureDBisOpen()) return null;
 
-            PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
+            PwUuid pwuuid = new PwUuid(MemUtil.HexStringToByteArray(uuid));
             PwGroup rootGroup = GetRootPwGroup(_host.Database);
 
             try
@@ -565,7 +564,6 @@ namespace KeePassRPC
         /// <summary>
         /// Return the root group of the active database
         /// </summary>
-        /// <param name="current__"></param>
         /// <returns>the root group</returns>
         [JsonRpcMethod]
         public Group GetRoot()
@@ -632,7 +630,6 @@ namespace KeePassRPC
         /// Returns a list of every entry contained within a group (not recursive)
         /// </summary>
         /// <param name="uuid">the unique ID of the group we're interested in.</param>
-        /// <param name="current__"></param>
         /// <returns>the list of every entry with a URL directly inside the group.</returns>
         [JsonRpcMethod]
         public Entry[] GetChildEntries(string uuid)
@@ -647,7 +644,6 @@ namespace KeePassRPC
         /// Returns a list of all the entry contained within a group - including ones missing a URL (not recursive)
         /// </summary>
         /// <param name="uuid">the unique ID of the group we're interested in.</param>
-        /// <param name="current__"></param>
         /// <returns>the list of every entry directly inside the group.</returns>
         [JsonRpcMethod]
         public Entry[] GetAllChildEntries(string uuid)
@@ -662,7 +658,6 @@ namespace KeePassRPC
         /// Returns a list of every group contained within a group (not recursive)
         /// </summary>
         /// <param name="uuid">the unique ID of the group we're interested in.</param>
-        /// <param name="current__"></param>
         /// <returns>the list of every group directly inside the group.</returns>
         [JsonRpcMethod]
         public Group[] GetChildGroups(string uuid)
@@ -679,7 +674,6 @@ namespace KeePassRPC
         /// <param name="name">IGNORED! The name of a groups we are looking for. Must be an exact match.</param>
         /// <param name="uuid">The UUID of the group we are looking for.</param>
         /// <param name="groups">The output result (a list of Groups)</param>
-        /// <param name="current__"></param>
         /// <returns>The number of items in the list of groups.</returns>
         [JsonRpcMethod]
         public int FindGroups(string name, string uuid, out Group[] groups)
@@ -694,11 +688,9 @@ namespace KeePassRPC
                     return -1;
                 }
 
-                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
+                PwUuid pwuuid = new PwUuid(MemUtil.HexStringToByteArray(uuid));
 
-                PwGroup matchedGroup = _host.Database.RootGroup.Uuid == pwuuid
-                    ? _host.Database.RootGroup
-                    : _host.Database.RootGroup.FindGroup(pwuuid, true);
+                PwGroup matchedGroup = _host.Database.RootGroup.FindGroup(pwuuid, true);
 
                 if (matchedGroup == null)
                     throw new Exception(
@@ -765,7 +757,7 @@ namespace KeePassRPC
             // if uniqueID is supplied, match just that one login. if not found, move on to search the content of the logins...
             if (uniqueID != null && uniqueID.Length > 0)
             {
-                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uniqueID));
+                PwUuid pwuuid = new PwUuid(MemUtil.HexStringToByteArray(uniqueID));
 
                 //foreach DB...
                 foreach (PwDatabase db in dbs)
@@ -787,8 +779,8 @@ namespace KeePassRPC
                 //foreach DB...
                 foreach (PwDatabase db in dbs)
                 {
-                    KeePassLib.Collections.PwObjectList<PwEntry> output =
-                        new KeePassLib.Collections.PwObjectList<PwEntry>();
+                    PwObjectList<PwEntry> output =
+                        new PwObjectList<PwEntry>();
 
                     PwGroup searchGroup = GetRootPwGroup(db);
                     //output = searchGroup.GetEntries(true);
@@ -840,8 +832,8 @@ namespace KeePassRPC
                 {
                     var dbConf = db.GetKPRPCConfig();
 
-                    KeePassLib.Collections.PwObjectList<PwEntry> output =
-                        new KeePassLib.Collections.PwObjectList<PwEntry>();
+                    PwObjectList<PwEntry> output =
+                        new PwObjectList<PwEntry>();
 
                     PwGroup searchGroup = GetRootPwGroup(db);
                     output = searchGroup.GetEntries(true);
@@ -881,7 +873,7 @@ namespace KeePassRPC
                                 try
                                 {
                                     if (!string.IsNullOrEmpty(regexPattern) &&
-                                        System.Text.RegularExpressions.Regex.IsMatch(URL, regexPattern))
+                                        Regex.IsMatch(URL, regexPattern))
                                     {
                                         entryIsAMatch = true;
                                         bestMatchAccuracy = MatchAccuracy.Best;
@@ -932,7 +924,7 @@ namespace KeePassRPC
                                     try
                                     {
                                         if (!string.IsNullOrEmpty(pattern) &&
-                                            System.Text.RegularExpressions.Regex.IsMatch(URL, pattern))
+                                            Regex.IsMatch(URL, pattern))
                                         {
                                             entryIsAMatch = false;
                                             break;
@@ -1012,7 +1004,7 @@ namespace KeePassRPC
 
             if (!string.IsNullOrEmpty(parentUuid))
             {
-                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(parentUuid));
+                PwUuid pwuuid = new PwUuid(MemUtil.HexStringToByteArray(parentUuid));
 
                 PwGroup matchedGroup = GetRootPwGroup(chosenDb).FindGroup(pwuuid, true);
 
@@ -1069,7 +1061,7 @@ namespace KeePassRPC
             // find the database
             PwDatabase chosenDb = SelectDatabase(dbFileName);
 
-            PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(oldLoginUuid));
+            PwUuid pwuuid = new PwUuid(MemUtil.HexStringToByteArray(oldLoginUuid));
             PwEntry entryToUpdate = GetRootPwGroup(chosenDb).FindEntry(pwuuid, true);
             if (entryToUpdate == null)
                 throw new Exception("oldLoginUUID could not be resolved to an existing entry.");
@@ -1101,7 +1093,7 @@ namespace KeePassRPC
             foreach (var db in dbs)
             {
                 var iconCollection = AllIcons(db.FileName);
-                dis.Add(new DatabaseAndIcons()
+                dis.Add(new DatabaseAndIcons
                 {
                     Database = db,
                     Icons = iconCollection
@@ -1131,7 +1123,7 @@ namespace KeePassRPC
             var customIcons = new List<IconData>(database.CustomIcons.Count);
             foreach (var ci in database.CustomIcons)
             {
-                customIcons.Add(new IconData()
+                customIcons.Add(new IconData
                 {
                     Id = ci.Uuid.ToHexString(),
                     Icon = _iconConverter.iconToBase64(ci.Uuid, PwIcon.Key)
@@ -1140,7 +1132,7 @@ namespace KeePassRPC
 
             var standardIcons = _iconConverter.Base64StandardIconsUnknownToClient(ClientMetadata);
 
-            return new IconCollection()
+            return new IconCollection
             {
                 DatabaseIcon = IconCache<string>.GetIconEncoding(database.IOConnectionInfo.Path) ?? "",
                 DatabaseFilename = database.IOConnectionInfo.Path,
@@ -1228,7 +1220,7 @@ namespace KeePassRPC
             // if uniqueID is supplied, match just that one login. if not found, move on to search the content of the logins...
             if (!string.IsNullOrEmpty(uuid))
             {
-                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
+                PwUuid pwuuid = new PwUuid(MemUtil.HexStringToByteArray(uuid));
 
                 //foreach DB...
                 foreach (PwDatabase db in dbs)
@@ -1250,8 +1242,8 @@ namespace KeePassRPC
                 //foreach DB...
                 foreach (PwDatabase db in dbs)
                 {
-                    KeePassLib.Collections.PwObjectList<PwEntry> output =
-                        new KeePassLib.Collections.PwObjectList<PwEntry>();
+                    PwObjectList<PwEntry> output =
+                        new PwObjectList<PwEntry>();
 
                     PwGroup searchGroup = GetRootPwGroup(db);
                     //output = searchGroup.GetEntries(true);
@@ -1303,8 +1295,8 @@ namespace KeePassRPC
                 {
                     var dbConf = db.GetKPRPCConfig();
 
-                    KeePassLib.Collections.PwObjectList<PwEntry> output =
-                        new KeePassLib.Collections.PwObjectList<PwEntry>();
+                    PwObjectList<PwEntry> output =
+                        new PwObjectList<PwEntry>();
 
                     PwGroup searchGroup = GetRootPwGroup(db);
                     output = searchGroup.GetEntries(true);
@@ -1344,7 +1336,7 @@ namespace KeePassRPC
                                 try
                                 {
                                     if (!string.IsNullOrEmpty(regexPattern) &&
-                                        System.Text.RegularExpressions.Regex.IsMatch(url, regexPattern))
+                                        Regex.IsMatch(url, regexPattern))
                                     {
                                         entryIsAMatch = true;
                                         bestMatchAccuracy = MatchAccuracy.Best;
@@ -1395,7 +1387,7 @@ namespace KeePassRPC
                                     try
                                     {
                                         if (!string.IsNullOrEmpty(pattern) &&
-                                            System.Text.RegularExpressions.Regex.IsMatch(url, pattern))
+                                            Regex.IsMatch(url, pattern))
                                         {
                                             entryIsAMatch = false;
                                             break;
