@@ -1,6 +1,6 @@
 namespace KeePassRPC.JsonRpc
 {
-    interface IJsonRpcClientMetadataProperty
+    internal interface IJsonRpcClientMetadataProperty
     {
         ClientMetadata ClientMetadata { get; }
     }

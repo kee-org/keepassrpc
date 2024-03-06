@@ -120,12 +120,12 @@ namespace KeePassRPC.Models.Persistent
                    && AreEqual(RegExURLs, p.RegExURLs);
         }
 
-        bool AreEqual<T>(T[] a, T[] b)
+        private bool AreEqual<T>(T[] a, T[] b)
         {
             return AreEqual(a, b, EqualityComparer<T>.Default);
         }
 
-        bool AreEqual<T>(T[] a, T[] b, IEqualityComparer<T> comparer)
+        private bool AreEqual<T>(T[] a, T[] b, IEqualityComparer<T> comparer)
         {
             if (a == null && b == null)
             {

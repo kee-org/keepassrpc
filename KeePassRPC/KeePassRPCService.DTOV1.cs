@@ -68,7 +68,8 @@ namespace KeePassRPC
                 FormFieldType htmlType = Utilities.FieldTypeToFormFieldType(ff.Type);
 
                 // Currently we can only have one custommatcher. If that changes and someone tries to use this old version with a newer DB things will break so they will have to upgrade again to fix it.
-                var customMatcherConfig = ff.MatcherConfigs.FirstOrDefault(mc => mc != null && mc.CustomMatcher != null);
+                var customMatcherConfig =
+                    ff.MatcherConfigs.FirstOrDefault(mc => mc != null && mc.CustomMatcher != null);
                 if (customMatcherConfig != null)
                 {
                     if (customMatcherConfig.CustomMatcher.Names != null)
@@ -106,10 +107,10 @@ namespace KeePassRPC
                     htmlType = FormFieldType.FFTusername;
                 }
 
-                ffValue = ff.ValuePath == "." ? ff.Value : KeePassRPCPlugin.GetPwEntryString(pwe, ff.ValuePath, db);
+                ffValue = ff.ValuePath == "." ? ff.Value : _keePassRpcPlugin.GetPwEntryString(pwe, ff.ValuePath, db);
 
                 string derefValue = enablePlaceholders
-                    ? KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ffValue, db)
+                    ? _keePassRpcPlugin.GetPwEntryStringFromDereferencableValue(pwe, ffValue, db)
                     : ffValue;
 
                 if (fullDetails)
@@ -126,7 +127,7 @@ namespace KeePassRPC
                 }
             }
 
-            string imageData = iconConverter.iconToBase64(pwe.CustomIconUuid, pwe.IconId);
+            string imageData = _iconConverter.iconToBase64(pwe.CustomIconUuid, pwe.IconId);
             //Debug.WriteLine("GetEntryFromPwEntry icon converted: " + sw.Elapsed);
 
             if (fullDetails)
@@ -208,7 +209,7 @@ namespace KeePassRPC
             //Debug.Indent();
             //Stopwatch sw = Stopwatch.StartNew();
 
-            string imageData = iconConverter.iconToBase64(pwg.CustomIconUuid, pwg.IconId);
+            string imageData = _iconConverter.iconToBase64(pwg.CustomIconUuid, pwg.IconId);
 
             Group kpg = new Group(pwg.Name, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes),
                 imageData, pwg.GetFullPath("/", false));
@@ -239,7 +240,7 @@ namespace KeePassRPC
                     rt.ChildGroups = GetChildGroups(pwd, pwg, true, fullDetail);
 
                 Database kpd = new Database(pwd.Name, pwd.IOConnectionInfo.Path, rt,
-                    (pwd == host.Database) ? true : false,
+                    (pwd == _host.Database) ? true : false,
                     IconCache<string>.GetIconEncoding(pwd.IOConnectionInfo.Path) ?? "");
                 //  sw.Stop();
                 //  Debug.WriteLine("GetDatabaseFromPwDatabase execution time: " + sw.Elapsed);
@@ -248,8 +249,8 @@ namespace KeePassRPC
             }
             catch (Exception ex)
             {
-                if (KeePassRPCPlugin.logger != null)
-                    KeePassRPCPlugin.logger.WriteLine("Failed to parse database. Exception: " + ex);
+                if (_keePassRpcPlugin.logger != null)
+                    _keePassRpcPlugin.logger.WriteLine("Failed to parse database. Exception: " + ex);
                 return null;
             }
         }
@@ -259,7 +260,8 @@ namespace KeePassRPC
             IGuidService guidService = new GuidService();
             bool firstPasswordFound = false;
             EntryConfigv2 conf =
-                (new EntryConfigv1(host.Database.GetKPRPCConfig().DefaultMatchAccuracy)).ConvertToV2(new GuidService());
+                (new EntryConfigv1(_host.Database.GetKPRPCConfig().DefaultMatchAccuracy))
+                .ConvertToV2(new GuidService());
             List<Field> fields = new List<Field>();
 
             // Go through each form field, mostly just making a copy but with occasional tweaks such as default username and password selection
@@ -280,7 +282,7 @@ namespace KeePassRPC
                         MatcherConfigs = new[] { mc }
                     });
                     pwe.Strings.Set(PwDefs.PasswordField,
-                        new ProtectedString(host.Database.MemoryProtection.ProtectPassword, kpff.Value));
+                        new ProtectedString(_host.Database.MemoryProtection.ProtectPassword, kpff.Value));
                     firstPasswordFound = true;
                 }
                 else if (kpff.Type == FormFieldType.FFTusername)
@@ -297,7 +299,7 @@ namespace KeePassRPC
                         MatcherConfigs = new[] { mc }
                     });
                     pwe.Strings.Set(PwDefs.UserNameField,
-                        new ProtectedString(host.Database.MemoryProtection.ProtectUserName, kpff.Value));
+                        new ProtectedString(_host.Database.MemoryProtection.ProtectUserName, kpff.Value));
                 }
                 else
                 {
@@ -339,7 +341,7 @@ namespace KeePassRPC
                         mc.UrlMatchMethod = MatchAccuracyMethod.Hostname;
                     }
 
-                    pwe.Strings.Set("URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, url ?? ""));
+                    pwe.Strings.Set("URL", new ProtectedString(_host.Database.MemoryProtection.ProtectUrl, url ?? ""));
                 }
                 else
                     altURLs.Add(url);
@@ -351,7 +353,7 @@ namespace KeePassRPC
 
             // Set some of the string fields
             pwe.Strings.Set(PwDefs.TitleField,
-                new ProtectedString(host.Database.MemoryProtection.ProtectTitle, login.Title ?? ""));
+                new ProtectedString(_host.Database.MemoryProtection.ProtectTitle, login.Title ?? ""));
 
             // update the icon for this entry (in most cases we'll 
             // just detect that it is the same standard icon as before)
@@ -359,7 +361,7 @@ namespace KeePassRPC
             PwIcon iconId = PwIcon.Key;
             if (login.IconImageData != null
                 && login.IconImageData.Length > 0
-                && iconConverter.base64ToIcon(ClientMetadata, login.IconImageData, ref customIconUUID, ref iconId))
+                && _iconConverter.base64ToIcon(ClientMetadata, login.IconImageData, ref customIconUUID, ref iconId))
             {
                 if (customIconUUID == PwUuid.Zero)
                     pwe.IconId = iconId;
@@ -373,46 +375,46 @@ namespace KeePassRPC
         #endregion
 
 
-/// <summary>
-/// Returns a list of every entry in the database
-/// </summary>
-/// <param name="urlRequired">true = URL field must exist for a child entry to be returned, false = all entries are returned</param>
-/// <param name="current__"></param>
-/// <returns>all logins in the database subject to the urlRequired setting</returns>
-public Entry[] getAllLogins(bool urlRequired)
-{
-    int count = 0;
-    List<Entry> allEntries = new List<Entry>();
-
-    // Make sure there is an active database
-    if (!ensureDBisOpen())
-    {
-        return null;
-    }
-
-    KeePassLib.Collections.PwObjectList<PwEntry> output;
-    output = GetRootPwGroup(host.Database).GetEntries(true);
-
-    foreach (PwEntry pwe in output)
-    {
-        if (EntryIsInRecycleBin(pwe, host.Database))
-            continue; // ignore if it's in the recycle bin
-
-        if (urlRequired && string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
-            continue; // ignore if it has no URL
-
-        Entry kpe = (Entry)GetEntryFromPwEntry(pwe, MatchAccuracy.None, true, host.Database, true);
-        if (kpe != null) // is null if entry is marked as hidden from KPRPC
+        /// <summary>
+        /// Returns a list of every entry in the database
+        /// </summary>
+        /// <param name="urlRequired">true = URL field must exist for a child entry to be returned, false = all entries are returned</param>
+        /// <param name="current__"></param>
+        /// <returns>all logins in the database subject to the urlRequired setting</returns>
+        public Entry[] getAllLogins(bool urlRequired)
         {
-            allEntries.Add(kpe);
-            count++;
+            int count = 0;
+            List<Entry> allEntries = new List<Entry>();
+
+            // Make sure there is an active database
+            if (!EnsureDBisOpen())
+            {
+                return null;
+            }
+
+            KeePassLib.Collections.PwObjectList<PwEntry> output;
+            output = GetRootPwGroup(_host.Database).GetEntries(true);
+
+            foreach (PwEntry pwe in output)
+            {
+                if (EntryIsInRecycleBin(pwe, _host.Database))
+                    continue; // ignore if it's in the recycle bin
+
+                if (urlRequired && string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
+                    continue; // ignore if it has no URL
+
+                Entry kpe = (Entry)GetEntryFromPwEntry(pwe, MatchAccuracy.None, true, _host.Database, true);
+                if (kpe != null) // is null if entry is marked as hidden from KPRPC
+                {
+                    allEntries.Add(kpe);
+                    count++;
+                }
+            }
+
+            allEntries.Sort(delegate(Entry e1, Entry e2) { return e1.Title.CompareTo(e2.Title); });
+
+            return allEntries.ToArray();
         }
-    }
-
-    allEntries.Sort(delegate(Entry e1, Entry e2) { return e1.Title.CompareTo(e2.Title); });
-
-    return allEntries.ToArray();
-}
 
 
         /// <summary>
@@ -516,6 +518,5 @@ public Entry[] getAllLogins(bool urlRequired)
 
             return allGroups.ToArray();
         }
-
     }
 }

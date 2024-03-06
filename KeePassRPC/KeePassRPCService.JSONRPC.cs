@@ -28,7 +28,7 @@ namespace KeePassRPC
         public void LaunchGroupEditor(string uuid, string dbFileName)
         {
             // Make sure there is an active database
-            if (!ensureDBisOpen()) return;
+            if (!EnsureDBisOpen()) return;
 
             // find the database
             PwDatabase db = SelectDatabase(dbFileName);
@@ -42,7 +42,7 @@ namespace KeePassRPC
                 if (matchedGroup == null)
                     throw new Exception("Could not find requested entry.");
 
-                host.MainWindow.BeginInvoke(new dlgOpenGroupEditorWindow(openGroupEditorWindow), matchedGroup, db);
+                _host.MainWindow.BeginInvoke(new dlgOpenGroupEditorWindow(openGroupEditorWindow), matchedGroup, db);
             }
         }
 
@@ -54,7 +54,7 @@ namespace KeePassRPC
         public void LaunchLoginEditor(string uuid, string dbFileName)
         {
             // Make sure there is an active database
-            if (!ensureDBisOpen()) return;
+            if (!EnsureDBisOpen()) return;
 
             // find the database
             PwDatabase db = SelectDatabase(dbFileName);
@@ -68,7 +68,7 @@ namespace KeePassRPC
                 if (matchedLogin == null)
                     throw new Exception("Could not find requested entry.");
 
-                host.MainWindow.BeginInvoke(new dlgOpenLoginEditorWindow(OpenLoginEditorWindow), matchedLogin, db);
+                _host.MainWindow.BeginInvoke(new dlgOpenLoginEditorWindow(OpenLoginEditorWindow), matchedLogin, db);
             }
         }
 
@@ -77,10 +77,10 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public Configuration GetCurrentKFConfig()
         {
-            bool autoCommit = host.CustomConfig.GetBool("KeePassRPC.KeeFox.autoCommit", true);
-            string[] MRUList = new string[host.MainWindow.FileMruList.ItemCount];
-            for (uint i = 0; i < host.MainWindow.FileMruList.ItemCount; i++)
-                MRUList[i] = ((IOConnectionInfo)host.MainWindow.FileMruList.GetItem(i).Value).Path;
+            bool autoCommit = _host.CustomConfig.GetBool("KeePassRPC.KeeFox.autoCommit", true);
+            string[] MRUList = new string[_host.MainWindow.FileMruList.ItemCount];
+            for (uint i = 0; i < _host.MainWindow.FileMruList.ItemCount; i++)
+                MRUList[i] = ((IOConnectionInfo)_host.MainWindow.FileMruList.GetItem(i).Value).Path;
 
             Configuration currentConfig = new Configuration(MRUList, autoCommit);
             return currentConfig;
@@ -147,15 +147,15 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public string GetDatabaseName()
         {
-            if (!host.Database.IsOpen)
+            if (!_host.Database.IsOpen)
                 return "";
-            return (host.Database.Name.Length > 0 ? host.Database.Name : "no name");
+            return (_host.Database.Name.Length > 0 ? _host.Database.Name : "no name");
         }
 
         [JsonRpcMethod]
         public string GetDatabaseFileName()
         {
-            return host.Database.IOConnectionInfo.Path;
+            return _host.Database.IOConnectionInfo.Path;
         }
 
         /// <summary>
@@ -179,10 +179,10 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public void ChangeDatabase(string fileName, bool closeCurrent)
         {
-            if (closeCurrent && host.MainWindow.DocumentManager.ActiveDatabase != null &&
-                host.MainWindow.DocumentManager.ActiveDatabase.IsOpen)
+            if (closeCurrent && _host.MainWindow.DocumentManager.ActiveDatabase != null &&
+                _host.MainWindow.DocumentManager.ActiveDatabase.IsOpen)
             {
-                host.MainWindow.DocumentManager.CloseDatabase(host.MainWindow.DocumentManager.ActiveDatabase);
+                _host.MainWindow.DocumentManager.CloseDatabase(_host.MainWindow.DocumentManager.ActiveDatabase);
             }
 
             IOConnectionInfo ioci = SelectActiveDatabase(fileName);
@@ -202,12 +202,12 @@ namespace KeePassRPC
                 return;
             locationId = locationId.ToLower();
 
-            host.CustomConfig.SetString("KeePassRPC.currentLocation", locationId);
-            host.MainWindow.Invoke((MethodInvoker)delegate { host.MainWindow.SaveConfig(); });
+            _host.CustomConfig.SetString("KeePassRPC.currentLocation", locationId);
+            _host.MainWindow.Invoke((MethodInvoker)delegate { _host.MainWindow.SaveConfig(); });
 
             // tell all RPC clients they need to refresh their representation of the KeePass data
-            if (host.Database.IsOpen)
-                KeePassRPCPlugin.SignalAllManagedRPCClients(Signal.DATABASE_SELECTED);
+            if (_host.Database.IsOpen)
+                _keePassRpcPlugin.SignalAllManagedRPCClients(Signal.DATABASE_SELECTED);
 
             return;
         }
@@ -250,10 +250,10 @@ namespace KeePassRPC
                 return "";
 
             ProtectedString newPassword = new ProtectedString();
-            PwGenerator.Generate(out newPassword, profile, null, host.PwGeneratorPool);
+            PwGenerator.Generate(out newPassword, profile, null, _host.PwGeneratorPool);
             var password = newPassword.ReadString();
 
-            if (host.CustomConfig.GetBool("KeePassRPC.KeeFox.backupNewPasswords", true))
+            if (_host.CustomConfig.GetBool("KeePassRPC.KeeFox.backupNewPasswords", true))
                 AddPasswordBackupLogin(password, url);
 
             return password;
@@ -272,13 +272,13 @@ namespace KeePassRPC
         public bool RemoveEntry(string uuid)
         {
             // Make sure there is an active database
-            if (!ensureDBisOpen()) return false;
+            if (!EnsureDBisOpen()) return false;
 
             if (uuid != null && uuid.Length > 0)
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                PwEntry matchedLogin = GetRootPwGroup(host.Database).FindEntry(pwuuid, true);
+                PwEntry matchedLogin = GetRootPwGroup(_host.Database).FindEntry(pwuuid, true);
 
                 if (matchedLogin == null)
                     throw new Exception("Could not find requested entry.");
@@ -288,9 +288,9 @@ namespace KeePassRPC
 
                 matchedLoginParent.Entries.Remove(matchedLogin);
 
-                PwGroup recycleBin = host.Database.RootGroup.FindGroup(host.Database.RecycleBinUuid, true);
+                PwGroup recycleBin = _host.Database.RootGroup.FindGroup(_host.Database.RecycleBinUuid, true);
 
-                if (host.Database.RecycleBinEnabled == false)
+                if (_host.Database.RecycleBinEnabled == false)
                 {
                     if (!KeePassLib.Utility.MessageService.AskYesNo(KPRes.DeleteEntriesQuestionSingle,
                             KPRes.DeleteEntriesTitleSingle))
@@ -299,7 +299,7 @@ namespace KeePassRPC
                     PwDeletedObject pdo = new PwDeletedObject();
                     pdo.Uuid = matchedLogin.Uuid;
                     pdo.DeletionTime = DateTime.Now;
-                    host.Database.DeletedObjects.Add(pdo);
+                    _host.Database.DeletedObjects.Add(pdo);
                 }
                 else
                 {
@@ -308,9 +308,9 @@ namespace KeePassRPC
                         recycleBin = new PwGroup(true, true, KPRes.RecycleBin, PwIcon.TrashBin);
                         recycleBin.EnableAutoType = false;
                         recycleBin.EnableSearching = false;
-                        host.Database.RootGroup.AddGroup(recycleBin, true);
+                        _host.Database.RootGroup.AddGroup(recycleBin, true);
 
-                        host.Database.RecycleBinUuid = recycleBin.Uuid;
+                        _host.Database.RecycleBinUuid = recycleBin.Uuid;
                     }
 
                     recycleBin.AddEntry(matchedLogin, true);
@@ -318,7 +318,7 @@ namespace KeePassRPC
                 }
 
                 //matchedLogin.ParentGroup.Entries.Remove(matchedLogin);
-                host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), host.Database);
+                _host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), _host.Database);
                 return true;
             }
 
@@ -334,13 +334,13 @@ namespace KeePassRPC
         public bool RemoveGroup(string uuid)
         {
             // Make sure there is an active database
-            if (!ensureDBisOpen()) return false;
+            if (!EnsureDBisOpen()) return false;
 
             if (uuid != null && uuid.Length > 0)
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                PwGroup matchedGroup = GetRootPwGroup(host.Database).FindGroup(pwuuid, true);
+                PwGroup matchedGroup = GetRootPwGroup(_host.Database).FindGroup(pwuuid, true);
 
                 if (matchedGroup == null)
                     throw new Exception("Could not find requested entry.");
@@ -350,9 +350,9 @@ namespace KeePassRPC
 
                 matchedGroupParent.Groups.Remove(matchedGroup);
 
-                PwGroup recycleBin = host.Database.RootGroup.FindGroup(host.Database.RecycleBinUuid, true);
+                PwGroup recycleBin = _host.Database.RootGroup.FindGroup(_host.Database.RecycleBinUuid, true);
 
-                if (host.Database.RecycleBinEnabled == false)
+                if (_host.Database.RecycleBinEnabled == false)
                 {
                     if (!KeePassLib.Utility.MessageService.AskYesNo(KPRes.DeleteGroupQuestion, KPRes.DeleteGroupTitle))
                         return false;
@@ -360,7 +360,7 @@ namespace KeePassRPC
                     PwDeletedObject pdo = new PwDeletedObject();
                     pdo.Uuid = matchedGroup.Uuid;
                     pdo.DeletionTime = DateTime.Now;
-                    host.Database.DeletedObjects.Add(pdo);
+                    _host.Database.DeletedObjects.Add(pdo);
                 }
                 else
                 {
@@ -369,16 +369,16 @@ namespace KeePassRPC
                         recycleBin = new PwGroup(true, true, KPRes.RecycleBin, PwIcon.TrashBin);
                         recycleBin.EnableAutoType = false;
                         recycleBin.EnableSearching = false;
-                        host.Database.RootGroup.AddGroup(recycleBin, true);
+                        _host.Database.RootGroup.AddGroup(recycleBin, true);
 
-                        host.Database.RecycleBinUuid = recycleBin.Uuid;
+                        _host.Database.RecycleBinUuid = recycleBin.Uuid;
                     }
 
                     recycleBin.AddGroup(matchedGroup, true);
                     matchedGroup.Touch(false);
                 }
 
-                host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), host.Database);
+                _host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), _host.Database);
 
                 return true;
             }
@@ -402,7 +402,7 @@ namespace KeePassRPC
         public Entry AddLogin(Entry login, string parentUUID, string dbFileName)
         {
             // Make sure there is an active database
-            if (!ensureDBisOpen()) return null;
+            if (!EnsureDBisOpen()) return null;
 
             PwEntry newLogin = new PwEntry(true, true);
 
@@ -425,10 +425,10 @@ namespace KeePassRPC
 
             parentGroup.AddEntry(newLogin, true);
 
-            if (host.CustomConfig.GetBool("KeePassRPC.KeeFox.editNewEntries", false))
-                host.MainWindow.BeginInvoke(new dlgOpenLoginEditorWindow(OpenLoginEditorWindow), newLogin, chosenDB);
+            if (_host.CustomConfig.GetBool("KeePassRPC.KeeFox.editNewEntries", false))
+                _host.MainWindow.BeginInvoke(new dlgOpenLoginEditorWindow(OpenLoginEditorWindow), newLogin, chosenDB);
             else
-                host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), chosenDB);
+                _host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), chosenDB);
 
             Entry output = (Entry)GetEntryFromPwEntry(newLogin, MatchAccuracy.Best, true, chosenDB);
 
@@ -445,20 +445,20 @@ namespace KeePassRPC
         public Group AddGroup(string name, string parentUUID)
         {
             // Make sure there is an active database
-            if (!ensureDBisOpen()) return null;
+            if (!EnsureDBisOpen()) return null;
 
             PwGroup newGroup = new PwGroup(true, true);
             newGroup.Name = name;
 
-            PwGroup parentGroup = GetRootPwGroup(host.Database); // if in doubt we'll stick it in the root folder
+            PwGroup parentGroup = GetRootPwGroup(_host.Database); // if in doubt we'll stick it in the root folder
 
             if (parentUUID != null && parentUUID.Length > 0)
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(parentUUID));
 
-                PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid
-                    ? host.Database.RootGroup
-                    : host.Database.RootGroup.FindGroup(pwuuid, true);
+                PwGroup matchedGroup = _host.Database.RootGroup.Uuid == pwuuid
+                    ? _host.Database.RootGroup
+                    : _host.Database.RootGroup.FindGroup(pwuuid, true);
 
                 if (matchedGroup != null)
                     parentGroup = matchedGroup;
@@ -466,7 +466,7 @@ namespace KeePassRPC
 
             parentGroup.AddGroup(newGroup, true);
 
-            host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), host.Database);
+            _host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), _host.Database);
 
             Group output = GetGroupFromPwGroup(newGroup);
 
@@ -496,7 +496,7 @@ namespace KeePassRPC
                 throw new ArgumentException("dbFileName was not passed to the updateLogin function");
 
             // Make sure there is an active database
-            if (!ensureDBisOpen()) return null;
+            if (!EnsureDBisOpen()) return null;
 
             // There are odd bits of the resulting new login that we don't
             // need but the vast majority is going to be useful
@@ -513,7 +513,7 @@ namespace KeePassRPC
 
             MergeEntries(entryToUpdate, newLoginData, urlMergeMode, chosenDB);
 
-            host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), chosenDB);
+            _host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), chosenDB);
 
             Entry updatedEntry = (Entry)GetEntryFromPwEntry(entryToUpdate, MatchAccuracy.Best, true, chosenDB);
 
@@ -532,10 +532,10 @@ namespace KeePassRPC
             Group output;
 
             // Make sure there is an active database
-            if (!ensureDBisOpen()) return null;
+            if (!EnsureDBisOpen()) return null;
 
             PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
-            PwGroup rootGroup = GetRootPwGroup(host.Database);
+            PwGroup rootGroup = GetRootPwGroup(_host.Database);
 
             try
             {
@@ -570,7 +570,7 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public Group GetRoot()
         {
-            return GetGroupFromPwGroup(GetRootPwGroup(host.Database));
+            return GetGroupFromPwGroup(GetRootPwGroup(_host.Database));
         }
 
         [JsonRpcMethod]
@@ -579,7 +579,7 @@ namespace KeePassRPC
             Debug.Indent();
             Stopwatch sw = Stopwatch.StartNew();
 
-            List<PwDatabase> dbs = host.MainWindow.DocumentManager.GetOpenDatabases();
+            List<PwDatabase> dbs = _host.MainWindow.DocumentManager.GetOpenDatabases();
             // unless the DB is the wrong version
             dbs = dbs.FindAll(ConfigIsCorrectVersion);
             List<Database> output = new List<Database>(1);
@@ -640,7 +640,7 @@ namespace KeePassRPC
             PwGroup matchedGroup;
             matchedGroup = findMatchingGroup(uuid);
 
-            return (Entry[])GetChildEntries(host.Database, matchedGroup, true, true);
+            return (Entry[])GetChildEntries(_host.Database, matchedGroup, true, true);
         }
 
         /// <summary>
@@ -655,7 +655,7 @@ namespace KeePassRPC
             PwGroup matchedGroup;
             matchedGroup = findMatchingGroup(uuid);
 
-            return (Entry[])GetChildEntries(host.Database, matchedGroup, true, false);
+            return (Entry[])GetChildEntries(_host.Database, matchedGroup, true, false);
         }
 
         /// <summary>
@@ -670,7 +670,7 @@ namespace KeePassRPC
             PwGroup matchedGroup;
             matchedGroup = findMatchingGroup(uuid);
 
-            return GetChildGroups(host.Database, matchedGroup, false, true);
+            return GetChildGroups(_host.Database, matchedGroup, false, true);
         }
 
         /// <summary>
@@ -688,7 +688,7 @@ namespace KeePassRPC
             if (uuid != null && uuid.Length > 0)
             {
                 // Make sure there is an active database
-                if (!ensureDBisOpen())
+                if (!EnsureDBisOpen())
                 {
                     groups = null;
                     return -1;
@@ -696,9 +696,9 @@ namespace KeePassRPC
 
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid
-                    ? host.Database.RootGroup
-                    : host.Database.RootGroup.FindGroup(pwuuid, true);
+                PwGroup matchedGroup = _host.Database.RootGroup.Uuid == pwuuid
+                    ? _host.Database.RootGroup
+                    : _host.Database.RootGroup.FindGroup(pwuuid, true);
 
                 if (matchedGroup == null)
                     throw new Exception(
@@ -748,7 +748,7 @@ namespace KeePassRPC
             else
             {
                 // if DB list is not populated, look in all open DBs
-                dbs = host.MainWindow.DocumentManager.GetOpenDatabases();
+                dbs = _host.MainWindow.DocumentManager.GetOpenDatabases();
                 // unless the DB is the wrong version
                 dbs = dbs.FindAll(ConfigIsCorrectVersion);
             }
@@ -757,7 +757,7 @@ namespace KeePassRPC
             string actionHost = actionURL;
 
             // Make sure there is an active database
-            if (!ensureDBisOpen())
+            if (!EnsureDBisOpen())
             {
                 return null;
             }
@@ -852,7 +852,7 @@ namespace KeePassRPC
                     {
                         string entryUserName = pwe.Strings.ReadSafe(PwDefs.UserNameField);
                         entryUserName =
-                            KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, entryUserName, db);
+                            _keePassRpcPlugin.GetPwEntryStringFromDereferencableValue(pwe, entryUserName, db);
                         if (EntryIsInRecycleBin(pwe, db))
                             continue; // ignore if it's in the recycle bin
 
@@ -992,13 +992,14 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public Entry2 AddEntry(Entry2 entry, string parentUuid, string dbFileName)
         {
-            if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
+            if (ClientMetadata == null || ClientMetadata.Features == null ||
+                !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
             {
                 throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
             }
-            
+
             // Make sure there is an active database
-            if (!ensureDBisOpen()) return null;
+            if (!EnsureDBisOpen()) return null;
 
             PwEntry newLogin = new PwEntry(true, true);
 
@@ -1021,10 +1022,10 @@ namespace KeePassRPC
 
             parentGroup.AddEntry(newLogin, true);
 
-            if (host.CustomConfig.GetBool("KeePassRPC.KeeFox.editNewEntries", false))
-                host.MainWindow.BeginInvoke(new dlgOpenLoginEditorWindow(OpenLoginEditorWindow), newLogin, chosenDb);
+            if (_host.CustomConfig.GetBool("KeePassRPC.KeeFox.editNewEntries", false))
+                _host.MainWindow.BeginInvoke(new dlgOpenLoginEditorWindow(OpenLoginEditorWindow), newLogin, chosenDb);
             else
-                host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), chosenDb);
+                _host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), chosenDb);
 
             return (Entry2)GetEntry2FromPwEntry(newLogin, MatchAccuracy.Best, true, chosenDb, true);
         }
@@ -1044,11 +1045,12 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public Entry2 UpdateEntry(Entry2 entry, string oldLoginUuid, int urlMergeMode, string dbFileName)
         {
-            if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
+            if (ClientMetadata == null || ClientMetadata.Features == null ||
+                !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
             {
                 throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
             }
-            
+
             if (entry == null)
                 throw new ArgumentException("(new) entry was not passed to the updateEntry function");
             if (string.IsNullOrEmpty(oldLoginUuid))
@@ -1057,7 +1059,7 @@ namespace KeePassRPC
                 throw new ArgumentException("dbFileName was not passed to the updateEntry function");
 
             // Make sure there is an active database
-            if (!ensureDBisOpen()) return null;
+            if (!EnsureDBisOpen()) return null;
 
             // There are odd bits of the resulting new entry that we don't
             // need but the vast majority is going to be useful
@@ -1074,7 +1076,7 @@ namespace KeePassRPC
 
             MergeEntries(entryToUpdate, newPwEntryData, urlMergeMode, chosenDb);
 
-            host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), chosenDb);
+            _host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), chosenDb);
 
             return (Entry2)GetEntry2FromPwEntry(entryToUpdate, MatchAccuracy.Best, true, chosenDb, true);
         }
@@ -1082,14 +1084,18 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public DatabaseAndIcons[] AllDatabasesAndIcons(bool fullDetails)
         {
-            if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
+            if (ClientMetadata == null || ClientMetadata.Features == null ||
+                !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
             {
                 throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
             }
-            if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_ICON_REFERENCES"))
+
+            if (ClientMetadata == null || ClientMetadata.Features == null ||
+                !ClientMetadata.Features.Contains("KPRPC_FEATURE_ICON_REFERENCES"))
             {
                 throw new Exception("Client feature missing: KPRPC_FEATURE_ICON_REFERENCES");
             }
+
             var dis = new List<DatabaseAndIcons>();
             var dbs = AllDatabases(fullDetails);
             foreach (var db in dbs)
@@ -1108,26 +1114,31 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public IconCollection AllIcons(string dbFileName)
         {
-            if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
+            if (ClientMetadata == null || ClientMetadata.Features == null ||
+                !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
             {
                 throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
             }
-            if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_ICON_REFERENCES"))
+
+            if (ClientMetadata == null || ClientMetadata.Features == null ||
+                !ClientMetadata.Features.Contains("KPRPC_FEATURE_ICON_REFERENCES"))
             {
                 throw new Exception("Client feature missing: KPRPC_FEATURE_ICON_REFERENCES");
             }
-            var database = host.MainWindow.DocumentManager.GetOpenDatabases().Single(db => db.IOConnectionInfo.Path == dbFileName);
+
+            var database = _host.MainWindow.DocumentManager.GetOpenDatabases()
+                .Single(db => db.IOConnectionInfo.Path == dbFileName);
             var customIcons = new List<IconData>(database.CustomIcons.Count);
             foreach (var ci in database.CustomIcons)
             {
                 customIcons.Add(new IconData()
                 {
                     Id = ci.Uuid.ToHexString(),
-                    Icon = iconConverter.iconToBase64(ci.Uuid, PwIcon.Key)
+                    Icon = _iconConverter.iconToBase64(ci.Uuid, PwIcon.Key)
                 });
             }
 
-            var standardIcons = iconConverter.Base64StandardIconsUnknownToClient(ClientMetadata);
+            var standardIcons = _iconConverter.Base64StandardIconsUnknownToClient(ClientMetadata);
 
             return new IconCollection()
             {
@@ -1142,15 +1153,16 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public Database2[] AllDatabases(bool fullDetails)
         {
-            if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
+            if (ClientMetadata == null || ClientMetadata.Features == null ||
+                !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
             {
                 throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
             }
-            
+
             Debug.Indent();
             Stopwatch sw = Stopwatch.StartNew();
 
-            List<PwDatabase> dbs = host.MainWindow.DocumentManager.GetOpenDatabases();
+            List<PwDatabase> dbs = _host.MainWindow.DocumentManager.GetOpenDatabases();
             // unless the DB is the wrong version
             dbs = dbs.FindAll(ConfigIsCorrectVersion);
             List<Database2> output = new List<Database2>(1);
@@ -1182,7 +1194,8 @@ namespace KeePassRPC
         public Entry2[] FindEntries(string[] unsanitisedUrls, bool requireFullUrlMatches,
             string uuid, string dbFileName, string freeTextSearch, string username)
         {
-            if (ClientMetadata == null || ClientMetadata.Features == null || !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
+            if (ClientMetadata == null || ClientMetadata.Features == null ||
+                !ClientMetadata.Features.Contains("KPRPC_FEATURE_DTO_V2"))
             {
                 throw new Exception("Client feature missing: KPRPC_FEATURE_DTO_V2");
             }
@@ -1201,13 +1214,13 @@ namespace KeePassRPC
             else
             {
                 // if DB list is not populated, look in all open DBs
-                dbs = host.MainWindow.DocumentManager.GetOpenDatabases();
+                dbs = _host.MainWindow.DocumentManager.GetOpenDatabases();
                 // unless the DB is the wrong version
                 dbs = dbs.FindAll(ConfigIsCorrectVersion);
             }
 
             // Make sure there is an active database
-            if (!ensureDBisOpen())
+            if (!EnsureDBisOpen())
             {
                 return null;
             }
@@ -1302,7 +1315,7 @@ namespace KeePassRPC
                     {
                         string entryUserName = pwe.Strings.ReadSafe(PwDefs.UserNameField);
                         entryUserName =
-                            KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, entryUserName, db);
+                            _keePassRpcPlugin.GetPwEntryStringFromDereferencableValue(pwe, entryUserName, db);
                         if (EntryIsInRecycleBin(pwe, db))
                             continue; // ignore if it's in the recycle bin
 

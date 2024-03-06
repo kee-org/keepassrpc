@@ -3,7 +3,7 @@ using KeePassRPC.Models.DataExchange;
 
 namespace KeePassRPC
 {
-    class SRP
+    internal class SRP
     {
         private BigInteger _N;
         private string _Nstr;

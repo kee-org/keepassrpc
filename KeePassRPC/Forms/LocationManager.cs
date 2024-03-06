@@ -11,7 +11,7 @@ namespace KeePassRPC.Forms
 {
     public partial class LocationManager : Form
     {
-        KeePassRPCExt _plugin;
+        private KeePassRPCExt _plugin;
 
         public LocationManager(KeePassRPCExt plugin)
         {

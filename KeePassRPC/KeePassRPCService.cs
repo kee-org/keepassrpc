@@ -28,17 +28,15 @@ namespace KeePassRPC
     {
         #region Class variables, constructor and destructor
 
-        KeePassRPCExt KeePassRPCPlugin;
-        Version PluginVersion;
-        IPluginHost host;
-        IconConverter iconConverter;
+        private readonly KeePassRPCExt _keePassRpcPlugin;
+        private readonly IPluginHost _host;
+        private readonly IconConverter _iconConverter;
 
         public KeePassRPCService(IPluginHost host, string[] standardIconsBase64, KeePassRPCExt plugin)
         {
-            KeePassRPCPlugin = plugin;
-            PluginVersion = KeePassRPCExt.PluginVersion;
-            this.host = host;
-            this.iconConverter = new IconConverter(host, KeePassRPCPlugin, standardIconsBase64);
+            _keePassRpcPlugin = plugin;
+            this._host = host;
+            this._iconConverter = new IconConverter(host, _keePassRpcPlugin, standardIconsBase64);
         }
 
         #endregion
@@ -48,25 +46,19 @@ namespace KeePassRPC
         /// <summary>
         /// Halts thread until a DB is open in the KeePass application
         /// </summary>
-        /// <remarks>This simple thread sync may not work if more than one RPC client gets involved.</remarks>
-        private bool ensureDBisOpen()
+        private bool EnsureDBisOpen()
         {
-            if (!host.Database.IsOpen)
+            if (!_host.Database.IsOpen)
             {
-                //ensureDBisOpenEWH.Reset(); // ensures we will wait even if DB has been opened previously.
-                // maybe tiny opportunity for deadlock if user opens DB exactly between DB.IsOpen and this statement?
-                // TODO2: consider moving above statement to top of method - shouldn't do any harm and could rule out rare deadlock?
-                host.MainWindow.BeginInvoke((MethodInvoker)delegate { promptUserToOpenDB(null, true); });
-                //ensureDBisOpenEWH.WaitOne(15000, false); // wait until DB has been opened
-
-                if (!host.Database.IsOpen)
+                _host.MainWindow.BeginInvoke((MethodInvoker)delegate { PromptUserToOpenDb(null, true); });
+                if (!_host.Database.IsOpen)
                     return false;
             }
 
             return true;
         }
 
-        void promptUserToOpenDB(IOConnectionInfo ioci, bool returnFocus)
+        private void PromptUserToOpenDb(IOConnectionInfo ioci, bool returnFocus)
         {
             //TODO: find out z-index of firefox and push keepass just behind it rather than right to the back
             //TODO: focus open DB dialog box if it's there
@@ -101,7 +93,7 @@ namespace KeePassRPC
 
             // refresh the UI in case user cancelled the dialog box and/or KeePass 
             // native calls have left us in a bit of a weird state
-            host.MainWindow.UpdateUI(true, null, true, null, true, null, false);
+            _host.MainWindow.UpdateUI(true, null, true, null, true, null, false);
 
             // Set the program state back to what is was unless the user has
             // configured "lock on minimise" in which case we always set it to Normal
@@ -123,7 +115,7 @@ namespace KeePassRPC
             if (returnFocus) Native.EnsureForegroundWindow(ffWindow);
         }
 
-        bool showOpenDB(IOConnectionInfo ioci)
+        private bool showOpenDB(IOConnectionInfo ioci)
         {
             // KeePass does this on "show window" keypress. Not sure what it does but most likely does no harm to check here too
             if (KeePass.Program.MainForm.UIIsInteractionBlocked())
@@ -141,48 +133,48 @@ namespace KeePassRPC
 
         private delegate void dlgUpdateUINoSave();
 
-        void updateUINoSave()
+        private void updateUINoSave()
         {
-            host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
+            _host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
         }
 
         private delegate void dlgSaveDB(PwDatabase databaseToSave);
 
-        void saveDB(PwDatabase databaseToSave)
+        private void saveDB(PwDatabase databaseToSave)
         {
             // store current active tab/db
-            PwDocument currentActiveDoc = host.MainWindow.DocumentManager.ActiveDocument;
+            PwDocument currentActiveDoc = _host.MainWindow.DocumentManager.ActiveDocument;
 
             // change active tab
-            PwDocument doc = host.MainWindow.DocumentManager.FindDocument(databaseToSave);
-            host.MainWindow.DocumentManager.ActiveDocument = doc;
+            PwDocument doc = _host.MainWindow.DocumentManager.FindDocument(databaseToSave);
+            _host.MainWindow.DocumentManager.ActiveDocument = doc;
 
-            if (host.CustomConfig.GetBool("KeePassRPC.KeeFox.autoCommit", true))
+            if (_host.CustomConfig.GetBool("KeePassRPC.KeeFox.autoCommit", true))
             {
                 // save active database & update UI appearance
-                if (host.MainWindow.UIFileSave(false))
-                    host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
+                if (_host.MainWindow.UIFileSave(false))
+                    _host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
             }
             else
             {
                 // update ui with "changed" flag                
-                host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
+                _host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
             }
 
             // change tab back
-            host.MainWindow.DocumentManager.ActiveDocument = currentActiveDoc;
+            _host.MainWindow.DocumentManager.ActiveDocument = currentActiveDoc;
         }
 
-        void openGroupEditorWindow(PwGroup pg, PwDatabase db)
+        private void openGroupEditorWindow(PwGroup pg, PwDatabase db)
         {
             using (GroupForm gf = new GroupForm())
             {
-                gf.InitEx(pg, false, host.MainWindow.ClientIcons, host.Database);
+                gf.InitEx(pg, false, _host.MainWindow.ClientIcons, _host.Database);
 
                 gf.BringToFront();
                 gf.ShowInTaskbar = true;
 
-                host.MainWindow.Focus();
+                _host.MainWindow.Focus();
                 gf.TopMost = true;
                 gf.Focus();
                 gf.Activate();
@@ -193,16 +185,16 @@ namespace KeePassRPC
 
         private delegate void dlgOpenGroupEditorWindow(PwGroup pg, PwDatabase db);
 
-        void OpenLoginEditorWindow(PwEntry pe, PwDatabase db)
+        private void OpenLoginEditorWindow(PwEntry pe, PwDatabase db)
         {
             using (PwEntryForm ef = new PwEntryForm())
             {
-                ef.InitEx(pe, PwEditMode.EditExistingEntry, host.Database, host.MainWindow.ClientIcons, false, false);
+                ef.InitEx(pe, PwEditMode.EditExistingEntry, _host.Database, _host.MainWindow.ClientIcons, false, false);
 
                 ef.BringToFront();
                 ef.ShowInTaskbar = true;
 
-                host.MainWindow.Focus();
+                _host.MainWindow.Focus();
                 ef.TopMost = true;
                 ef.Focus();
                 ef.Activate();
@@ -215,13 +207,13 @@ namespace KeePassRPC
         private delegate void dlgOpenLoginEditorWindow(PwEntry pg, PwDatabase db);
 
         // A similar function is defined in KeePass MainForm_functions.cs but it's internal
-        IOConnectionInfo CompleteConnectionInfoUsingMru(IOConnectionInfo ioc)
+        private IOConnectionInfo CompleteConnectionInfoUsingMru(IOConnectionInfo ioc)
         {
             if (string.IsNullOrEmpty(ioc.UserName) && string.IsNullOrEmpty(ioc.Password))
             {
-                for (uint u = 0; u < host.MainWindow.FileMruList.ItemCount; ++u)
+                for (uint u = 0; u < _host.MainWindow.FileMruList.ItemCount; ++u)
                 {
-                    IOConnectionInfo iocMru = (host.MainWindow.FileMruList.GetItem(u).Value as IOConnectionInfo);
+                    IOConnectionInfo iocMru = (_host.MainWindow.FileMruList.GetItem(u).Value as IOConnectionInfo);
                     if (iocMru == null)
                     {
                         continue;
@@ -240,7 +232,6 @@ namespace KeePassRPC
 
         #endregion
 
-
         public static bool IsNet35OrNewer()
         {
             return Type.GetType("System.GCCollectionMode", false) != null;
@@ -255,7 +246,6 @@ namespace KeePassRPC
         {
             return Type.GetType("System.Runtime.GCLargeObjectHeapCompactionMode", false) != null;
         }
-        //TODO:1.6: Newer .NET versions
 
         private IOConnectionInfo SelectActiveDatabase(string fileName)
         {
@@ -279,21 +269,21 @@ namespace KeePassRPC
             //
             //TODO: Need to verify this works OK with unusual circumstances like one DB open but others locked
             if (ioci != null)
-                foreach (PwDocument doc in host.MainWindow.DocumentManager.Documents)
+                foreach (PwDocument doc in _host.MainWindow.DocumentManager.Documents)
                     if (doc.LockedIoc.Path == fileName ||
                         (doc.Database.IsOpen && doc.Database.IOConnectionInfo.Path == fileName))
-                        host.MainWindow.DocumentManager.ActiveDocument = doc;
+                        _host.MainWindow.DocumentManager.ActiveDocument = doc;
 
             // before explicitly asking user to log into the correct DB we'll set up a "fake" document in KeePass
             // in the hope that the minimise/restore trick will get KeePass to prompt the user on our behalf
             // (regardless of state of existing documents and newly requested document)
             if (ioci != null
-                && !(host.MainWindow.DocumentManager.ActiveDocument.Database.IsOpen &&
-                     host.MainWindow.DocumentManager.ActiveDocument.Database.IOConnectionInfo.Path == fileName)
-                && !(!host.MainWindow.DocumentManager.ActiveDocument.Database.IsOpen &&
-                     host.MainWindow.DocumentManager.ActiveDocument.LockedIoc.Path == fileName))
+                && !(_host.MainWindow.DocumentManager.ActiveDocument.Database.IsOpen &&
+                     _host.MainWindow.DocumentManager.ActiveDocument.Database.IOConnectionInfo.Path == fileName)
+                && !(!_host.MainWindow.DocumentManager.ActiveDocument.Database.IsOpen &&
+                     _host.MainWindow.DocumentManager.ActiveDocument.LockedIoc.Path == fileName))
             {
-                PwDocument doc = host.MainWindow.DocumentManager.CreateNewDocument(true);
+                PwDocument doc = _host.MainWindow.DocumentManager.CreateNewDocument(true);
                 doc.LockedIoc = ioci;
             }
 
@@ -302,16 +292,16 @@ namespace KeePassRPC
 
         private void OpenIfRequired(IOConnectionInfo ioci, bool returnFocus)
         {
-            host.MainWindow.BeginInvoke((MethodInvoker)delegate { promptUserToOpenDB(ioci, returnFocus); });
+            _host.MainWindow.BeginInvoke((MethodInvoker)delegate { PromptUserToOpenDb(ioci, returnFocus); });
         }
 
         private void AddPasswordBackupLogin(string password, string url)
         {
-            if (!host.Database.IsOpen)
+            if (!_host.Database.IsOpen)
                 return;
 
             PwDatabase chosenDB = SelectDatabase("");
-            var parentGroup = KeePassRPCPlugin.GetAndInstallKeePasswordBackupGroup(chosenDB);
+            var parentGroup = _keePassRpcPlugin.GetAndInstallKeePasswordBackupGroup(chosenDB);
 
             string explanatoryNote = "This entry is a backup of a password generated by Kee. " +
                                      "It is not visible to Kee. You can edit it to make it visible but we recommend " +
@@ -336,7 +326,7 @@ namespace KeePassRPC
 
             // We can't save the database at this point because KeePass steals
             // window focus while saving; that breaks Firefox's Australis UI panels.
-            host.MainWindow.BeginInvoke(new dlgUpdateUINoSave(updateUINoSave));
+            _host.MainWindow.BeginInvoke(new dlgUpdateUINoSave(updateUINoSave));
 
             return;
         }
@@ -345,8 +335,6 @@ namespace KeePassRPC
         // because the actual MAM to apply may have been modified based upon the specific URL(s) that
         // we're being asked to match against (the URLs shown in the browser rather than those 
         // contained within the entry)
-        
-        
         public static int BestMatchAccuracyForAnyURL(PwEntry pwe, EntryConfigv2 conf, string url, URLSummary urlSummary,
             MatchAccuracyMethod mam)
         {
@@ -414,9 +402,8 @@ namespace KeePassRPC
             return bestMatchSoFar;
         }
 
-        private bool
-            matchesAnyBlockedURL(PwEntry pwe, EntryConfigv2 conf,
-                string url) // hostname-wide blocks are not natively supported but can be emulated using an appropriate regex
+        // hostname-wide blocks are not natively supported but can be emulated using an appropriate regex
+        private bool matchesAnyBlockedURL(PwEntry pwe, EntryConfigv2 conf, string url)
         {
             if (conf.BlockedUrls != null)
                 foreach (string altURL in conf.BlockedUrls)
@@ -424,8 +411,7 @@ namespace KeePassRPC
                         return true;
             return false;
         }
-        
-        
+
         /// <summary>
         /// Finds the group that matches a UUID, else return the root group
         /// </summary>
@@ -438,13 +424,13 @@ namespace KeePassRPC
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                matchedGroup = host.Database.RootGroup.Uuid == pwuuid
-                    ? host.Database.RootGroup
-                    : host.Database.RootGroup.FindGroup(pwuuid, true);
+                matchedGroup = _host.Database.RootGroup.Uuid == pwuuid
+                    ? _host.Database.RootGroup
+                    : _host.Database.RootGroup.FindGroup(pwuuid, true);
             }
             else
             {
-                matchedGroup = GetRootPwGroup(host.Database);
+                matchedGroup = GetRootPwGroup(_host.Database);
             }
 
             if (matchedGroup == null)
@@ -467,7 +453,7 @@ namespace KeePassRPC
             return false;
         }
 
-        
+
         private bool ConfigIsCorrectVersion(PwDatabase db)
         {
             if (db.GetKPRPCConfig().Version == 3)
@@ -488,12 +474,12 @@ namespace KeePassRPC
         public PwGroup GetRootPwGroup(PwDatabase pwd, string location)
         {
             if (pwd == null)
-                pwd = host.Database;
+                pwd = _host.Database;
 
             if (!string.IsNullOrEmpty(location))
             {
                 // If any listed group UUID is found in this database, set it as the Kee home group
-                string rootGroupsConfig = host.CustomConfig
+                string rootGroupsConfig = _host.CustomConfig
                     .GetString("KeePassRPC.knownLocations." + location + ".RootGroups", "");
                 string[] rootGroups = new string[0];
 
@@ -503,9 +489,9 @@ namespace KeePassRPC
                     foreach (string rootGroupId in rootGroups)
                     {
                         PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(rootGroupId));
-                        PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid
-                            ? host.Database.RootGroup
-                            : host.Database.RootGroup.FindGroup(pwuuid, true);
+                        PwGroup matchedGroup = _host.Database.RootGroup.Uuid == pwuuid
+                            ? _host.Database.RootGroup
+                            : _host.Database.RootGroup.FindGroup(pwuuid, true);
 
                         if (matchedGroup == null)
                             continue;
@@ -531,9 +517,9 @@ namespace KeePassRPC
                     throw new Exception(
                         "Could not find requested group. Have you deleted your Kee home group? Set a new one and try again.");
 
-                var rid = host.Database.RecycleBinUuid;
+                var rid = _host.Database.RecycleBinUuid;
                 if (rid != null && rid != PwUuid.Zero &&
-                    matchedGroup.IsOrIsContainedIn(host.Database.RootGroup.FindGroup(rid, true)))
+                    matchedGroup.IsOrIsContainedIn(_host.Database.RootGroup.FindGroup(rid, true)))
                     throw new Exception(
                         "Kee home group is in the Recycle Bin. Restore the group or set a new home group and try again.");
 
@@ -559,14 +545,14 @@ namespace KeePassRPC
             destination.CreateBackup(db);
 
             destination.Strings.Set("Title", new ProtectedString(
-                host.Database.MemoryProtection.ProtectTitle, source.Strings.ReadSafe("Title")));
+                _host.Database.MemoryProtection.ProtectTitle, source.Strings.ReadSafe("Title")));
             destConfig.HttpRealm = sourceConfig.HttpRealm;
             destination.IconId = source.IconId;
             destination.CustomIconUuid = source.CustomIconUuid;
             destination.Strings.Set("UserName", new ProtectedString(
-                host.Database.MemoryProtection.ProtectUserName, source.Strings.ReadSafe("UserName")));
+                _host.Database.MemoryProtection.ProtectUserName, source.Strings.ReadSafe("UserName")));
             destination.Strings.Set("Password", new ProtectedString(
-                host.Database.MemoryProtection.ProtectPassword, source.Strings.ReadSafe("Password")));
+                _host.Database.MemoryProtection.ProtectPassword, source.Strings.ReadSafe("Password")));
             destConfig.Fields = sourceConfig.Fields;
 
             // This algorithm could probably be made more efficient (lots of O(n) operations
@@ -613,7 +599,8 @@ namespace KeePassRPC
             }
 
             // These might not have changed but meh
-            destination.Strings.Set("URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, destURLs[0]));
+            destination.Strings.Set("URL",
+                new ProtectedString(_host.Database.MemoryProtection.ProtectUrl, destURLs[0]));
             destConfig.AltUrls = new string[0];
             if (destURLs.Count > 1)
                 destConfig.AltUrls = destURLs.GetRange(1, destURLs.Count - 1).ToArray();
@@ -643,16 +630,15 @@ namespace KeePassRPC
                 }
             }
         }
-
-
+        
         private PwDatabase SelectDatabase(string dbFileName)
         {
-            PwDatabase chosenDB = host.Database;
+            PwDatabase chosenDB = _host.Database;
             if (!string.IsNullOrEmpty(dbFileName))
             {
                 try
                 {
-                    List<PwDatabase> allDBs = host.MainWindow.DocumentManager.GetOpenDatabases();
+                    List<PwDatabase> allDBs = _host.MainWindow.DocumentManager.GetOpenDatabases();
                     foreach (PwDatabase db in allDBs)
                         if (db.IOConnectionInfo.Path == dbFileName)
                         {
@@ -668,14 +654,14 @@ namespace KeePassRPC
 
             return chosenDB;
         }
-        
+
         /// <summary>
         /// Return the root group of the active database for the current location
         /// </summary>
         /// <returns>the root group</returns>
         private PwGroup GetRootPwGroup(PwDatabase pwd)
         {
-            string locationId = host.CustomConfig
+            string locationId = _host.CustomConfig
                 .GetString("KeePassRPC.currentLocation", "");
             return GetRootPwGroup(pwd, locationId);
         }

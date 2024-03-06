@@ -65,10 +65,10 @@ namespace KeePassRPC
 
                 string ffValue = field.ValuePath == "."
                     ? field.Value
-                    : KeePassRPCPlugin.GetPwEntryString(pwe, field.ValuePath, db);
+                    : _keePassRpcPlugin.GetPwEntryString(pwe, field.ValuePath, db);
 
                 string derefValue = enablePlaceholders
-                    ? KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ffValue, db)
+                    ? _keePassRpcPlugin.GetPwEntryStringFromDereferencableValue(pwe, ffValue, db)
                     : ffValue;
 
                 if (fullDetails)
@@ -96,7 +96,7 @@ namespace KeePassRPC
                 }
             }
 
-            Icon icon = iconConverter.iconToDto(ClientMetadata, pwe.CustomIconUuid, pwe.IconId);
+            Icon icon = _iconConverter.iconToDto(ClientMetadata, pwe.CustomIconUuid, pwe.IconId);
 
             if (fullDetails)
             {
@@ -106,7 +106,7 @@ namespace KeePassRPC
 
                 var temp = fields.ToArray();
                 var mc = (ClientMetadata != null && ClientMetadata.Features != null &&
-                          ClientMetadata.Features.Contains("ENTRY_CLIENT_MATCHERS"))
+                          ClientMetadata.Features.Contains("KPRPC_FEATURE_ENTRY_CLIENT_MATCHERS"))
                     ? conf.MatcherConfigs
                     : null;
                 Entry2 kpe = new Entry2(
@@ -131,7 +131,7 @@ namespace KeePassRPC
 
         private Group2 GetGroup2FromPwGroup(PwGroup pwg)
         {
-            Icon icon = iconConverter.iconToDto(ClientMetadata, pwg.CustomIconUuid, pwg.IconId);
+            Icon icon = _iconConverter.iconToDto(ClientMetadata, pwg.CustomIconUuid, pwg.IconId);
 
             Group2 kpg = new Group2(pwg.Name, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes),
                 icon, pwg.GetFullPath("/", false));
@@ -168,7 +168,7 @@ namespace KeePassRPC
                     };
 
                 Database2 kpd = new Database2(pwd.Name, pwd.IOConnectionInfo.Path, rt,
-                    (pwd == host.Database) ? true : false, icon);
+                    (pwd == _host.Database) ? true : false, icon);
                 //  sw.Stop();
                 //  Debug.WriteLine("GetDatabaseFromPwDatabase execution time: " + sw.Elapsed);
                 //  Debug.Unindent();
@@ -176,8 +176,8 @@ namespace KeePassRPC
             }
             catch (Exception ex)
             {
-                if (KeePassRPCPlugin.logger != null)
-                    KeePassRPCPlugin.logger.WriteLine("Failed to parse database. Exception: " + ex);
+                if (_keePassRpcPlugin.logger != null)
+                    _keePassRpcPlugin.logger.WriteLine("Failed to parse database. Exception: " + ex);
                 return null;
             }
         }
@@ -185,7 +185,8 @@ namespace KeePassRPC
         private void setPwEntryFromEntry2(PwEntry pwe, Entry2 entry)
         {
             EntryConfigv2 conf =
-                (new EntryConfigv1(host.Database.GetKPRPCConfig().DefaultMatchAccuracy)).ConvertToV2(new GuidService());
+                (new EntryConfigv1(_host.Database.GetKPRPCConfig().DefaultMatchAccuracy))
+                .ConvertToV2(new GuidService());
             List<Field> fields = new List<Field>();
 
             foreach (ResolvedField incomingField in entry.Fields)
@@ -193,12 +194,12 @@ namespace KeePassRPC
                 if (incomingField.ValuePath == PwDefs.PasswordField)
                 {
                     pwe.Strings.Set(PwDefs.PasswordField,
-                        new ProtectedString(host.Database.MemoryProtection.ProtectPassword, incomingField.Value));
+                        new ProtectedString(_host.Database.MemoryProtection.ProtectPassword, incomingField.Value));
                 }
                 else if (incomingField.ValuePath == PwDefs.UserNameField)
                 {
                     pwe.Strings.Set(PwDefs.UserNameField,
-                        new ProtectedString(host.Database.MemoryProtection.ProtectUserName, incomingField.Value));
+                        new ProtectedString(_host.Database.MemoryProtection.ProtectUserName, incomingField.Value));
                 }
 
                 fields.Add(new Field()
@@ -237,7 +238,7 @@ namespace KeePassRPC
                         mc.UrlMatchMethod = MatchAccuracyMethod.Hostname;
                     }
 
-                    pwe.Strings.Set("URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, url ?? ""));
+                    pwe.Strings.Set("URL", new ProtectedString(_host.Database.MemoryProtection.ProtectUrl, url ?? ""));
                 }
                 else
                     altUrls.Add(url);
@@ -249,14 +250,14 @@ namespace KeePassRPC
 
             // Set some of the string fields
             pwe.Strings.Set(PwDefs.TitleField,
-                new ProtectedString(host.Database.MemoryProtection.ProtectTitle, entry.Title ?? ""));
+                new ProtectedString(_host.Database.MemoryProtection.ProtectTitle, entry.Title ?? ""));
 
             // update the icon for this entry (in most cases we'll 
             // just detect that it is the same standard icon as before)
             PwUuid customIconUuid = PwUuid.Zero;
             PwIcon iconId = PwIcon.Key;
             if (entry.Icon != null
-                && iconConverter.dtoToIcon(ClientMetadata, entry.Icon, ref customIconUuid, ref iconId))
+                && _iconConverter.dtoToIcon(ClientMetadata, entry.Icon, ref customIconUuid, ref iconId))
             {
                 if (customIconUuid == PwUuid.Zero)
                     pwe.IconId = iconId;

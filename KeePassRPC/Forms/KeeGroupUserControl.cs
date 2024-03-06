@@ -11,15 +11,15 @@ namespace KeePassRPC.Forms
 {
     public partial class KeeGroupUserControl : UserControl
     {
-        KeePassRPCExt KeePassRPCPlugin;
+        private KeePassRPCExt KeePassRPCPlugin;
 
-        PwGroup _group;
+        private PwGroup _group;
 
-        KeeHomeStatus _status = KeeHomeStatus.Unknown;
+        private KeeHomeStatus _status = KeeHomeStatus.Unknown;
 
-        string _location = "";
+        private string _location = "";
 
-        KeeHomeStatus Status { get {
+        private KeeHomeStatus Status { get {
             if (_status == KeeHomeStatus.Unknown)
             {
                 PwGroup _rootGroup = KeePassRPCPlugin.RPCService.GetRootPwGroup(KeePassRPCPlugin._host.Database, _location);
@@ -184,7 +184,7 @@ the recycle bin if you want Kee to work with this group.";
 
     }
 
-    enum KeeHomeStatus
+    internal enum KeeHomeStatus
     {
         Unknown,
         Rubbish,

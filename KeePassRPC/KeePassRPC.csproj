@@ -427,25 +427,21 @@
       copy "$(ProjectDir)Forms\*.cs" "%25KPPTempDir%25\Forms"
       copy "$(ProjectDir)Forms\*.resx" "%25KPPTempDir%25\Forms"
       if errorlevel 1 goto BuildEventFailed
-
-//TODO: Windows build update...
-      mkdir "${KPPTempDir}\Models"
-      mkdir "${KPPTempDir}\Models\DataExchange"
-      mkdir "${KPPTempDir}\Models\DataExchange\V2"
-      mkdir "${KPPTempDir}\Models\Persistent"
-      mkdir "${KPPTempDir}\Models\Shared"
-      mkdir "${KPPTempDir}\Models\Transient"
-      cp "$(ProjectDir)Models\"*.cs "${KPPTempDir}\Models"
-      cp "$(ProjectDir)Models\DataExchange\"*.cs "${KPPTempDir}\Models\DataExchange"
-      cp "$(ProjectDir)Models\DataExchange\V2\"*.cs "${KPPTempDir}\Models\DataExchange\V2"
-      cp "$(ProjectDir)Models\Persistent\"*.cs "${KPPTempDir}\Models\Persistent"
-      cp "$(ProjectDir)Models\Shared\"*.cs "${KPPTempDir}\Models\Shared"
-      cp "$(ProjectDir)Models\Transient\"*.cs "${KPPTempDir}\Models\Transient"
-      if [ $? = 1 ]; then echo POSTBUILDSTEP for $(ProjectName) FAILED - copy Models sources; exit 1; fi
-      mkdir "${KPPTempDir}\JsonRpc"
-      cp "$(ProjectDir)JsonRpc\"*.cs "${KPPTempDir}\JsonRpc"
-      if [ $? = 1 ]; then echo POSTBUILDSTEP for $(ProjectName) FAILED - copy JsonRpc sources; exit 1; fi
-
+      mkdir "%25KPPTempDir%25\Models"
+      mkdir "%25KPPTempDir%25\Models\DataExchange"
+      mkdir "%25KPPTempDir%25\Models\DataExchange\V2"
+      mkdir "%25KPPTempDir%25\Models\Persistent"
+      mkdir "%25KPPTempDir%25\Models\Shared"
+      mkdir "%25KPPTempDir%25\Models\Transient"
+      copy "$(ProjectDir)Models\DataExchange\"*.cs "%25KPPTempDir%25\Models\DataExchange"
+      copy "$(ProjectDir)Models\DataExchange\V2\"*.cs "%25KPPTempDir%25\Models\DataExchange\V2"
+      copy "$(ProjectDir)Models\Persistent\"*.cs "%25KPPTempDir%25\Models\Persistent"
+      copy "$(ProjectDir)Models\Shared\"*.cs "%25KPPTempDir%25\Models\Shared"
+      copy "$(ProjectDir)Models\Transient\"*.cs "%25KPPTempDir%25\Models\Transient"
+      if errorlevel 1 goto BuildEventFailed
+      mkdir "%25KPPTempDir%25\JsonRpc"
+      copy "$(ProjectDir)JsonRpc\"*.cs "%25KPPTempDir%25\JsonRpc"
+      if errorlevel 1 goto BuildEventFailed
 
       mkdir "%25KPPTempDir%25\Properties"
       copy "$(ProjectDir)Properties\AssemblyInfo.cs" "%25KPPTempDir%25\Properties\AssemblyInfo.cs"

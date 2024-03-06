@@ -3,13 +3,13 @@ using KeePassRPC.Models.DataExchange;
 
 namespace KeePassRPC
 {
-    class KeyChallengeResponse
+    internal class KeyChallengeResponse
     {
         public string cc;
         public string cr;
         public string sc;
         public string sr;
-        static int ProtocolVersion;
+        private static int ProtocolVersion;
         private string[] features;
 
         public KeyChallengeResponse (int protocolVersion, string[] features)

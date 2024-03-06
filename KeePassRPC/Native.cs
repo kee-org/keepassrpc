@@ -12,7 +12,7 @@ using KeePassLib.Utility;
 
 namespace KeePassRPC
 {
-    class Native
+    internal class Native
     {
         //from: KeePass and http://stackoverflow.com/questions/46030/c-force-form-focus/46092#46092
 
@@ -347,11 +347,11 @@ namespace KeePassRPC
         //http://www.codeproject.com/KB/cs/CapturingMinimizedWindow.aspx
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool SystemParametersInfo(uint uiAction, uint uiParam,
+        private static extern bool SystemParametersInfo(uint uiAction, uint uiParam,
          ref ANIMATIONINFO pvParam, SPIF fWinIni);
 
         [Flags]
-           enum SPIF
+        private enum SPIF
            {
                None = 0x00,
                SPIF_UPDATEINIFILE = 0x01,  // Writes the new system-wide parameter setting to the user profile.

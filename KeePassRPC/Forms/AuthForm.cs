@@ -21,7 +21,7 @@ namespace KeePassRPC.Forms
         private string ClientName;
         private string ClientDescription;
         private string Password;
-        KeePassRPCClientConnection Connection;
+        private KeePassRPCClientConnection Connection;
 
         public AuthForm(KeePassRPCClientConnection connection, string securityLevel, string clientName,
             string clientDescription, string password)

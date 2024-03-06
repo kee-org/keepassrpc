@@ -24,12 +24,12 @@ namespace KeePassRPC.Forms
     public partial class KeeEntryUserControl : UserControl
     {
         private PwEntry _entry;
-        KeePassRPCExt KeePassRPCPlugin;
-        PwEntryForm _pwEntryForm;
-        ProtectedStringDictionary _strings;
-        StringDictionaryEx _cd;
-        EntryConfigv2 _conf;
-        DatabaseConfig _dbConf;
+        private KeePassRPCExt KeePassRPCPlugin;
+        private PwEntryForm _pwEntryForm;
+        private ProtectedStringDictionary _strings;
+        private StringDictionaryEx _cd;
+        private EntryConfigv2 _conf;
+        private DatabaseConfig _dbConf;
 
         public KeeEntryUserControl(KeePassRPCExt keePassRPCPlugin, PwEntry entry,
             CustomListViewEx advancedListView, PwEntryForm pwEntryForm, ProtectedStringDictionary strings, StringDictionaryEx customData)
@@ -255,7 +255,7 @@ namespace KeePassRPC.Forms
             }
         }
 
-        EntryAutomationBehaviour _currentAutomationBehaviour = EntryAutomationBehaviour.Default;
+        private EntryAutomationBehaviour _currentAutomationBehaviour = EntryAutomationBehaviour.Default;
 
         private void changeBehaviourState(EntryAutomationBehaviour behav)
         {
@@ -308,10 +308,10 @@ namespace KeePassRPC.Forms
             _currentAutomationBehaviour = behav;
         }
 
-        List<string> listNormalURLs = new List<string>();
-        List<string> listRegExURLs = new List<string>();
-        List<string> listNormalBlockedURLs = new List<string>();
-        List<string> listRegExBlockedURLs = new List<string>();
+        private List<string> listNormalURLs = new List<string>();
+        private List<string> listRegExURLs = new List<string>();
+        private List<string> listNormalBlockedURLs = new List<string>();
+        private List<string> listRegExBlockedURLs = new List<string>();
 
         private void buttonURLAdd_Click(object sender, EventArgs e)
         {

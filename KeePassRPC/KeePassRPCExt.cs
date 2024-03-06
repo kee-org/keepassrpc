@@ -238,7 +238,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             return new string[] { "resource://gre-resources", "ms-browser-extension://", "safari-web-extension://", "moz-extension://", "chrome-extension://" };
         }
 
-        string GetLocalConfigLocation()
+        private string GetLocalConfigLocation()
         {
             string strBaseDirName = PwDefs.ShortProductName;
             if (!string.IsNullOrEmpty(KeePass.App.Configuration.AppConfigSerializer.BaseName))
@@ -260,7 +260,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             return strUserDir + strBaseDirName + Path.DirectorySeparatorChar;
         }
 
-        void GlobalWindowManager_WindowAdded(object sender, GwmWindowEventArgs e)
+        private void GlobalWindowManager_WindowAdded(object sender, GwmWindowEventArgs e)
         {
             var ef = e.Form as PwEntryForm;
             if (ef != null)
@@ -283,7 +283,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             }
         }
 
-        void databaseSettingsFormShown(object sender, EventArgs e)
+        private void databaseSettingsFormShown(object sender, EventArgs e)
         {
             TabControl mainTabControl = null;
             var dsf = sender as DatabaseSettingsForm;
@@ -316,7 +316,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             mainTabControl.TabPages.Add(keeTabPage);
         }
 
-        void editGroupFormShown(object sender, EventArgs e)
+        private void editGroupFormShown(object sender, EventArgs e)
         {
             GroupForm form = sender as GroupForm;
             PwGroup group = null;
@@ -349,7 +349,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             }
         }
 
-        void editEntryFormShown(object sender, EventArgs e)
+        private void editEntryFormShown(object sender, EventArgs e)
         {
             PwEntryForm form = sender as PwEntryForm;
             PwEntry entry = null;
@@ -394,7 +394,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
         }
 
         // still useful for tracking server versions I reckon...
-        bool refreshVersionInfo(IPluginHost host)
+        private bool refreshVersionInfo(IPluginHost host)
         {
             bool upgrading = false;
             int majorOld = (int)host.CustomConfig.GetULong("KeePassRPC.version.major", 0);
@@ -416,7 +416,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             return upgrading;
         }
 
-        void OnToolsOptions(object sender, EventArgs e)
+        private void OnToolsOptions(object sender, EventArgs e)
         {
             using (KeePassRPC.Forms.OptionsForm ofDlg = new KeePassRPC.Forms.OptionsForm(_host, this))
                 ofDlg.ShowDialog();
@@ -799,7 +799,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
 
         private delegate void dlgSaveDB(PwDatabase databaseToSave);
 
-        void saveDB(PwDatabase databaseToSave)
+        private void saveDB(PwDatabase databaseToSave)
         {
             // save active database & update UI appearance
             if (_host.MainWindow.UIFileSave(true))

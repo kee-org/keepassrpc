@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 namespace KeePassRPC
 {
-    static class Utils
+    internal static class Utils
     {
 
         internal static byte[] Hash(string data)

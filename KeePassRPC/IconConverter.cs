@@ -14,9 +14,9 @@ namespace KeePassRPC
 {
     public class IconConverter
     {
-        IPluginHost host;
-        KeePassRPCExt KeePassRPCPlugin;
-        string[] _standardIconsBase64;
+        private IPluginHost host;
+        private KeePassRPCExt KeePassRPCPlugin;
+        private string[] _standardIconsBase64;
 
         public IconConverter(IPluginHost host, KeePassRPCExt plugin, string[] _standardIconsBase64)
         {

@@ -21,7 +21,8 @@ namespace KeePassRPC
     {
         // wanted to use uint really but that seems to break Jayrock JSON-RPC - presumably because there is no such concept in JavaScript
         static private int _protocolVersion = 0;
-        static int ProtocolVersion { get {
+
+        private static int ProtocolVersion { get {
             if (_protocolVersion == 0)
             {
                 _protocolVersion = BitConverter.ToInt32(new byte[] {
@@ -101,7 +102,7 @@ namespace KeePassRPC
         }
 
         private KeePassRPC.Forms.AuthForm _authForm;
-        KeePassRPCExt KPRPC = null;
+        private KeePassRPCExt KPRPC = null;
         
         /// <summary>
         /// The underlying web socket connection that links us to this client.
@@ -447,7 +448,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
             WebSocketConnection.Send(response);
         }
 
-        void KPRPCReceiveSetup (KPRPCMessage kprpcm) {
+        private void KPRPCReceiveSetup (KPRPCMessage kprpcm) {
 
             if (Authorised)
             {
@@ -561,7 +562,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
 
   	    }
 
-  	    string SRPIdentifyToServer (KPRPCMessage srpem)
+        private string SRPIdentifyToServer (KPRPCMessage srpem)
         {
             SRPParams srp = srpem.srp;
             Error error;
@@ -629,7 +630,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
         private delegate void HideAuthDialogDelegate();
 
 
-        void ShowAuthDialog(string securityLevel, string name, string description, string password)
+        private void ShowAuthDialog(string securityLevel, string name, string description, string password)
         {
             if (_authForm != null)
                 _authForm.Hide();
@@ -637,7 +638,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
             _authForm.Show();
         }
 
-        void HideAuthDialog()
+        private void HideAuthDialog()
         {
             if (_authForm != null)
                 _authForm.Hide();
@@ -651,7 +652,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
                 KPRPC.InvokeMainThread(new HideAuthDialogDelegate(HideAuthDialog));
         }
 
-        string SRPProofToServer(KPRPCMessage srpem)
+        private string SRPProofToServer(KPRPCMessage srpem)
         {
             SRPParams srp = srpem.srp;
 
@@ -695,7 +696,7 @@ See https://forum.kee.pm/t/3143/ for more information.",
             return Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client);
   	    }
 
-        void KPRPCReceiveJSONRPC(JSONRPCContainer jsonrpcEncrypted, KeePassRPCService service)
+        private void KPRPCReceiveJSONRPC(JSONRPCContainer jsonrpcEncrypted, KeePassRPCService service)
         {
             string jsonrpc = Decrypt(jsonrpcEncrypted);
             StringBuilder sb = new StringBuilder();

@@ -3,7 +3,7 @@ using Jayrock.Services;
 
 namespace KeePassRPC.JsonRpc
 {
-    sealed class KprpcJsonRpcDispatcher : Jayrock.JsonRpc.JsonRpcDispatcher
+    internal sealed class KprpcJsonRpcDispatcher : Jayrock.JsonRpc.JsonRpcDispatcher
     {
         public ClientMetadata ClientMetadata;
 

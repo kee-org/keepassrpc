@@ -1,6 +1,6 @@
 namespace KeePassRPC.JsonRpc
 {
-    interface IJsonRpcRequestLifetimeNotice
+    internal interface IJsonRpcRequestLifetimeNotice
     {
         void OnStart(ClientMetadata cm);
         void OnEnd();
