@@ -393,10 +393,19 @@ See https://forum.kee.pm/t/3143/ for more information.",
                 AbortWithMessageToClient(data2client);
                 return;
             }
+            
+            // store supplied features until connection reset so we don't have to inject
+            // them into every stage of the handshake but can still cleanly handle old 
+            // versions of clients that don't send a list of features at any time.
+            //TODO: Only do this for setup protocol? and/or if _clientFeatures has not already been
+            //set for this connection. Changing features mid-connection seems odd and might be an attack vector.
+            if (kprpcm.features != null)
+                _clientFeatures = kprpcm.features;
 
+            // Assume that a matching client and server protocol version mean that the client supports the required features
             if (kprpcm.version != ProtocolVersion)
             {
-                if (!ClientSupportsRequiredFeatures(kprpcm.features))
+                if (!ClientSupportsRequiredFeatures())
                 {
                     RejectClientVersion(kprpcm);
                     return;
@@ -420,15 +429,9 @@ See https://forum.kee.pm/t/3143/ for more information.",
 
         }
 
-        private bool ClientSupportsRequiredFeatures(string[] features)
+        private bool ClientSupportsRequiredFeatures()
         {
-            // store supplied features until connection reset so we don't have to inject
-            // them into every stage of the handshake but can still cleanly handle old 
-            // versions of clients that don't send a list of features at any time.
-            if (features != null)
-                _clientFeatures = features;
-
-            return _clientFeatures != null && featuresRequired.Except(_clientFeatures).Count() == 0;
+            return _clientFeatures != null && !featuresRequired.Except(_clientFeatures).Any();
         }
 
         private void RejectClientVersion(KPRPCMessage kprpcm)

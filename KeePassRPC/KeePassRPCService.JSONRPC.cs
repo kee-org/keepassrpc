@@ -1166,7 +1166,7 @@ namespace KeePassRPC
 
             Database2[] dbarray = output.ToArray();
             sw.Stop();
-            Debug.WriteLine("GetAllDatabases execution time: " + sw.Elapsed);
+            Debug.WriteLine("AllDatabases execution time: " + sw.Elapsed);
             Debug.Unindent();
             return dbarray;
         }
