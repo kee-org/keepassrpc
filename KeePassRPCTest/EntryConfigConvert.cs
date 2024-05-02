@@ -2,6 +2,7 @@ using System;
 using KeePassLib;
 using KeePassLib.Security;
 using KeePassRPC;
+using KeePassRPC.Models;
 using KeePassRPC.Models.Persistent;
 using NUnit.Framework;
 

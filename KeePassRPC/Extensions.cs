@@ -6,25 +6,14 @@ using Jayrock.Json.Conversion;
 using KeePassLib;
 using KeePassLib.Collections;
 using KeePassLib.Security;
+using KeePassRPC.Models;
 using KeePassRPC.Models.Persistent;
 using KeePassRPC.Models.Shared;
-using KeePassRPC.Models.Transient;
 
 namespace KeePassRPC
 {
     public static class Extensions
     {
-        public static EntryConfig GetKPRPCConfig(this PwEntry entry, ProtectedStringDictionary strings,
-            ref List<string> configErrors, MatchAccuracyMethod mam)
-        {
-            if (strings == null)
-                strings = entry.Strings;
-            // We try to load both versions. Use normalised variant if you want auto conversion to V2 and non-null return (excepting errors)
-            var v1 = strings.Exists("KPRPC JSON") ? entry.GetKPRPCConfigV1(strings, ref configErrors, mam) : null;
-            var v2 = entry.CustomData.Exists("KPRPC JSON") ? entry.GetKPRPCConfigV2(ref configErrors, mam) : null;
-            return new EntryConfig(v1, v2);
-        }
-        
         public static EntryConfigv2 GetKPRPCConfigNormalised(this PwEntry entry, ProtectedStringDictionary strings,
             ref List<string> configErrors, MatchAccuracyMethod mam)
         {
@@ -101,18 +90,6 @@ namespace KeePassRPC
                 }
             }
             return conf;
-        }
-
-        public static EntryConfig GetKPRPCConfig(this PwEntry entry, ProtectedStringDictionary strings, MatchAccuracyMethod mam)
-        {
-            List<string> dummy = null;
-            return entry.GetKPRPCConfig(strings, ref dummy, mam);
-        }
-
-        public static EntryConfig GetKPRPCConfig(this PwEntry entry, MatchAccuracyMethod mam)
-        {
-            List<string> dummy = null;
-            return entry.GetKPRPCConfig(null, ref dummy, mam);
         }
 
         public static EntryConfigv2 GetKPRPCConfigNormalised(this PwEntry entry, ProtectedStringDictionary strings, MatchAccuracyMethod mam)

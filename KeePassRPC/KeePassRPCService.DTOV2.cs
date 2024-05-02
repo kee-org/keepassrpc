@@ -5,6 +5,7 @@ using KeePassLib;
 using KeePassLib.Collections;
 using KeePassLib.Security;
 using KeePassLib.Utility;
+using KeePassRPC.Models;
 using KeePassRPC.Models.DataExchange;
 using KeePassRPC.Models.DataExchange.V2;
 using KeePassRPC.Models.Persistent;
@@ -81,7 +82,7 @@ namespace KeePassRPC
                             ValuePath = field.ValuePath,
                             Value = field.Value,
                             Uuid = field.Uuid,
-                            MatcherConfigs = field.MatcherConfigs,
+                            MatcherConfigs = field.MatcherConfigs.Where(mc => mc != null).ToArray(),
                             PlaceholderHandling = field.PlaceholderHandling,
                             Name = field.Name,
                             Page = field.Page,
@@ -207,7 +208,7 @@ namespace KeePassRPC
                     ValuePath = incomingField.ValuePath,
                     Uuid = incomingField.Uuid,
                     Type = incomingField.Type,
-                    MatcherConfigs = incomingField.MatcherConfigs,
+                    MatcherConfigs = incomingField.MatcherConfigs.Where(mc => mc != null).ToArray(),
                     Value = incomingField.ValuePath == "." ? incomingField.Value : null
                 });
             }

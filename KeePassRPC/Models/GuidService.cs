@@ -1,6 +1,6 @@
 using System;
 
-namespace KeePassRPC.Models.Persistent
+namespace KeePassRPC.Models
 {
     public class GuidService : IGuidService
     {

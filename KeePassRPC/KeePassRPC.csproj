@@ -236,10 +236,10 @@
     <Compile Include="Models\DataExchange\V2\Group2.cs" />
     <Compile Include="Models\DataExchange\V2\Icon.cs" />
     <Compile Include="Models\DataExchange\V2\LightEntry2.cs" />
+    <Compile Include="Models\GuidService.cs" />
+    <Compile Include="Models\IGuidService.cs" />
     <Compile Include="Models\Persistent\EntryConfigv1.cs" />
     <Compile Include="Models\Persistent\EntryConfigv2.cs" />
-    <Compile Include="Models\Persistent\GuidService.cs" />
-    <Compile Include="Models\Persistent\IGuidService.cs" />
     <Compile Include="Models\Shared\EntryAutomationBehaviour.cs" />
     <Compile Include="Models\Shared\EntryMatcher.cs" />
     <Compile Include="Models\Shared\EntryMatcherConfig.cs" />
@@ -254,7 +254,6 @@
     <Compile Include="Models\Shared\MatcherLogic.cs" />
     <Compile Include="Models\Shared\FieldType.cs" />
     <Compile Include="Models\Shared\PlaceholderHandling.cs" />
-    <Compile Include="Models\Transient\EntryConfig.cs" />
     <Compile Include="Native.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

@@ -6,6 +6,7 @@ using KeePassLib;
 using KeePassLib.Collections;
 using KeePassLib.Security;
 using KeePassLib.Utility;
+using KeePassRPC.Models;
 using KeePassRPC.Models.DataExchange;
 using KeePassRPC.Models.Persistent;
 using KeePassRPC.Models.Shared;

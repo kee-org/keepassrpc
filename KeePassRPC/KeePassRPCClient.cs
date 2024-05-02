@@ -397,10 +397,12 @@ See https://forum.kee.pm/t/3143/ for more information.",
             // store supplied features until connection reset so we don't have to inject
             // them into every stage of the handshake but can still cleanly handle old 
             // versions of clients that don't send a list of features at any time.
-            //TODO: Only do this for setup protocol? and/or if _clientFeatures has not already been
-            //set for this connection. Changing features mid-connection seems odd and might be an attack vector.
-            if (kprpcm.features != null)
+            // Changing features mid-connection seems odd and might be an attack vector
+            // so we don't allow that.
+            if (kprpcm.features != null && _clientFeatures == null)
+            {
                 _clientFeatures = kprpcm.features;
+            }
 
             // Assume that a matching client and server protocol version mean that the client supports the required features
             if (kprpcm.version != ProtocolVersion)

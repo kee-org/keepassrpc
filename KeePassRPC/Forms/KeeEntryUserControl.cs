@@ -7,6 +7,7 @@ using KeePass.Forms;
 using KeePass.UI;
 using KeePassLib;
 using KeePassLib.Collections;
+using KeePassRPC.Models;
 using KeePassRPC.Models.DataExchange;
 using KeePassRPC.Models.Persistent;
 using KeePassRPC.Models.Shared;

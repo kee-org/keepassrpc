@@ -11,6 +11,7 @@ using KeePassLib.Security;
 using KeePassLib.Serialization;
 using KeePassLib.Utility;
 using KeePassRPC.JsonRpc;
+using KeePassRPC.Models;
 using KeePassRPC.Models.DataExchange;
 using KeePassRPC.Models.Persistent;
 using KeePassRPC.Models.Shared;

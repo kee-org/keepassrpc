@@ -1068,8 +1068,6 @@ namespace KeePassRPC
 
             MergeEntries(entryToUpdate, newPwEntryData, urlMergeMode, chosenDb);
 
-            //There is a null fieldmatcherconfig in the array at this point. Why? Is that expected and we have to infer a
-            //default? Or did something go wrong above in conversion or in client sending the updated entry?
             _host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), chosenDb);
 
             return (Entry2)GetEntry2FromPwEntry(entryToUpdate, MatchAccuracy.Best, true, chosenDb, true);
