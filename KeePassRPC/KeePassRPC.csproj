@@ -431,12 +431,11 @@
       mkdir "%25KPPTempDir%25\Models\DataExchange\V2"
       mkdir "%25KPPTempDir%25\Models\Persistent"
       mkdir "%25KPPTempDir%25\Models\Shared"
-      mkdir "%25KPPTempDir%25\Models\Transient"
       copy "$(ProjectDir)Models\DataExchange\"*.cs "%25KPPTempDir%25\Models\DataExchange"
       copy "$(ProjectDir)Models\DataExchange\V2\"*.cs "%25KPPTempDir%25\Models\DataExchange\V2"
       copy "$(ProjectDir)Models\Persistent\"*.cs "%25KPPTempDir%25\Models\Persistent"
       copy "$(ProjectDir)Models\Shared\"*.cs "%25KPPTempDir%25\Models\Shared"
-      copy "$(ProjectDir)Models\Transient\"*.cs "%25KPPTempDir%25\Models\Transient"
+      copy "$(ProjectDir)Models\"*.cs "%25KPPTempDir%25\Models"
       if errorlevel 1 goto BuildEventFailed
       mkdir "%25KPPTempDir%25\JsonRpc"
       copy "$(ProjectDir)JsonRpc\"*.cs "%25KPPTempDir%25\JsonRpc"
@@ -558,12 +557,11 @@
       mkdir "${KPPTempDir}\Models\DataExchange\V2"
       mkdir "${KPPTempDir}\Models\Persistent"
       mkdir "${KPPTempDir}\Models\Shared"
-      mkdir "${KPPTempDir}\Models\Transient"
       cp "$(ProjectDir)Models\DataExchange\"*.cs "${KPPTempDir}\Models\DataExchange"
       cp "$(ProjectDir)Models\DataExchange\V2\"*.cs "${KPPTempDir}\Models\DataExchange\V2"
       cp "$(ProjectDir)Models\Persistent\"*.cs "${KPPTempDir}\Models\Persistent"
       cp "$(ProjectDir)Models\Shared\"*.cs "${KPPTempDir}\Models\Shared"
-      cp "$(ProjectDir)Models\Transient\"*.cs "${KPPTempDir}\Models\Transient"
+      cp "$(ProjectDir)Models\"*.cs "${KPPTempDir}\Models"
       if [ $? = 1 ]; then echo POSTBUILDSTEP for $(ProjectName) FAILED - copy Models sources; exit 1; fi
             
       mkdir "${KPPTempDir}\JsonRpc"
