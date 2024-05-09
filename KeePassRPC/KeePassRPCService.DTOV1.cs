@@ -70,7 +70,8 @@ namespace KeePassRPC
                 string htmlId = "";
                 FormFieldType htmlType = Utilities.FieldTypeToFormFieldType(ff.Type);
 
-                // Currently we can only have one custommatcher. If that changes and someone tries to use this old version with a newer DB things will break so they will have to upgrade again to fix it.
+                // Currently we can only have one custommatcher. If that changes and someone tries to use this old
+                // version with a newer DB things will break so they will have to upgrade again to fix it.
                 var customMatcherConfig =
                     ff.MatcherConfigs.FirstOrDefault(mc => mc != null && mc.CustomMatcher != null);
                 if (customMatcherConfig != null)
@@ -131,7 +132,6 @@ namespace KeePassRPC
             }
 
             string imageData = _iconConverter.iconToBase64(pwe.CustomIconUuid, pwe.IconId);
-            //Debug.WriteLine("GetEntryFromPwEntry icon converted: " + sw.Elapsed);
 
             if (fullDetails)
             {
@@ -178,10 +178,6 @@ namespace KeePassRPC
                 priority = 0;
             }
 
-            //sw.Stop();
-            //Debug.WriteLine("GetEntryFromPwEntry execution time: " + sw.Elapsed);
-            //Debug.Unindent();
-
             if (fullDetails)
             {
                 string realm = "";
@@ -207,26 +203,15 @@ namespace KeePassRPC
 
         private Group GetGroupFromPwGroup(PwGroup pwg)
         {
-            //Debug.Indent();
-            //Stopwatch sw = Stopwatch.StartNew();
-
             string imageData = _iconConverter.iconToBase64(pwg.CustomIconUuid, pwg.IconId);
-
-            Group kpg = new Group(pwg.Name, MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes),
+            return new Group(pwg.Name, MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes),
                 imageData, pwg.GetFullPath("/", false));
-
-            //sw.Stop();
-            //Debug.WriteLine("GetGroupFromPwGroup execution time: " + sw.Elapsed);
-            //Debug.Unindent();
-            return kpg;
         }
 
         private Database GetDatabaseFromPwDatabase(PwDatabase pwd, bool fullDetail, bool noDetail)
         {
             try
             {
-                //Debug.Indent();
-                // Stopwatch sw = Stopwatch.StartNew();
                 if (fullDetail && noDetail)
                     throw new ArgumentException("Don't be silly");
 
@@ -240,13 +225,9 @@ namespace KeePassRPC
                 if (!noDetail)
                     rt.ChildGroups = GetChildGroups(pwd, pwg, true, fullDetail);
 
-                Database kpd = new Database(pwd.Name, pwd.IOConnectionInfo.Path, rt,
+                return new Database(pwd.Name, pwd.IOConnectionInfo.Path, rt,
                     (pwd == _host.Database) ? true : false,
                     IconCache<string>.GetIconEncoding(pwd.IOConnectionInfo.Path) ?? "");
-                //  sw.Stop();
-                //  Debug.WriteLine("GetDatabaseFromPwDatabase execution time: " + sw.Elapsed);
-                //  Debug.Unindent();
-                return kpd;
             }
             catch (Exception ex)
             {
@@ -319,7 +300,6 @@ namespace KeePassRPC
             }
 
             conf.Fields = fields.ToArray();
-
             List<string> altURLs = new List<string>();
 
             for (int i = 0; i < login.URLs.Length; i++)
@@ -383,7 +363,6 @@ namespace KeePassRPC
         /// <returns>all logins in the database subject to the urlRequired setting</returns>
         public Entry[] getAllLogins(bool urlRequired)
         {
-            int count = 0;
             List<Entry> allEntries = new List<Entry>();
 
             // Make sure there is an active database
@@ -392,8 +371,7 @@ namespace KeePassRPC
                 return null;
             }
 
-            PwObjectList<PwEntry> output;
-            output = GetRootPwGroup(_host.Database).GetEntries(true);
+            var output = GetRootPwGroup(_host.Database).GetEntries(true);
 
             foreach (PwEntry pwe in output)
             {
@@ -407,12 +385,10 @@ namespace KeePassRPC
                 if (kpe != null) // is null if entry is marked as hidden from KPRPC
                 {
                     allEntries.Add(kpe);
-                    count++;
                 }
             }
 
             allEntries.Sort(delegate(Entry e1, Entry e2) { return e1.Title.CompareTo(e2.Title); });
-
             return allEntries.ToArray();
         }
 
@@ -472,7 +448,6 @@ namespace KeePassRPC
             return null;
         }
 
-
         /// <summary>
         /// Returns a list of every group contained within a group
         /// </summary>
@@ -512,7 +487,6 @@ namespace KeePassRPC
             }
 
             allGroups.Sort(delegate(Group g1, Group g2) { return g1.Title.CompareTo(g2.Title); });
-
             return allGroups.ToArray();
         }
     }

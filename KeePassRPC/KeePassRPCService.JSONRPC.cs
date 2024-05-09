@@ -702,9 +702,7 @@ namespace KeePassRPC
                     return 1;
             }
 
-
             groups = null;
-
             return 0;
         }
 
@@ -745,9 +743,6 @@ namespace KeePassRPC
                 dbs = dbs.FindAll(ConfigIsCorrectVersion);
             }
 
-            //string hostname = URLs[0];
-            string actionHost = actionURL;
-
             // Make sure there is an active database
             if (!EnsureDBisOpen())
             {
@@ -776,14 +771,12 @@ namespace KeePassRPC
 
             if (!string.IsNullOrEmpty(freeTextSearch))
             {
-                //foreach DB...
                 foreach (PwDatabase db in dbs)
                 {
                     PwObjectList<PwEntry> output =
                         new PwObjectList<PwEntry>();
 
                     PwGroup searchGroup = GetRootPwGroup(db);
-                    //output = searchGroup.GetEntries(true);
                     SearchParameters sp = new SearchParameters();
                     sp.ComparisonMode = StringComparison.InvariantCultureIgnoreCase;
                     sp.SearchString = freeTextSearch;
@@ -827,7 +820,6 @@ namespace KeePassRPC
                     URLHostnameAndPorts.Add(URLs[i], URLSummary.FromURL(URLs[i]));
                 }
 
-                //foreach DB...
                 foreach (PwDatabase db in dbs)
                 {
                     var dbConf = db.GetKPRPCConfig();
@@ -858,7 +850,9 @@ namespace KeePassRPC
                             conf.MatcherConfigs.FirstOrDefault(mc => mc.MatcherType == EntryMatcherType.Url);
                         if (urlMatcher == null)
                         {
-                            // Ignore entries with no Url matcher type. Shouldn't ever happen but maybe loading a newer DB into an old version will cause it so this just protects us against unexpected matches in case of that user error.
+                            // Ignore entries with no Url matcher type. Shouldn't ever happen but maybe loading a newer
+                            // DB into an old version will cause it so this just protects us against unexpected matches
+                            // in case of that user error.
                             continue;
                         }
 
@@ -867,13 +861,13 @@ namespace KeePassRPC
 
 
                         if (conf.RegExUrls != null)
-                            foreach (string URL in URLs)
+                            foreach (string url in URLs)
                             foreach (string regexPattern in conf.RegExUrls)
                             {
                                 try
                                 {
                                     if (!string.IsNullOrEmpty(regexPattern) &&
-                                        Regex.IsMatch(URL, regexPattern))
+                                        Regex.IsMatch(url, regexPattern))
                                     {
                                         entryIsAMatch = true;
                                         bestMatchAccuracy = MatchAccuracy.Best;
@@ -965,7 +959,6 @@ namespace KeePassRPC
             }
 
             allEntries.Sort(delegate(Entry e1, Entry e2) { return e1.Title.CompareTo(e2.Title); });
-
             return allEntries.ToArray();
         }
 
@@ -1067,9 +1060,7 @@ namespace KeePassRPC
                 throw new Exception("oldLoginUUID could not be resolved to an existing entry.");
 
             MergeEntries(entryToUpdate, newPwEntryData, urlMergeMode, chosenDb);
-
             _host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), chosenDb);
-
             return (Entry2)GetEntry2FromPwEntry(entryToUpdate, MatchAccuracy.Best, true, chosenDb, true);
         }
 
@@ -1157,7 +1148,7 @@ namespace KeePassRPC
             List<PwDatabase> dbs = _host.MainWindow.DocumentManager.GetOpenDatabases();
             // unless the DB is the wrong version
             dbs = dbs.FindAll(ConfigIsCorrectVersion);
-            List<Database2> output = new List<Database2>(1);
+            List<Database2> output = new List<Database2>(5);
 
             foreach (PwDatabase db in dbs)
             {
@@ -1222,7 +1213,6 @@ namespace KeePassRPC
             {
                 PwUuid pwuuid = new PwUuid(MemUtil.HexStringToByteArray(uuid));
 
-                //foreach DB...
                 foreach (PwDatabase db in dbs)
                 {
                     PwEntry matchedLogin = GetRootPwGroup(db).FindEntry(pwuuid, true);
@@ -1239,14 +1229,12 @@ namespace KeePassRPC
 
             if (!string.IsNullOrEmpty(freeTextSearch))
             {
-                //foreach DB...
                 foreach (PwDatabase db in dbs)
                 {
                     PwObjectList<PwEntry> output =
                         new PwObjectList<PwEntry>();
 
                     PwGroup searchGroup = GetRootPwGroup(db);
-                    //output = searchGroup.GetEntries(true);
                     SearchParameters sp = new SearchParameters();
                     sp.ComparisonMode = StringComparison.InvariantCultureIgnoreCase;
                     sp.SearchString = freeTextSearch;
@@ -1290,7 +1278,6 @@ namespace KeePassRPC
                     urlHostnameAndPorts.Add(urls[i], URLSummary.FromURL(urls[i]));
                 }
 
-                //foreach DB...
                 foreach (PwDatabase db in dbs)
                 {
                     var dbConf = db.GetKPRPCConfig();
@@ -1321,13 +1308,14 @@ namespace KeePassRPC
                             conf.MatcherConfigs.FirstOrDefault(mc => mc.MatcherType == EntryMatcherType.Url);
                         if (urlMatcher == null)
                         {
-                            // Ignore entries with no Url matcher type. Shouldn't ever happen but maybe loading a newer DB into an old version will cause it so this just protects us against unexpected matches in case of that user error.
+                            // Ignore entries with no Url matcher type. Shouldn't ever happen but maybe loading a newer DB
+                            // into an old version will cause it so this just protects us against unexpected matches in
+                            // case of that user error.
                             continue;
                         }
 
                         bool entryIsAMatch = false;
                         int bestMatchAccuracy = MatchAccuracy.None;
-
 
                         if (conf.RegExUrls != null)
                             foreach (string url in urls)
@@ -1428,7 +1416,6 @@ namespace KeePassRPC
             }
 
             allEntries.Sort(delegate(Entry2 e1, Entry2 e2) { return e1.Title.CompareTo(e2.Title); });
-
             return allEntries.ToArray();
         }
 

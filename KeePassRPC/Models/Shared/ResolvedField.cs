@@ -1,23 +1,14 @@
-using System;
-
 namespace KeePassRPC.Models.Shared
 {
-    public class Field : IEquatable<Field>
+    public class ResolvedField : Field
     {
-        public string Uuid; // base64 encoded UUID
-        public string Name; // display name, not form field name attribute
-        public string ValuePath; // e.g. "Username" for a KeePass Property or "." for this object
-        public string Value;
-        public int Page = 1; // Fields with multiple positive page numbers are effectively treated as multiple Entries when Kee assesses potential matches and field candidates to fill. Other clients might use for similar logical grouping purposes.
-        public FieldType Type;
-        public PlaceholderHandling? PlaceholderHandling;
-        public FieldMatcherConfig[] MatcherConfigs;
-
-        public bool Equals(Field other)
+        public string ResolvedValue;
+        
+        public bool Equals(ResolvedField other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Uuid.Equals(other.Uuid) && Name == other.Name && ValuePath == other.ValuePath && Value == other.Value && Page == other.Page && Type == other.Type && PlaceholderHandling == other.PlaceholderHandling && Equals(MatcherConfigs, other.MatcherConfigs);
+            return ResolvedValue == other.ResolvedValue && Uuid.Equals(other.Uuid) && Name == other.Name && ValuePath == other.ValuePath && Value == other.Value && Page == other.Page && Type == other.Type && PlaceholderHandling == other.PlaceholderHandling && Equals(MatcherConfigs, other.MatcherConfigs);
         }
 
         public override bool Equals(object obj)
@@ -25,7 +16,7 @@ namespace KeePassRPC.Models.Shared
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((Field)obj);
+            return Equals((ResolvedField)obj);
         }
 
         public override int GetHashCode()
@@ -35,6 +26,7 @@ namespace KeePassRPC.Models.Shared
                 var hashCode = Uuid.GetHashCode();
                 hashCode = (hashCode * 397) ^ (Name != null ? Name.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (ValuePath != null ? ValuePath.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (ResolvedValue != null ? ResolvedValue.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (Value != null ? Value.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ Page;
                 hashCode = (hashCode * 397) ^ (int)Type;
@@ -44,12 +36,12 @@ namespace KeePassRPC.Models.Shared
             }
         }
 
-        public static bool operator ==(Field left, Field right)
+        public static bool operator ==(ResolvedField left, ResolvedField right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(Field left, Field right)
+        public static bool operator !=(ResolvedField left, ResolvedField right)
         {
             return !Equals(left, right);
         }

@@ -110,7 +110,7 @@ namespace KeePassRPC
                           ClientMetadata.Features.Contains("KPRPC_FEATURE_ENTRY_CLIENT_MATCHERS"))
                     ? conf.MatcherConfigs
                     : null;
-                Entry2 kpe = new Entry2(
+                return new Entry2(
                     urls.ToArray(), realm,
                     pwe.Strings.ReadSafe(PwDefs.TitleField), temp,
                     conf.Behaviour,
@@ -118,8 +118,6 @@ namespace KeePassRPC
                     GetGroup2FromPwGroup(pwe.ParentGroup), icon,
                     GetDatabase2FromPwDatabase(db, false, true, urlRequired), matchAccuracy, mc,
                     conf.AuthenticationMethods);
-
-                return kpe;
             }
 
             return new LightEntry2(urls.ToArray(),
@@ -131,19 +129,14 @@ namespace KeePassRPC
         private Group2 GetGroup2FromPwGroup(PwGroup pwg)
         {
             Icon icon = _iconConverter.iconToDto(ClientMetadata, pwg.CustomIconUuid, pwg.IconId);
-
-            Group2 kpg = new Group2(pwg.Name, MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes),
+            return new Group2(pwg.Name, MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes),
                 icon, pwg.GetFullPath("/", false));
-
-            return kpg;
         }
 
         private Database2 GetDatabase2FromPwDatabase(PwDatabase pwd, bool fullDetail, bool noDetail, bool urlRequired)
         {
             try
             {
-                //Debug.Indent();
-                // Stopwatch sw = Stopwatch.StartNew();
                 if (fullDetail && noDetail)
                     throw new ArgumentException("Don't be silly");
 
@@ -166,12 +159,8 @@ namespace KeePassRPC
                         Base64 = IconCache<string>.GetIconEncoding(pwd.IOConnectionInfo.Path) ?? ""
                     };
 
-                Database2 kpd = new Database2(pwd.Name, pwd.IOConnectionInfo.Path, rt,
+                return new Database2(pwd.Name, pwd.IOConnectionInfo.Path, rt,
                     (pwd == _host.Database) ? true : false, icon);
-                //  sw.Stop();
-                //  Debug.WriteLine("GetDatabaseFromPwDatabase execution time: " + sw.Elapsed);
-                //  Debug.Unindent();
-                return kpd;
             }
             catch (Exception ex)
             {
@@ -269,7 +258,6 @@ namespace KeePassRPC
 
         #endregion
 
-
         /// <summary>
         /// Returns a list of every entry contained within a group (not recursive)
         /// </summary>
@@ -325,7 +313,6 @@ namespace KeePassRPC
             return null;
         }
 
-
         /// <summary>
         /// Returns a list of every group contained within a group
         /// </summary>
@@ -365,7 +352,6 @@ namespace KeePassRPC
             }
 
             allGroups.Sort(delegate(Group2 g1, Group2 g2) { return g1.Title.CompareTo(g2.Title); });
-
             return allGroups.ToArray();
         }
     }

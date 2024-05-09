@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace KeePassRPC.Models.DataExchange
+namespace KeePassRPC
 {
     public abstract class IconCache<T>
     {
