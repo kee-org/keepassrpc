@@ -7,7 +7,6 @@ namespace KeePassRPC.Models.DataExchange
         private static readonly object _iconCacheLock = new object();
 
         private static readonly Dictionary<T, string> _icons = new Dictionary<T, string>();
-        // public static Dictionary<PwUuid, string> Icons { get { } set { } }
         public static void AddIcon(T iconId, string base64Representation)
         {
             lock (_iconCacheLock)
@@ -27,8 +26,5 @@ namespace KeePassRPC.Models.DataExchange
                 return base64Representation;
             }
         }
-
-
-
     }
 }

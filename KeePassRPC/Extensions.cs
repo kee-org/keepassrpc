@@ -72,7 +72,7 @@ namespace KeePassRPC
                 {
                     conf = (EntryConfigv2)JsonConvert.Import(typeof(EntryConfigv2), json);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     var url = entry.Strings.ReadSafe("URL");
                     if (string.IsNullOrEmpty(url))
