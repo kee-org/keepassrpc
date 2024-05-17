@@ -584,7 +584,11 @@ namespace KeePassRPC
 
             foreach (PwDatabase db in dbs)
             {
-                output.Add(GetDatabaseFromPwDatabase(db, fullDetails, false));
+                var dto = GetDatabaseFromPwDatabase(db, fullDetails, false);
+                if (dto != null)
+                {
+                    output.Add(dto);
+                }
             }
 
             Database[] dbarray = output.ToArray();
@@ -1152,7 +1156,11 @@ namespace KeePassRPC
 
             foreach (PwDatabase db in dbs)
             {
-                output.Add(GetDatabase2FromPwDatabase(db, fullDetails, false, true));
+                var dto = GetDatabase2FromPwDatabase(db, fullDetails, false, true);
+                if (dto != null)
+                {
+                    output.Add(dto);
+                }
             }
 
             Database2[] dbarray = output.ToArray();
