@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 
 namespace KeePassRPC.Models.Shared
 {
@@ -17,7 +18,7 @@ namespace KeePassRPC.Models.Shared
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Uuid.Equals(other.Uuid) && Name == other.Name && ValuePath == other.ValuePath && Value == other.Value && Page == other.Page && Type == other.Type && PlaceholderHandling == other.PlaceholderHandling && Equals(MatcherConfigs, other.MatcherConfigs);
+            return Uuid.Equals(other.Uuid) && Name == other.Name && ValuePath == other.ValuePath && Value == other.Value && Page == other.Page && Type == other.Type && PlaceholderHandling == other.PlaceholderHandling && StructuralComparisons.StructuralEqualityComparer.Equals(MatcherConfigs, other.MatcherConfigs);
         }
 
         public override bool Equals(object obj)

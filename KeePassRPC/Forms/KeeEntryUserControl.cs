@@ -26,6 +26,7 @@ namespace KeePassRPC.Forms
         private StringDictionaryEx _cd;
         private EntryConfigv2 _conf;
         private DatabaseConfig _dbConf;
+        private bool _calledLoaded = false;
 
         public KeeEntryUserControl(KeePassRPCExt keePassRPCPlugin, PwEntry entry,
             CustomListViewEx advancedListView, PwEntryForm pwEntryForm, ProtectedStringDictionary strings, StringDictionaryEx customData)
@@ -38,16 +39,35 @@ namespace KeePassRPC.Forms
             _cd = customData;
             _dbConf = KeePassRPCPlugin._host.Database.GetKPRPCConfig();
             _conf = entry.GetKPRPCConfigNormalised(strings, _dbConf.DefaultMatchAccuracy);
+            _pwEntryForm.EntrySaving += _pwEntryForm_EntrySaving;
         }
 
+        private void _pwEntryForm_EntrySaving(object sender, KeePass.Util.CancellableOperationEventArgs e)
+        {
+            if (e.Cancel)
+                return;
+            // automatically update KPRPC JSON, when entry gets saved and the user did not touch Kee settings ...
+            UpdateKPRPCJSON(_conf);
+        }
+
+        private bool DontUpdateEntryConfig()
+        {
+            return !_calledLoaded || _pwEntryForm.EditModeEx == PwEditMode.ViewReadOnlyEntry;
+        }
         private void UpdateKPRPCJSON(EntryConfigv2 conf)
         {
+            if (DontUpdateEntryConfig())
+                return;
+
             EntryConfigv2 defaultConf = (new EntryConfigv1(KeePassRPCPlugin._host.Database.GetKPRPCConfig().DefaultMatchAccuracy)).ConvertToV2(new GuidService());
             
             // if the config is identical to an empty (default) config, only update if a JSON string already exists
             if (!conf.Equals(defaultConf) || _cd.Exists("KPRPC JSON"))
             {
-                _cd.Set("KPRPC JSON", JsonConvert.ExportToString(conf));
+                var confStr = JsonConvert.ExportToString(conf);
+                if (confStr.Equals(_cd.Get("KPRPC JSON")))
+                    return;
+                _cd.Set("KPRPC JSON", confStr);
                 if (_strings.Exists("KPRPC JSON"))
                 {
                     _strings.Remove("KPRPC JSON");
@@ -189,6 +209,7 @@ namespace KeePassRPC.Forms
             string realmTooltip = "Set this to the realm (what the \"site says\") in the HTTP authentication popup dialog box for a more accurate match";
             toolTipRealm.SetToolTip(textBoxKeeRealm, realmTooltip);
             toolTipRealm.SetToolTip(labelRealm, realmTooltip);
+            _calledLoaded = true;
         }
 
         private void textBoxKeeRealm_TextChanged(object sender, EventArgs e)

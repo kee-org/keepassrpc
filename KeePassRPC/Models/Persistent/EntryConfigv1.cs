@@ -272,7 +272,7 @@ namespace KeePassRPC.Models.Persistent
                 }
             }
 
-            if (!usernameFound)
+            if (!usernameFound && formFieldList != null)
             {
                 fields.Add(new Field
                 {
@@ -282,7 +282,7 @@ namespace KeePassRPC.Models.Persistent
                     MatcherConfigs = new [] { new FieldMatcherConfig { MatcherType = FieldMatcherType.UsernameDefaultHeuristic } }
                 });
             }
-            if (!passwordFound)
+            if (!passwordFound && formFieldList != null)
             {
                 fields.Add(new Field
                 {
