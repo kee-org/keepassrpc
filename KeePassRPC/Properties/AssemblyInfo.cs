@@ -18,5 +18,5 @@ using System.Runtime.InteropServices;
 [assembly: Guid("89631AAE-8DE6-4593-8DAB-AB28490A490A")]
 
 // Assembly version information
-[assembly: AssemblyVersion("2.0.2.0")]
-[assembly: AssemblyFileVersion("2.0.2.0")] // also change AssemblyVersion and PluginVersion in KeePassRPCExt.cs!
+[assembly: AssemblyVersion("2.0.2.1")]
+[assembly: AssemblyFileVersion("2.0.2.1")] // also change AssemblyVersion and PluginVersion in KeePassRPCExt.cs!

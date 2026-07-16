@@ -1,3 +1,4 @@
+using System;
 using KeePassRPC.Models.Shared;
 
 namespace KeePassRPC.Models.DataExchange
@@ -21,6 +22,9 @@ namespace KeePassRPC.Models.DataExchange
         public Group Parent;
         public Database Db;
 
+        public bool Expires;
+        public DateTime? ExpiryTime;
+
         public Entry() { }
 
         public Entry(
@@ -37,7 +41,9 @@ namespace KeePassRPC.Models.DataExchange
             Group parent,
             string iconImageData,
             Database db,
-            int matchAccuracy)
+            int matchAccuracy,
+            bool expires,
+            DateTime? expiryTime)
         {
             URLs = urls;
             HTTPRealm = hTTPRealm;
@@ -53,6 +59,8 @@ namespace KeePassRPC.Models.DataExchange
             IconImageData = iconImageData;
             Db = db;
             MatchAccuracy = matchAccuracy;
+            Expires = expires;
+            ExpiryTime = expiryTime;
         }
     }
 }

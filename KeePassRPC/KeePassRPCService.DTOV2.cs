@@ -118,7 +118,8 @@ namespace KeePassRPC
                     MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
                     GetGroup2FromPwGroup(pwe.ParentGroup), icon,
                     GetDatabase2FromPwDatabase(db, false, true, urlRequired), matchAccuracy, mc,
-                    conf.AuthenticationMethods);
+                    conf.AuthenticationMethods,
+                    pwe.Expires, pwe.Expires ? (DateTime?)pwe.ExpiryTime : null);
             }
 
             return new LightEntry2(urls.ToArray(),
@@ -253,6 +254,10 @@ namespace KeePassRPC
                 else
                     pwe.CustomIconUuid = customIconUuid;
             }
+
+            pwe.Expires = entry.Expires;
+            if (entry.Expires && entry.ExpiryTime.HasValue)
+                pwe.ExpiryTime = entry.ExpiryTime.Value;
 
             pwe.SetKPRPCConfig(conf);
         }
