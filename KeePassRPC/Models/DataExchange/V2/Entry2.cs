@@ -1,3 +1,4 @@
+using System;
 using KeePassRPC.Models.Shared;
 
 namespace KeePassRPC.Models.DataExchange.V2
@@ -18,6 +19,9 @@ namespace KeePassRPC.Models.DataExchange.V2
 
         public EntryMatcherConfig[] MatcherConfigs;
 
+        public bool Expires;
+        public DateTime? ExpiryTime;
+
         public Entry2() { }
 
         public Entry2(
@@ -32,7 +36,9 @@ namespace KeePassRPC.Models.DataExchange.V2
             Database2 db,
             int matchAccuracy,
             EntryMatcherConfig[] matcherConfigs,
-            string[] authenticationMethods)
+            string[] authenticationMethods,
+            bool expires,
+            DateTime? expiryTime)
         {
             Urls = urls;
             Realm = realm;
@@ -46,6 +52,8 @@ namespace KeePassRPC.Models.DataExchange.V2
             Behaviour = behaviour;
             MatcherConfigs = matcherConfigs;
             AuthenticationMethods = authenticationMethods;
+            Expires = expires;
+            ExpiryTime = expiryTime;
         }
     }
 }

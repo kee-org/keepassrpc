@@ -192,7 +192,8 @@ namespace KeePassRPC
                     MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
                     alwaysAutoFill, neverAutoFill, alwaysAutoSubmit, neverAutoSubmit, priority,
                     GetGroupFromPwGroup(pwe.ParentGroup), imageData,
-                    GetDatabaseFromPwDatabase(db, false, true), matchAccuracy);
+                    GetDatabaseFromPwDatabase(db, false, true), matchAccuracy,
+                    pwe.Expires, pwe.Expires ? (DateTime?)pwe.ExpiryTime : null);
                 return kpe;
             }
 
@@ -350,6 +351,10 @@ namespace KeePassRPC
                 else
                     pwe.CustomIconUuid = customIconUUID;
             }
+
+            pwe.Expires = login.Expires;
+            if (login.Expires && login.ExpiryTime.HasValue)
+                pwe.ExpiryTime = login.ExpiryTime.Value;
 
             pwe.SetKPRPCConfig(conf);
         }
