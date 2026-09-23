@@ -64,6 +64,7 @@ namespace KeePassRPC
             if (returnFocus) ffWindow = Native.GetForegroundWindowHandle();
             bool minimised = Program.MainForm.WindowState == FormWindowState.Minimized;
             bool trayed = Program.MainForm.IsTrayed();
+            bool wasClosedOrLocked = !_host.Database.IsOpen || Program.MainForm.IsFileLocked(null);
 
             if (ioci == null)
                 ioci = Program.Config.Application.LastUsedFile;
@@ -110,6 +111,35 @@ namespace KeePassRPC
 
             // Make Firefox active again
             if (returnFocus) Native.EnsureForegroundWindow(ffWindow);
+
+            MinimizeIfConfiguredAfterOpen(wasClosedOrLocked);
+        }
+
+        /// <summary>
+        /// Honours KeePass's "Minimize main window after opening a database" option,
+        /// which the window state restore in PromptUserToOpenDb would otherwise override
+        /// </summary>
+        private void MinimizeIfConfiguredAfterOpen(bool wasClosedOrLocked)
+        {
+            var workspaceLocking = Program.Config.Security.WorkspaceLocking;
+            if (!wasClosedOrLocked ||
+                !Program.Config.MainWindow.MinimizeAfterOpeningDatabase ||
+                workspaceLocking.LockOnWindowMinimize ||
+                (Program.Config.MainWindow.MinimizeToTray && workspaceLocking.LockOnWindowMinimizeToTray))
+                return;
+
+            // Deferred so it runs after the window state has been restored above
+            _host.MainWindow.BeginInvoke((MethodInvoker)delegate
+            {
+                if (_host.Database.IsOpen && !Program.MainForm.IsFileLocked(null))
+                {
+                    // The native restore above can show a trayed window without updating Form.Visible,
+                    // in which case WinForms ignores WindowState changes
+                    if (!Program.MainForm.Visible)
+                        Program.MainForm.Visible = true;
+                    UIUtil.SetWindowState(Program.MainForm, FormWindowState.Minimized);
+                }
+            });
         }
 
         private bool showOpenDB(IOConnectionInfo ioci)
