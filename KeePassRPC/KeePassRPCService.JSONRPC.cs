@@ -847,7 +847,7 @@ namespace KeePassRPC
                         EntryConfigv2 conf =
                             pwe.GetKPRPCConfigNormalised(null, ref configErrors, dbConf.DefaultMatchAccuracy);
 
-                        if (conf == null || conf.MatcherConfigs.Any(mc => mc.MatcherType == EntryMatcherType.Hide))
+                        if (conf == null || EntryIsHiddenFromKee(pwe, conf))
                             continue;
 
                         var urlMatcher =
@@ -1309,7 +1309,7 @@ namespace KeePassRPC
                         EntryConfigv2 conf =
                             pwe.GetKPRPCConfigNormalised(null, ref configErrors, dbConf.DefaultMatchAccuracy);
 
-                        if (conf == null || conf.MatcherConfigs.Any(mc => mc.MatcherType == EntryMatcherType.Hide))
+                        if (conf == null || EntryIsHiddenFromKee(pwe, conf))
                             continue;
 
                         var urlMatcher =

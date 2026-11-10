@@ -433,6 +433,14 @@ namespace KeePassRPC
             return matchedGroup;
         }
 
+        private bool EntryIsHiddenFromKee(PwEntry pwe, EntryConfigv2 conf)
+        {
+            if (conf.MatcherConfigs.Any(mc => mc.MatcherType == EntryMatcherType.Hide))
+                return true;
+            return pwe.Expires && pwe.ExpiryTime <= DateTime.UtcNow
+                && !Program.Config.Integration.AutoTypeExpiredCanMatch;
+        }
+
         private bool EntryIsInRecycleBin(PwEntry pwe, PwDatabase db)
         {
             PwGroup parent = pwe.ParentGroup;

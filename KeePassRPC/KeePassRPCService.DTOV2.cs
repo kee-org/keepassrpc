@@ -45,8 +45,7 @@ namespace KeePassRPC
                 urls.Add(pwe.Strings.ReadSafe("URL"));
             }
 
-            // Hide always blocks if matcher is even present
-            if (abortIfHidden && conf.MatcherConfigs.Any(mc => mc.MatcherType == EntryMatcherType.Hide))
+            if (abortIfHidden && EntryIsHiddenFromKee(pwe, conf))
                 return null;
 
             if (conf.AltUrls != null)
@@ -286,14 +285,16 @@ namespace KeePassRPC
                         continue;
                     if (fullDetails)
                     {
-                        Entry2 kpe = (Entry2)GetEntry2FromPwEntry(pwe, MatchAccuracy.None, true, pwd, true);
-                        if (kpe != null) // is null if entry is marked as hidden from KPRPC
+                        Entry2 kpe = (Entry2)GetEntry2FromPwEntry(
+                            pwe, MatchAccuracy.None, true, pwd, true, urlRequired);
+                        if (kpe != null)
                             allEntries.Add(kpe);
                     }
                     else
                     {
-                        LightEntry2 kpe = GetEntry2FromPwEntry(pwe, MatchAccuracy.None, false, pwd, true);
-                        if (kpe != null) // is null if entry is marked as hidden from KPRPC
+                        LightEntry2 kpe = GetEntry2FromPwEntry(
+                            pwe, MatchAccuracy.None, false, pwd, true, urlRequired);
+                        if (kpe != null)
                             allLightEntries.Add(kpe);
                     }
                 }
