@@ -285,13 +285,15 @@ namespace KeePassRPC
                         continue;
                     if (fullDetails)
                     {
-                        Entry2 kpe = (Entry2)GetEntry2FromPwEntry(pwe, MatchAccuracy.None, true, pwd, true);
+                        Entry2 kpe = (Entry2)GetEntry2FromPwEntry(
+                            pwe, MatchAccuracy.None, true, pwd, true, urlRequired);
                         if (kpe != null)
                             allEntries.Add(kpe);
                     }
                     else
                     {
-                        LightEntry2 kpe = GetEntry2FromPwEntry(pwe, MatchAccuracy.None, false, pwd, true);
+                        LightEntry2 kpe = GetEntry2FromPwEntry(
+                            pwe, MatchAccuracy.None, false, pwd, true, urlRequired);
                         if (kpe != null)
                             allLightEntries.Add(kpe);
                     }
